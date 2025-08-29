@@ -1,5 +1,5 @@
 import * as luxon from "luxon";
-const firstDate = new Date("2020-08-05T14:30:00");
+const firstDate = new Date("2020-08-05T00:00:01");
 const listshift = [
   ["A1 Malam", "B2 Pagi", "C3 Sore", "D Off Malam"],
   ["A2 Malam", "B3 Pagi", "D1 Sore", "C Off Sore"],
@@ -42,7 +42,8 @@ function getPeriod(min: number) {
 function getShiftList(date: Date) {
   const diffTime = Math.abs(date.getTime() - firstDate.getTime());
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  return listshift[diffDays % listshift.length];
+  const index = diffDays % listshift.length;
+  return listshift[index];
 }
 function getShiftList2(date: Date) {
   const diffTime = Math.abs(date.getTime() - firstDate.getTime());

@@ -8,7 +8,16 @@ import ModeSelector from "@/components/ModeSelector";
 import { getShiftList, getShiftList2 } from "../lib/shift";
 
 export default function Shift() {
-  const [selectedDate, setSelectedDate] = React.useState<Date>(new Date());
+  const now = new Date();
+  const startOfDay = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(),
+    0,
+    0,
+    1 // hour, minute, second
+  );
+  const [selectedDate, setSelectedDate] = React.useState<Date>(startOfDay);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showLeft, setShowLeft] = useState(false);
   const [showRight, setShowRight] = useState(true);
