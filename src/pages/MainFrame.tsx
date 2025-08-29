@@ -2,11 +2,12 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { UserProfile } from "@/components/UserProfile";
 import React from "react";
+import { ReactNode } from "react";
 
-const Leave: React.FC = () => (
+const MainFrame: React.FC<{ children?: ReactNode }> = ({ children }) => (
   <SidebarProvider>
     <AppSidebar />
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col h-screen overflow-hidden">
       <header className="h-16 border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-40">
         <div className="flex items-center justify-between h-full px-6">
           <div className="flex items-center space-x-4">
@@ -23,9 +24,11 @@ const Leave: React.FC = () => (
           <UserProfile />
         </div>
       </header>
-      <main>Main Content</main>
+
+      {/* 👇 Render whatever is passed inside <MainFrame> */}
+      <div className="flex-1 overflow-auto">{children}</div>
     </div>
   </SidebarProvider>
 );
 
-export default Leave;
+export default MainFrame;

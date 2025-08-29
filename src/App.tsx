@@ -7,7 +7,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/Dashboard";
 import Worker from "./pages/Workers";
-import Shift from "./pages/Shift";
+import Shift from "./pages/ShiftCalendar";
 import Leave from "./pages/Leaves";
 import Report from "./pages/Report";
 import Notif from "./pages/Notif";

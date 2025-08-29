@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react";
 import supabase from "../lib/supabaseClient";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/AppSidebar";
-import { UserProfile } from "@/components/UserProfile";
 import { WorkerCard } from "@/components/WorkerCard";
 import { Person } from "@/types/Person";
 import { Input } from "@/components/ui/input"; // 👈 assuming shadcn/ui input
+import MainFrame from "./MainFrame";
 
 export default function Worker() {
   const [data, setData] = useState<Person[]>([]);
@@ -42,51 +40,35 @@ export default function Worker() {
   }, [search, data]);
 
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <div className="flex-1 flex flex-col">
-        <header className="h-16 border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-40">
-          <div className="flex items-center justify-between h-full px-6">
-            <div className="flex items-center space-x-4">
-              <SidebarTrigger className="text-foreground hover:text-primary" />
-              <div>
-                <h1 className="text-xl font-bold text-foreground">
-                  Worker Monitoring Dashboard
-                </h1>
-                <p className="text-sm text-muted-foreground">
-                  Track and manage workforce
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              {/* 🔍 Search bar */}
-              <Input
-                type="text"
-                placeholder="Search worker..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-64"
+    <MainFrame>
+      <main>
+        {error && <p className="text-red-500">{error.message}</p>}
+
+        <div className="sticky top-4 z-10 ">
+          <div className="ml-9 mr-6">
+            <Input
+              type="text"
+              placeholder="Search worker..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full"
+            />
+          </div>
+        </div>
+
+        <div className="p-6 grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {filteredData
+            .sort((a, b) => b.PRL - a.PRL)
+            .map((worker, index) => (
+              <WorkerCard
+                key={worker.id}
+                {...worker}
+                id={String(worker.id)}
+                num={index + 1}
               />
-              <UserProfile />
-            </div>
-          </div>
-        </header>
-        <main className="p-6">
-          {error && <p className="text-red-500">{error.message}</p>}
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {filteredData
-              .sort((a, b) => b.PRL - a.PRL)
-              .map((worker, index) => (
-                <WorkerCard
-                  key={worker.id}
-                  {...worker}
-                  id={String(worker.id)}
-                  num={index + 1}
-                />
-              ))}
-          </div>
-        </main>
-      </div>
-    </SidebarProvider>
+            ))}
+        </div>
+      </main>
+    </MainFrame>
   );
 }

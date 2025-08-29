@@ -17,6 +17,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import supabase from "../lib/supabaseClient";
 import { Person } from "../types/Person";
+import MainFrame from "./MainFrame";
 
 const initialGroups = [
   {
@@ -353,139 +354,112 @@ export default function Dashboard() {
   );
   const navigate = useNavigate();
   return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-background">
-        <AppSidebar />
-
-        <div className="flex-1 flex flex-col">
-          {/* Header */}
-          <header className="h-16 border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-40">
-            <div className="flex items-center justify-between h-full px-6">
-              <div className="flex items-center space-x-4">
-                <SidebarTrigger className="text-foreground hover:text-primary" />
-                <div>
-                  <h1 className="text-xl font-bold text-foreground">
-                    Worker Monitoring Dashboard
-                  </h1>
-                  <p className="text-sm text-muted-foreground">
-                    Track and manage workforce
-                  </p>
-                </div>
-              </div>
-              <UserProfile />
-            </div>
-          </header>
-
-          {/* Main Content */}
-          <main className="flex-1 p-2 space-y-2">
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Card
-                onClick={() => navigate("/workers")}
-                className="bg-gradient-card shadow-card border-border/50 
+    <MainFrame>
+      <main className="flex-1 p-2 space-y-2">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card
+            onClick={() => navigate("/workers")}
+            className="bg-gradient-card shadow-card border-border/50 
              cursor-pointer transition-all 
              hover:shadow-lg hover:scale-[1.02] 
              active:scale-[0.98]"
-              >
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
-                    Total Workers
-                  </CardTitle>
-                  <Users className="h-4 w-4 text-primary" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-foreground">
-                    {totalWorkers}
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    {totalOrganik.length} Organik | {totalTAD.length} TAD |{" "}
-                    {totalExpert.length} Expert
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-gradient-card shadow-card border-border/50">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
-                    Active Workers
-                  </CardTitle>
-                  <UserRoundCheck className="h-4 w-4 text-success" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-success">
-                    {totalActiveWorkers}
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    {totalActiveOrganik} Organik | {totalActiveTAD} TAD |{" "}
-                    {totalActiveExpert} Expert
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-gradient-card shadow-card border-border/50">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
-                    Cuti
-                  </CardTitle>
-                  <UserRoundX className="h-4 w-4 text-orange-500" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-orange-500">
-                    {onCutiWorkers}
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    {totalCutiOrganik} Organik | {totalCutiTAD} TAD |{" "}
-                    {totalCutiExpert} Expert
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-gradient-card shadow-card border-border/50">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
-                    Dinas
-                  </CardTitle>
-                  <Plane className="h-4 w-4 text-cyan-500" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-cyan-500">
-                    {onDinasWorkers}
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    {totalDinasOrganik} Organik | {totalDinasTAD} TAD |{" "}
-                    {totalDinasExpert} Expert
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Worker Groups */}
-            <div className="space-y-1">
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-foreground">
-                  Shift Group
-                </h2>
-                <div className="text-sm text-muted-foreground">
-                  Click edit icon to manage workers (Admin only)
-                </div>
+          >
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Total Workers
+              </CardTitle>
+              <Users className="h-4 w-4 text-primary" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-foreground">
+                {totalWorkers}
               </div>
+              <p className="text-xs text-muted-foreground">
+                {totalOrganik.length} Organik | {totalTAD.length} TAD |{" "}
+                {totalExpert.length} Expert
+              </p>
+            </CardContent>
+          </Card>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-5 gap-4">
-                {groupedList
-                  // ascending
-                  .map((group) => (
-                    <WorkerGroupCard
-                      key={group.id}
-                      group={group}
-                      isAdmin={true} // TODO: Connect to actual auth system
-                      onUpdate={handleGroupUpdate}
-                    />
-                  ))}
+          <Card className="bg-gradient-card shadow-card border-border/50">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Active Workers
+              </CardTitle>
+              <UserRoundCheck className="h-4 w-4 text-success" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-success">
+                {totalActiveWorkers}
               </div>
-            </div>
-          </main>
+              <p className="text-xs text-muted-foreground">
+                {totalActiveOrganik} Organik | {totalActiveTAD} TAD |{" "}
+                {totalActiveExpert} Expert
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-card shadow-card border-border/50">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Cuti
+              </CardTitle>
+              <UserRoundX className="h-4 w-4 text-orange-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-orange-500">
+                {onCutiWorkers}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {totalCutiOrganik} Organik | {totalCutiTAD} TAD |{" "}
+                {totalCutiExpert} Expert
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-card shadow-card border-border/50">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Dinas
+              </CardTitle>
+              <Plane className="h-4 w-4 text-cyan-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-cyan-500">
+                {onDinasWorkers}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {totalDinasOrganik} Organik | {totalDinasTAD} TAD |{" "}
+                {totalDinasExpert} Expert
+              </p>
+            </CardContent>
+          </Card>
         </div>
-      </div>
-    </SidebarProvider>
+
+        {/* Worker Groups */}
+        <div className="space-y-1">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold text-foreground">Shift Group</h2>
+            <div className="text-sm text-muted-foreground">
+              Click edit icon to manage workers (Admin only)
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-5 gap-4">
+            {groupedList
+              // ascending
+              .map((group) => (
+                <WorkerGroupCard
+                  key={group.id}
+                  group={group}
+                  isAdmin={true} // TODO: Connect to actual auth system
+                  onUpdate={handleGroupUpdate}
+                />
+              ))}
+          </div>
+        </div>
+      </main>
+    </MainFrame>
   );
 }

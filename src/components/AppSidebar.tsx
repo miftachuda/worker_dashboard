@@ -28,7 +28,7 @@ const mainItems = [
   { title: "Main", url: "/", icon: Home },
   { title: "Workers", url: "/workers", icon: Users },
   { title: "Leaves", url: "/leaves", icon: BarChart3 },
-  { title: "Shift Cal", url: "/shift", icon: Calendar },
+  { title: "Shift Calendar", url: "/shift", icon: Calendar },
   { title: "Reports", url: "/reports", icon: FileText },
   { title: "Notifications", url: "/notifications", icon: Bell },
 ];

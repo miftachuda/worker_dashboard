@@ -10,8 +10,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
 import supabase from "@/lib/supabaseClient";
+import { fullShift } from "../lib/shift";
 
 type Person = {
   id: string;
@@ -57,11 +57,18 @@ export function WorkerCard({ num, ...worker }: Person & { num: number }) {
 
   return (
     <Card className="relative ml-4 mt-2 shadow-md rounded-2xl hover:shadow-lg transition-shadow">
-      <div className="absolute top-2 right-2 bg-primary text-black text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow-md">
+      <div className="absolute bottom-2 right-2 bg-primary text-black text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow-md">
         {num}
       </div>
+      <div>
+        <div className="absolute bottom-2 right-10 bg-green-300 text-black text-xs font-bold rounded-sm pl-3 pr-3 w-auto h-6 flex items-center justify-center shadow-md">
+          {fullShift(worker.Shift.slice(-1))}
+        </div>
+      </div>
       <CardHeader>
-        <CardTitle className="text-lg font-semibold">{worker.Nama}</CardTitle>
+        <CardTitle className="text-lg mt-4 font-semibold">
+          {worker.Nama}
+        </CardTitle>
         <p className="text-sm text-muted-foreground">{worker.Position}</p>
       </CardHeader>
       <CardContent className="space-y-1 text-sm">
