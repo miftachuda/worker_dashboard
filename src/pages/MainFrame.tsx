@@ -13,10 +13,10 @@ const MainFrame: React.FC<{ children?: ReactNode }> = ({ children }) => (
           <div className="flex items-center space-x-4">
             <SidebarTrigger className="text-foreground hover:text-primary" />
             <div>
-              <h1 className="text-xl font-bold text-foreground">
-                Worker Monitoring Dashboard
+              <h1 className="text-sm sm:text-xl font-bold text-foreground">
+                Worker Dashboard
               </h1>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 Track and manage workforce
               </p>
             </div>

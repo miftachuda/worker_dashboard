@@ -1,12 +1,12 @@
 import { DateSelector } from "@/components/DateSelector";
 import ShiftSelector from "@/components/ShiftSelector";
-
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import React, { useRef, useState } from "react";
 import MainFrame from "./MainFrame";
 import ModeSelector from "@/components/ModeSelector";
 import { getShiftList, getShiftList2 } from "../lib/shift";
+import { findHariLiburByDate, HariLibur, loadHariLibur } from "@/lib/libur";
 
 export default function Shift() {
   const now = new Date();
@@ -19,6 +19,7 @@ export default function Shift() {
     1 // hour, minute, second
   );
   const [selectedDate, setSelectedDate] = React.useState<Date>(startOfDay);
+  const [holidays, setHolidays] = useState<HariLibur[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showLeft, setShowLeft] = useState(false);
   const [showRight, setShowRight] = useState(true);
@@ -38,7 +39,12 @@ export default function Shift() {
       el.scrollBy({ left: dx, behavior: "smooth" });
     }
   };
+  React.useEffect(() => {
+    // fetch only once when app loads
 
+    loadHariLibur().then((data) => setHolidays(data));
+    console.log("Loading holidays...");
+  }, []);
   React.useEffect(() => {
     updateScrollButtons();
     const el = scrollRef.current;
@@ -61,10 +67,9 @@ export default function Shift() {
   const [selectedMode, setSelectedMode] = useState("Mode 1");
   return (
     <MainFrame>
-      <main className="flex-1 bg-[#f5f6fa] p-8 overflow-hidden">
-        <div className="flex items-center  space-x-4 mb-2">
+      <main className="flex-1 bg-[#f5f6fa] p-2 overflow-hidden">
+        <div className="flex items-center  flex-col md:flex-row gap-1 space-x-2 mb-2">
           <DateSelector value={selectedDate} onChange={setSelectedDate} />
-
           <ShiftSelector
             selectedShift={selectedShift}
             onShiftChange={setSelectedShift}
@@ -74,14 +79,14 @@ export default function Shift() {
             onModeChange={setSelectedMode}
           />
         </div>
-        <div className="relative w-full h-[43vh] max-h-[43vh]">
+        <div className="relative w-full h-auto  max-h-full sm:h-[53vh] sm:max-h-[53vh]">
           {/* Floating scroll buttons */}
           {showLeft && (
             <button
               onClick={() => scrollBy(-180)}
               className="absolute left-0 top-1/2 -translate-y-1/2 z-20 
                        bg-green-300 text-white w-10 h-10 rounded-xl shadow 
-                       flex items-center justify-center text-2xl font-bold"
+                       items-center justify-center text-2xl font-bold hidden sm:flex"
             >
               ←
             </button>
@@ -91,7 +96,7 @@ export default function Shift() {
               onClick={() => scrollBy(180)}
               className="absolute right-0 top-1/2 -translate-y-1/2 z-20 
                        bg-green-300 text-white w-10 h-10 rounded-xl shadow 
-                       flex items-center justify-center text-2xl font-bold"
+                       items-center justify-center text-2xl font-bold hidden sm:flex"
             >
               →
             </button>
@@ -100,7 +105,7 @@ export default function Shift() {
           {/* 🔑 This is the ONLY scrollable part */}
           <div
             ref={scrollRef}
-            className="flex gap-2 h-[43vh] max-h-[43vh] overflow-x-auto overflow-y-hidden items-start px-2"
+            className="flex flex-col items-center sm:flex-row gap-2 h-auto  max-h-full sm:h-[53vh] sm:max-h-[53vh] overflow-x-hidden overflow-y-auto sm:overflow-x-auto sm:overflow-y-hidden sm:items-start px-2"
             style={{ scrollbarWidth: "thin" }}
           >
             {Array.from({ length: 120 }).map((_, colIdx) => {
@@ -110,53 +115,70 @@ export default function Shift() {
               } else {
                 var shiftCol = getShiftList2(day);
               }
+              const tanggal_merah = holidays
+                ? findHariLiburByDate(day, holidays)
+                : null;
+              const hari = format(day, "EEEE", { locale: id });
               return (
-                <div key={colIdx} className="flex flex-col items-center">
-                  <div className="text-xs font-semibold mb-1 text-center min-w-[60px] text-black">
-                    {format(day, "dd MMM yy")}
+                <div
+                  key={colIdx}
+                  className={`flex flex-col items-center justify-center w-auto ${
+                    tanggal_merah || hari === "Sabtu" || hari === "Minggu"
+                      ? "bg-red-500/50 rounded-sm"
+                      : "bg-green-300/30 rounded-sm"
+                  }`}
+                >
+                  <div className="flex flex-row sm:flex-col gap-x-1 gap-y-0">
+                    <div className="text-[10px] sm:text-[9px] font-semibold sm:font-normal text-center  text-black">
+                      {hari}
+                    </div>
+                    <div className="text-[10px] font-semibold text-center  text-black">
+                      {format(day, "dd MMM yy")}
+                    </div>
                   </div>
-                  <div className="text-xs font-semibold mb-1 text-center min-w-[60px] text-black">
-                    {format(day, "EEEE", { locale: id })}
+                  <div className="text-[6px] h-4 font-semibold mb-1 text-center  text-black">
+                    {tanggal_merah?.event_name ?? ""}
                   </div>
-                  {shiftCol.map((shift, rowIdx) => {
-                    var prop = "bg-none";
-                    var textColorA = "text-white";
-                    var textColorB = "text-white";
-                    var textColorC = "text-white";
-                    var textColorD = "text-white";
-                    if (selectedShift == shift.slice(0, 1)) {
-                      prop = "";
-                      textColorA = "text-white";
-                      textColorB = "text-white";
-                      textColorC = "text-white";
-                      textColorD = "text-white";
-                    } else {
-                      textColorA = "text-purple-400";
-                      textColorB = "text-orange-400";
-                      textColorC = "text-blue-400";
-                      textColorD = "text-lime-400";
-                    }
-                    if (
-                      shift.split(" ")[1] == "Off" &&
-                      selectedMode == "Mode 2"
-                    ) {
-                      var overlayColor = "rgba(0,0,0,0.5)";
-                    }
-                    if (
-                      shift.split(" ")[1] == "Off" &&
-                      selectedMode == "Mode 1"
-                    ) {
-                      var overlayColor = "rgba(0,0,128,0.3)";
-                    }
-                    return (
-                      <div
-                        key={rowIdx}
-                        style={
-                          {
-                            "--overlay-color": overlayColor,
-                          } as React.CSSProperties
-                        }
-                        className={`w-[60px] h-[60px] rounded-xl flex items-center justify-center font-medium text-sm mb-1 relative overflow-hidden ${prop} 
+                  <div className="flex flex-row mx-3 sm:mx-1 sm:flex-col w-auto gap-5">
+                    {shiftCol.map((shift, rowIdx) => {
+                      var prop = "bg-none";
+                      var textColorA = "text-white";
+                      var textColorB = "text-white";
+                      var textColorC = "text-white";
+                      var textColorD = "text-white";
+                      if (selectedShift == shift.slice(0, 1)) {
+                        prop = "";
+                        textColorA = "text-white";
+                        textColorB = "text-white";
+                        textColorC = "text-white";
+                        textColorD = "text-white";
+                      } else {
+                        textColorA = "text-purple-400";
+                        textColorB = "text-orange-400";
+                        textColorC = "text-blue-400";
+                        textColorD = "text-lime-400";
+                      }
+                      if (
+                        shift.split(" ")[1] == "Off" &&
+                        selectedMode == "Mode 2"
+                      ) {
+                        var overlayColor = "rgba(0,0,0,0.5)";
+                      }
+                      if (
+                        shift.split(" ")[1] == "Off" &&
+                        selectedMode == "Mode 1"
+                      ) {
+                        var overlayColor = "rgba(0,0,128,0.3)";
+                      }
+                      return (
+                        <div
+                          key={rowIdx}
+                          style={
+                            {
+                              "--overlay-color": overlayColor,
+                            } as React.CSSProperties
+                          }
+                          className={`w-[60px] h-[60px] rounded-xl flex  items-center justify-center font-medium text-sm mb-1 relative overflow-hidden  ${prop} 
                               ${
                                 shift.startsWith("A")
                                   ? `${textColorA} bg-[linear-gradient(90deg,_#8e2de2_0%,_#4a00e0_50%,_#4159d0_100%)] shadow-[0_0_20px_#92FE9D] before:bg-green-500/40`
@@ -168,22 +190,23 @@ export default function Shift() {
                               } 
                               before:content-[''] before:absolute before:inset-0 before:rounded-xl before:p-[2px] before:-z-10 before:blur-md bg-gray-600
                             `}
-                      >
-                        <div className="flex flex-col">
-                          <div className="z-10 text-center px-1 font-extrabold">
-                            {shift.slice(0, 2)}
+                        >
+                          <div className="flex flex-col">
+                            <div className="z-10 text-center px-1 font-extrabold">
+                              {shift.slice(0, 2)}
+                            </div>
+                            <div className="z-10 text-center px-1 font-extralight text-[10px]">
+                              {shift.slice(2, shift.length)}
+                            </div>
                           </div>
-                          <div className="z-10 text-center px-1 font-extralight text-[10px]">
-                            {shift.slice(2, shift.length)}
-                          </div>
+                          <div
+                            className="absolute inset-0 rounded-xl"
+                            style={{ backgroundColor: "var(--overlay-color)" }}
+                          />
                         </div>
-                        <div
-                          className="absolute inset-0 rounded-xl"
-                          style={{ backgroundColor: "var(--overlay-color)" }}
-                        />
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
               );
             })}

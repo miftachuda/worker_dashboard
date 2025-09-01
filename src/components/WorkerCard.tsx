@@ -61,7 +61,7 @@ export function WorkerCard({ num, ...worker }: Person & { num: number }) {
         </CardTitle>
         <p className="text-sm text-muted-foreground">{worker.Position}</p>
       </CardHeader>
-      <CardContent className="space-y-1 text-sm">
+      <CardContent className="space-y-1 ml-6 text-sm">
         <p>
           <span className="font-medium">No HP :</span> {worker["No HP"]}
         </p>
@@ -79,6 +79,8 @@ export function WorkerCard({ num, ...worker }: Person & { num: number }) {
           <span className="font-medium">Status :</span> {worker.Status}
         </p>
         {/* Edit Button with Dialog */}
+      </CardContent>
+      <div className="ml-2 mb-2">
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button className="mt-2" size="sm" variant="outline">
@@ -165,7 +167,7 @@ export function WorkerCard({ num, ...worker }: Person & { num: number }) {
             </div>
           </DialogContent>
         </Dialog>
-      </CardContent>
+      </div>
     </Card>
   );
 }
