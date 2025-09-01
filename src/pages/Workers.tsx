@@ -26,14 +26,23 @@ export default function Worker() {
     fetchData();
   }, []);
 
-  // 🔍 live search effect
   useEffect(() => {
-    if (search.trim() === "") {
+    const lowerSearch = search.toLowerCase();
+    if (lowerSearch.trim() === "") {
       setFilteredData(data);
     } else {
       setFilteredData(
         data.filter((worker) =>
-          worker.Nama?.toLowerCase().includes(search.toLowerCase())
+          [
+            worker.Nama,
+            worker.Shift,
+            worker.Alamat,
+            worker.Status,
+            worker["No HP"],
+            worker.Position,
+          ]
+            .filter(Boolean) // remove undefined/null
+            .some((field) => field.toLowerCase().includes(lowerSearch))
         )
       );
     }
@@ -63,7 +72,7 @@ export default function Worker() {
               <WorkerCard
                 key={worker.id}
                 {...worker}
-                id={String(worker.id)}
+                id={worker.id}
                 num={index + 1}
               />
             ))}

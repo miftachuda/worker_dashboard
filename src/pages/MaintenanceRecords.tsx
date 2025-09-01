@@ -4,23 +4,23 @@ import supabase from "@/lib/supabaseClient";
 import { Input } from "@/components/ui/input";
 import { OrderCard } from "@/components/OrderCard";
 import { CreateOrder } from "@/components/CreateOrder";
-import { Reportx } from "@/types/Report";
+import { Maintenancex } from "@/types/Maintenance";
 
-const Report: React.FC = () => {
-  const [data, setData] = useState<Reportx[]>([]);
-  const [filteredData, setFilteredData] = useState<Reportx[]>([]);
+const Maintenance: React.FC = () => {
+  const [data, setData] = useState<Maintenancex[]>([]);
+  const [filteredData, setFilteredData] = useState<Maintenancex[]>([]);
   const [search, setSearch] = useState("");
   const [error, setError] = useState<any>(null);
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data: Reports, error } = await supabase
-        .from("Reports")
+      const { data: Maintenances, error } = await supabase
+        .from("Maintenances")
         .select("*");
       if (error) setError(error);
       else {
-        setData(Reports || []);
-        setFilteredData(Reports || []);
+        setData(Maintenances || []);
+        setFilteredData(Maintenances || []);
       }
     };
 
@@ -34,7 +34,7 @@ const Report: React.FC = () => {
     } else {
       setFilteredData(
         data.filter((order) =>
-          [order.content]
+          [order.record]
             .filter(Boolean) // remove undefined/null
             .some((field) => field.toLowerCase().includes(lowerSearch))
         )
@@ -56,7 +56,7 @@ const Report: React.FC = () => {
         <div className="ml-9 mr-6">
           <Input
             type="text"
-            placeholder="Search report..."
+            placeholder="Search Maintenance..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full"
@@ -77,4 +77,4 @@ const Report: React.FC = () => {
   );
 };
 
-export default Report;
+export default Maintenance;

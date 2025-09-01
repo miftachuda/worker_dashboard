@@ -2,6 +2,7 @@ import { DateSelector } from "@/components/DateSelector";
 import ShiftSelector from "@/components/ShiftSelector";
 
 import { format } from "date-fns";
+import { id } from "date-fns/locale";
 import React, { useRef, useState } from "react";
 import MainFrame from "./MainFrame";
 import ModeSelector from "@/components/ModeSelector";
@@ -73,7 +74,7 @@ export default function Shift() {
             onModeChange={setSelectedMode}
           />
         </div>
-        <div className="relative w-full h-[40vh] max-h-[40vh]">
+        <div className="relative w-full h-[43vh] max-h-[43vh]">
           {/* Floating scroll buttons */}
           {showLeft && (
             <button
@@ -99,7 +100,7 @@ export default function Shift() {
           {/* 🔑 This is the ONLY scrollable part */}
           <div
             ref={scrollRef}
-            className="flex gap-2 h-[40vh] max-h-[40vh] overflow-x-auto overflow-y-hidden items-start px-2"
+            className="flex gap-2 h-[43vh] max-h-[43vh] overflow-x-auto overflow-y-hidden items-start px-2"
             style={{ scrollbarWidth: "thin" }}
           >
             {Array.from({ length: 120 }).map((_, colIdx) => {
@@ -113,6 +114,9 @@ export default function Shift() {
                 <div key={colIdx} className="flex flex-col items-center">
                   <div className="text-xs font-semibold mb-1 text-center min-w-[60px] text-black">
                     {format(day, "dd MMM yy")}
+                  </div>
+                  <div className="text-xs font-semibold mb-1 text-center min-w-[60px] text-black">
+                    {format(day, "EEEE", { locale: id })}
                   </div>
                   {shiftCol.map((shift, rowIdx) => {
                     var prop = "bg-none";

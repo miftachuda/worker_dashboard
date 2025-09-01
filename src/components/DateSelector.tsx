@@ -1,7 +1,6 @@
 import * as React from "react";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
-
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -18,9 +17,10 @@ interface DateSelectorProps {
 }
 
 export function DateSelector({ value, onChange }: DateSelectorProps) {
+  const [open, setOpen] = React.useState(false);
   return (
     <div className="flex flex-col gap-2">
-      <Popover>
+      <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
             variant={"outline"}
@@ -37,7 +37,12 @@ export function DateSelector({ value, onChange }: DateSelectorProps) {
           <Calendar
             mode="single"
             selected={value}
-            onSelect={onChange}
+            onSelect={(date) => {
+              if (date) {
+                onChange(date); // only update if date is not undefined
+                setOpen(false);
+              }
+            }}
             initialFocus
             classNames={{
               day_today: "bg-blue-100 text-blue-700 font-bold", // current day

@@ -12,17 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import supabase from "@/lib/supabaseClient";
 import { fullShift } from "../lib/shift";
-
-type Person = {
-  id: string;
-  Nama: string;
-  Position: string;
-  "No HP": string;
-  Nopek: string;
-  Alamat: string;
-  Shift: string;
-  Status: string;
-};
+import { Person } from "@/types/Person";
 
 export function WorkerCard({ num, ...worker }: Person & { num: number }) {
   const [open, setOpen] = useState(false);
@@ -73,20 +63,20 @@ export function WorkerCard({ num, ...worker }: Person & { num: number }) {
       </CardHeader>
       <CardContent className="space-y-1 text-sm">
         <p>
-          <span className="font-medium">No HP:</span> {worker["No HP"]}
+          <span className="font-medium">No HP :</span> {worker["No HP"]}
         </p>
         <p>
-          <span className="font-medium">Nopek:</span> {worker.Nopek}
+          <span className="font-medium">Nopek :</span> {worker.Nopek}
         </p>
         <p className="font-thin italic">
-          <span className="font-medium not-italic">Alamat:</span>
+          <span className="font-medium not-italic">Alamat :</span>
           {worker.Alamat}
         </p>
         <p>
-          <span className="font-medium">Shift:</span> {worker.Shift}
+          <span className="font-medium">Shift :</span> {worker.Shift}
         </p>
         <p>
-          <span className="font-medium">Status:</span> {worker.Status}
+          <span className="font-medium">Status :</span> {worker.Status}
         </p>
         {/* Edit Button with Dialog */}
         <Dialog open={open} onOpenChange={setOpen}>

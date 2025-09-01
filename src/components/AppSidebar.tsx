@@ -8,6 +8,8 @@ import {
   FileText,
   Bell,
   Plus,
+  BookAudio,
+  Wrench,
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 
@@ -20,7 +22,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
 
@@ -30,6 +31,8 @@ const mainItems = [
   { title: "Leaves", url: "/leaves", icon: BarChart3 },
   { title: "Shift Calendar", url: "/shift", icon: Calendar },
   { title: "Reports", url: "/reports", icon: FileText },
+  { title: "Maintenance Records", url: "/maintenances", icon: Wrench },
+  { title: "Orders", url: "/orders", icon: BookAudio },
   { title: "Notifications", url: "/notifications", icon: Bell },
 ];
 
@@ -44,7 +47,7 @@ export function AppSidebar() {
   const currentPath = location.pathname;
   const collapsed = state === "collapsed";
 
-  const isActive = (path: string) => currentPath === path;
+  //const isActive = (path: string) => currentPath === path;
   // const getNavCls = ({ isActive }: { isActive: boolean }) =>
   // `flex items-center p-2 rounded-md transition-colors ${
   //   isActive
