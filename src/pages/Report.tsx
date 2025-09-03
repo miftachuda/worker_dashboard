@@ -2,8 +2,6 @@ import React, { useEffect, useState } from "react";
 import MainFrame from "./MainFrame";
 import supabase from "@/lib/supabaseClient";
 import { Input } from "@/components/ui/input";
-import { OrderCard } from "@/components/OrderCard";
-import { CreateOrder } from "@/components/CreateOrder";
 import { Reportx } from "@/types/Report";
 
 const Report: React.FC = () => {

@@ -1,6 +1,8 @@
 import { AppSidebar } from "@/components/AppSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { UserProfile } from "@/components/UserProfile";
+import GoogleAnalytics from "@/lib/google";
+import HitWebCounter from "@/lib/pageCounter";
 import React from "react";
 import { ReactNode } from "react";
 
@@ -20,6 +22,8 @@ const MainFrame: React.FC<{ children?: ReactNode }> = ({ children }) => (
                 Track and manage workforce
               </p>
             </div>
+            <HitWebCounter />
+            <GoogleAnalytics measurementId="G-8N2G3DQYW2" />
           </div>
           <UserProfile />
         </div>
