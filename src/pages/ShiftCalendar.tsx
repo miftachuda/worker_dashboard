@@ -136,10 +136,13 @@ export default function Shift() {
                       {format(day, "dd MMM yy")}
                     </div>
                   </div>
-                  <div className="text-[6px] h-4 font-semibold mb-1 text-center  text-black">
+                  <div
+                    className={`text-[6px] z-10 w-full min-h-7 font-semibold py-1 mb-1 text-center text-black 
+                       ${tanggal_merah ? "bg-red-400" : "bg-none"}`}
+                  >
                     {tanggal_merah?.event_name ?? ""}
                   </div>
-                  <div className="flex flex-row mx-3 sm:mx-1 sm:flex-col w-auto gap-5">
+                  <div className="flex z-0 flex-row mx-3 sm:mx-1 sm:flex-col w-auto gap-5">
                     {shiftCol.map((shift, rowIdx) => {
                       var prop = "bg-none";
                       var textColorA = "text-white";
