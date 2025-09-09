@@ -79,7 +79,12 @@ const UserTableWrapper: React.FC<{ users: Employee[] }> = ({ users }) => {
       </div>
 
       {/* Table */}
-      <UserTable users={users_convert} year={year} month={month} />
+      <UserTable
+        users={users_convert}
+        year={year}
+        month={month}
+        shift={shift}
+      />
     </div>
   );
 };

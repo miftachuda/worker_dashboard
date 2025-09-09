@@ -62,6 +62,8 @@ const Leave: React.FC = () => {
           onAdd={(v) => console.log(v)}
           placeholder="Add leave type"
         />
+
+        <UserTableWrapper users={employee} />
         <div>
           {filteredData.map((leave, index) => {
             const start = parseISO(leave.From);
@@ -83,7 +85,6 @@ const Leave: React.FC = () => {
             );
           })}
         </div>
-        <UserTableWrapper users={employee} />
       </main>
     </MainFrame>
   );

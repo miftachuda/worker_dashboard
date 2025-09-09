@@ -5,9 +5,10 @@ type UserTableProps = {
   users: RowHead[];
   year?: number;
   month?: number; // 1–12
+  shift: string;
 };
 
-const UserTable: React.FC<UserTableProps> = ({ users, year, month }) => {
+const UserTable: React.FC<UserTableProps> = ({ users, year, month, shift }) => {
   // default to current month if not provided
   const today = new Date();
   const activeYear = year ?? today.getFullYear();
@@ -48,6 +49,7 @@ const UserTable: React.FC<UserTableProps> = ({ users, year, month }) => {
       year={year}
       month={month}
       onSelectionChange={callbackfunc}
+      shift={shift}
     />
   );
 };
