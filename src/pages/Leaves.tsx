@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import { fetchEmployee } from "@/lib/worker";
 import { Employee } from "@/types/Employee";
 import UserTableWrapper from "@/components/UserTableWrapper";
-import { Nama } from "@/types/Nama";
 
 const Leave: React.FC = () => {
   const [data, setData] = useState<Leavex[]>([]);
@@ -54,7 +53,7 @@ const Leave: React.FC = () => {
       <main className="p-6 space-y-4 ">
         <Input
           type="text"
-          placeholder="Search order..."
+          placeholder="Search leave..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-full"

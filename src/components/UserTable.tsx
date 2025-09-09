@@ -1,8 +1,8 @@
 import React from "react";
 import Table from "./Table";
-import { Nama } from "@/types/Nama";
+import { RowHead } from "@/types/RowHead";
 type UserTableProps = {
-  users: any[];
+  users: RowHead[];
   year?: number;
   month?: number; // 1–12
 };
@@ -31,7 +31,7 @@ const UserTable: React.FC<UserTableProps> = ({ users, year, month }) => {
   const columns = [...baseColumns, ...dayColumns];
 
   // extend users with empty day values
-  const extendedUsers = users.map((u) => {
+  const extendedUsers: RowHead[] = users.map((u) => {
     const dayData: Record<string, string> = {};
     for (let d = 1; d <= daysInMonth; d++) {
       dayData[`day_${d}`] = "";

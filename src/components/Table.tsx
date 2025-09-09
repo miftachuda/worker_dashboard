@@ -1,3 +1,4 @@
+import { RowHead } from "@/types/RowHead";
 const firstDate = new Date("2022-12-31");
 const masukapaA = [
   "Off",
@@ -15,7 +16,7 @@ const masukapaA = [
 ];
 
 type TableProps<T> = {
-  data: T[];
+  data: RowHead[];
   columns: { key: keyof T; header: string }[];
   year: number;
   month: number; // 1–12
@@ -82,24 +83,31 @@ function Table<T>({ data, columns, year, month }: TableProps<T>) {
           </thead>
           <tbody className="border border-s-green-300">
             {data.length > 0 ? (
-              data.map((row, rowIndex) => (
-                <tr key={rowIndex} className="hover:bg-blue-950 ">
-                  {columns.map((col, colIndex) => (
-                    <td
-                      key={String(col.key)}
-                      className="px-1 py-1 whitespace-nowrap text-sm border-green-400 border"
-                      style={{
-                        width:
-                          colIndex === 1
-                            ? "12%" // kolom ke-2
-                            : `${70 / (columns.length - 1)}%`, // sisanya dibagi rata
-                      }}
-                    >
-                      {col.key === "id" ? rowIndex + 1 : String(row[col.key])}
-                    </td>
-                  ))}
-                </tr>
-              ))
+              data
+                .slice() // 1. Create a shallow copy to avoid mutating the original array
+                .sort((a, b) => b.PRL - a.PRL)
+                .map((row, rowIndex) => (
+                  <tr key={rowIndex} className="hover:bg-blue-950 ">
+                    {columns.map((col, colIndex) => (
+                      <td
+                        key={String(col.key)}
+                        className="px-1 py-1 text-center whitespace-nowrap text-sm border-green-400 border"
+                        style={{
+                          width:
+                            colIndex === 1
+                              ? "12%" // kolom ke-2
+                              : `${70 / (columns.length - 1)}%`, // sisanya dibagi rata
+                        }}
+                      >
+                        {col.key === "id"
+                          ? rowIndex + 1
+                          : col.header === "Nama"
+                          ? String(row.name)
+                          : ""}
+                      </td>
+                    ))}
+                  </tr>
+                ))
             ) : (
               <tr>
                 <td

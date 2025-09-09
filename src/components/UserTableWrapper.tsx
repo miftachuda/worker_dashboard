@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import UserTable from "./UserTable";
 import { Employee } from "@/types/Employee";
+import { RowHead } from "@/types/RowHead";
 
 const UserTableWrapper: React.FC<{ users: Employee[] }> = ({ users }) => {
   const today = new Date();
@@ -32,9 +33,10 @@ const UserTableWrapper: React.FC<{ users: Employee[] }> = ({ users }) => {
   const users_filterd = users.filter((x) => {
     return x.Shift == shift;
   });
-  const users_convert = users_filterd.map((x, i) => ({
+  const users_convert: RowHead[] = users_filterd.map((x, i) => ({
     id: i, // use shift name as unique id
     name: x.Nama,
+    PRL: x.PRL,
   }));
   return (
     <div className="space-y-4">
@@ -68,8 +70,8 @@ const UserTableWrapper: React.FC<{ users: Employee[] }> = ({ users }) => {
           onChange={(e) => setShift(e.target.value)}
           className="border px-2 py-1 rounded bg-gray-900"
         >
-          {shifts.map((m, idx) => (
-            <option key={idx + 1} value={idx + 1}>
+          {shifts.map((m) => (
+            <option key={m} value={m}>
               {m}
             </option>
           ))}
