@@ -7,6 +7,7 @@ import MainFrame from "./MainFrame";
 import ModeSelector from "@/components/ModeSelector";
 import { getShiftList, getShiftList2 } from "../lib/shift";
 import { findHariLiburByDate, HariLibur, loadHariLibur } from "@/lib/libur";
+import { Employee } from "../types/Employee";
 
 export default function Shift() {
   const now = new Date();
@@ -23,6 +24,8 @@ export default function Shift() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showLeft, setShowLeft] = useState(false);
   const [showRight, setShowRight] = useState(true);
+  const [worker, setWorker] = useState<Employee[]>([]);
+
   // Update scroll button visibility
   const updateScrollButtons = () => {
     const el = scrollRef.current;
@@ -39,12 +42,6 @@ export default function Shift() {
       el.scrollBy({ left: dx, behavior: "smooth" });
     }
   };
-  React.useEffect(() => {
-    // fetch only once when app loads
-
-    loadHariLibur().then((data) => setHolidays(data));
-    console.log("Loading holidays...");
-  }, []);
   React.useEffect(() => {
     updateScrollButtons();
     const el = scrollRef.current;
@@ -174,38 +171,42 @@ export default function Shift() {
                         var overlayColor = "rgba(0,0,128,0.3)";
                       }
                       return (
-                        <div
-                          key={rowIdx}
-                          style={
-                            {
-                              "--overlay-color": overlayColor,
-                            } as React.CSSProperties
-                          }
-                          className={`w-[60px] h-[60px] rounded-xl flex  items-center justify-center font-medium text-sm mb-1 relative overflow-hidden  ${prop} 
-                              ${
-                                shift.startsWith("A")
-                                  ? `${textColorA} bg-[linear-gradient(90deg,_#8e2de2_0%,_#4a00e0_50%,_#4159d0_100%)] shadow-[0_0_20px_#92FE9D] before:bg-green-500/40`
-                                  : shift.startsWith("B")
-                                  ? `${textColorB} bg-[linear-gradient(90deg,_#ff7e5f_0%,_#feb47b_50%,_#ff416c_100%)] before:bg-red-500/40`
-                                  : shift.startsWith("C")
-                                  ? `${textColorC} bg-[linear-gradient(90deg,#00d2ff_0%,#3a47d5_100%)] shadow-[0_0_20px_#3a47d5] before:bg-blue-400/40`
-                                  : `${textColorD} bg-[linear-gradient(90deg,#f8ff00_0%,#3ad59f_100%)] shadow-[0_0_20px_#3ad59f] before:bg-yellow-400/40 `
-                              } 
-                              before:content-[''] before:absolute before:inset-0 before:rounded-xl before:p-[2px] before:-z-10 before:blur-md bg-gray-600
-                            `}
-                        >
-                          <div className="flex flex-col">
-                            <div className="z-10 text-center px-1 font-extrabold">
-                              {shift.slice(0, 2)}
-                            </div>
-                            <div className="z-10 text-center px-1 font-extralight text-[10px]">
-                              {shift.slice(2, shift.length)}
-                            </div>
-                          </div>
+                        <div className="relative group" key={rowIdx}>
                           <div
-                            className="absolute inset-0 rounded-xl"
-                            style={{ backgroundColor: "var(--overlay-color)" }}
-                          />
+                            style={
+                              {
+                                "--overlay-color": overlayColor,
+                              } as React.CSSProperties
+                            }
+                            className={`w-[60px] h-[60px] rounded-xl flex flex-col items-center justify-center font-medium text-sm mb-1 relative overflow-hidden cursor-pointer ${prop} 
+                                ${
+                                  shift.startsWith("A")
+                                    ? `${textColorA} bg-[linear-gradient(90deg,_#8e2de2_0%,_#4a00e0_50%,_#4159d0_100%)] shadow-[0_0_20px_#92FE9D] before:bg-green-500/40`
+                                    : shift.startsWith("B")
+                                    ? `${textColorB} bg-[linear-gradient(90deg,_#ff7e5f_0%,_#feb47b_50%,_#ff416c_100%)] before:bg-red-500/40`
+                                    : shift.startsWith("C")
+                                    ? `${textColorC} bg-[linear-gradient(90deg,#00d2ff_0%,#3a47d5_100%)] shadow-[0_0_20px_#3a47d5] before:bg-blue-400/40`
+                                    : `${textColorD} bg-[linear-gradient(90deg,#f8ff00_0%,#3ad59f_100%)] shadow-[0_0_20px_#3ad59f] before:bg-yellow-400/40`
+                                } 
+                                before:content-[''] before:absolute before:inset-0 before:rounded-xl before:p-[2px] before:-z-10 before:blur-md bg-gray-600
+                              `}
+                          >
+                            <div className="flex flex-col z-10">
+                              <div className="text-center px-1 font-extrabold">
+                                {shift.slice(0, 2)}
+                              </div>
+                              <div className="text-center px-1 font-extralight text-[10px]">
+                                {shift.slice(2)}
+                              </div>
+                            </div>
+
+                            <div
+                              className="absolute inset-0 rounded-xl"
+                              style={{
+                                backgroundColor: "var(--overlay-color)",
+                              }}
+                            />
+                          </div>
                         </div>
                       );
                     })}

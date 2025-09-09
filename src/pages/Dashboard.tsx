@@ -1,287 +1,23 @@
 import { useState } from "react";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/AppSidebar";
-import { UserProfile } from "@/components/UserProfile";
 import { WorkerGroupCard } from "@/components/WorkerGroupCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Users,
-  TrendingUp,
-  Calendar,
-  Building,
-  Plane,
-  UserRoundX,
-  UserRoundCheck,
-} from "lucide-react";
+import { Users, Plane, UserRoundX, UserRoundCheck } from "lucide-react";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import supabase from "../lib/supabaseClient";
 import { Person } from "../types/Person";
 import MainFrame from "./MainFrame";
-
-const initialGroups = [
-  {
-    id: "1",
-    title: "Shift A",
-    description: "Morning shift team",
-    workers: [
-      {
-        id: "1",
-        name: "John Doe",
-        position: "Line Supervisor",
-        status: "active" as const,
-      },
-      {
-        id: "2",
-        name: "Jane Smith",
-        position: "Operator",
-        status: "active" as const,
-      },
-      {
-        id: "3",
-        name: "Mike Johnson",
-        position: "Quality Control",
-        status: "active" as const,
-      },
-      {
-        id: "4",
-        name: "Sarah Williams",
-        position: "Operator",
-        status: "on-leave" as const,
-      },
-      {
-        id: "5",
-        name: "David Brown",
-        position: "Maintenance",
-        status: "active" as const,
-      },
-      {
-        id: "6",
-        name: "Lisa Davis",
-        position: "Operator",
-        status: "active" as const,
-      },
-      {
-        id: "7",
-        name: "Tom Wilson",
-        position: "Assistant",
-        status: "active" as const,
-      },
-    ],
-  },
-  {
-    id: "2",
-    title: "Shift B",
-    description: "Afternoon shift team",
-    workers: [
-      {
-        id: "8",
-        name: "Emily Chen",
-        position: "QA Manager",
-        status: "active" as const,
-      },
-      {
-        id: "9",
-        name: "Robert Lee",
-        position: "Inspector",
-        status: "active" as const,
-      },
-      {
-        id: "10",
-        name: "Maria Garcia",
-        position: "Tester",
-        status: "active" as const,
-      },
-      {
-        id: "11",
-        name: "James Taylor",
-        position: "Lab Tech",
-        status: "inactive" as const,
-      },
-      {
-        id: "12",
-        name: "Anna Martinez",
-        position: "Inspector",
-        status: "active" as const,
-      },
-      {
-        id: "13",
-        name: "Chris Anderson",
-        position: "Analyst",
-        status: "active" as const,
-      },
-    ],
-  },
-  {
-    id: "3",
-    title: "Shift C",
-    description: "Night shift team",
-    workers: [
-      {
-        id: "14",
-        name: "Frank Miller",
-        position: "Lead Mechanic",
-        status: "active" as const,
-      },
-      {
-        id: "15",
-        name: "Steve Clark",
-        position: "Electrician",
-        status: "active" as const,
-      },
-      {
-        id: "16",
-        name: "Tony Rodriguez",
-        position: "Mechanic",
-        status: "active" as const,
-      },
-      {
-        id: "17",
-        name: "Paul Jackson",
-        position: "Technician",
-        status: "on-leave" as const,
-      },
-      {
-        id: "18",
-        name: "Mark Thompson",
-        position: "Helper",
-        status: "active" as const,
-      },
-    ],
-  },
-  {
-    id: "4",
-    title: "Shift D",
-    description: "Off team",
-    workers: [
-      {
-        id: "19",
-        name: "Kevin White",
-        position: "Logistics Manager",
-        status: "active" as const,
-      },
-      {
-        id: "20",
-        name: "Rachel Green",
-        position: "Forklift Operator",
-        status: "active" as const,
-      },
-      {
-        id: "21",
-        name: "Brian Adams",
-        position: "Warehouse Worker",
-        status: "active" as const,
-      },
-      {
-        id: "22",
-        name: "Nicole Scott",
-        position: "Inventory Clerk",
-        status: "active" as const,
-      },
-      {
-        id: "23",
-        name: "Daniel King",
-        position: "Shipping Clerk",
-        status: "active" as const,
-      },
-      {
-        id: "24",
-        name: "Jessica Hill",
-        position: "Receiver",
-        status: "inactive" as const,
-      },
-      {
-        id: "25",
-        name: "Andrew Young",
-        position: "Driver",
-        status: "active" as const,
-      },
-      {
-        id: "26",
-        name: "Lauren Walker",
-        position: "Coordinator",
-        status: "active" as const,
-      },
-    ],
-  },
-  {
-    id: "5",
-    title: "Harian",
-    description: "Pekerja harian",
-    workers: [
-      {
-        id: "27",
-        name: "Richard Hall",
-        position: "Safety Manager",
-        status: "active" as const,
-      },
-      {
-        id: "28",
-        name: "Sandra Lewis",
-        position: "Safety Officer",
-        status: "active" as const,
-      },
-      {
-        id: "29",
-        name: "Michael Turner",
-        position: "Security Guard",
-        status: "active" as const,
-      },
-      {
-        id: "30",
-        name: "Jennifer Parker",
-        position: "First Aid Officer",
-        status: "active" as const,
-      },
-      {
-        id: "31",
-        name: "William Evans",
-        position: "Security Guard",
-        status: "on-leave" as const,
-      },
-      {
-        id: "32",
-        name: "Helen Carter",
-        position: "Compliance Officer",
-        status: "active" as const,
-      },
-      {
-        id: "33",
-        name: "George Phillips",
-        position: "Emergency Coordinator",
-        status: "active" as const,
-      },
-      {
-        id: "34",
-        name: "Amy Roberts",
-        position: "Trainer",
-        status: "active" as const,
-      },
-      {
-        id: "35",
-        name: "Charles Mitchell",
-        position: "Security Guard",
-        status: "active" as const,
-      },
-    ],
-  },
-];
+import { fetchEmployee } from "@/lib/worker";
 
 export default function Dashboard() {
-  const [groups, setGroups] = useState(initialGroups);
+  const [groups, setGroups] = useState(null);
   const [data, setData] = useState<any[]>([]);
   const [error, setError] = useState<any>(null);
-
+  0;
   useEffect(() => {
-    const fetchData = async () => {
-      const { data: Manpower_all, error } = await supabase
-        .from("Manpower_all")
-        .select("*");
+    fetchEmployee().then(({ data, error }) => {
       if (error) setError(error);
-      else setData(Manpower_all || []);
-    };
-
-    fetchData();
+      else setData(data || []);
+    });
   }, []);
 
   const handleGroupUpdate = (groupId: string, updatedWorkers: any[]) => {
@@ -442,7 +178,7 @@ export default function Dashboard() {
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold text-foreground">Shift Group</h2>
             <div className="text-sm text-muted-foreground">
-              Click edit icon to manage workers (Admin only)
+              Click edit icon to manage workers
             </div>
           </div>
 
