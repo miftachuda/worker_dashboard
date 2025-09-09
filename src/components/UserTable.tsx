@@ -38,9 +38,17 @@ const UserTable: React.FC<UserTableProps> = ({ users, year, month }) => {
     }
     return { ...u, ...dayData };
   });
-
+  function callbackfunc(data) {
+    console.log(data);
+  }
   return (
-    <Table data={extendedUsers} columns={columns} year={year} month={month} />
+    <Table
+      data={extendedUsers}
+      columns={columns}
+      year={year}
+      month={month}
+      onSelectionChange={callbackfunc}
+    />
   );
 };
 

@@ -1,4 +1,5 @@
 import { RowHead } from "@/types/RowHead";
+import { useCallback, useEffect, useState } from "react";
 const firstDate = new Date("2022-12-31");
 const masukapaA = [
   "Off",
@@ -20,10 +21,87 @@ type TableProps<T> = {
   columns: { key: keyof T; header: string }[];
   year: number;
   month: number; // 1–12
+  onSelectionChange: Function;
 };
 
-function Table<T>({ data, columns, year, month }: TableProps<T>) {
-  console.log(year, month);
+function Table<T>({
+  data,
+  columns,
+  year,
+  month,
+  onSelectionChange,
+}: TableProps<T>) {
+  const [isDragging, setIsDragging] = useState(false);
+  const [startCell, setStartCell] = useState(null); // { row: number, col: number }
+  const [endCell, setEndCell] = useState(null);
+
+  const handleMouseDown = (rowIndex, colIndex) => {
+    // We only want to select the date columns, not "No" or "Nama"
+    if (colIndex < 2) return;
+    setIsDragging(true);
+    const cell = { row: rowIndex, col: colIndex };
+    setStartCell(cell);
+    setEndCell(cell);
+  };
+
+  // MouseOver: Updates the selection area while dragging
+  const handleMouseOver = (rowIndex, colIndex) => {
+    if (isDragging) {
+      // Prevent selection from spilling into the first two columns
+      if (colIndex < 2) return;
+      setEndCell({ row: rowIndex, col: colIndex });
+    }
+  };
+
+  // MouseUp: Finalizes the selection and triggers the callback
+  const handleMouseUp = useCallback(() => {
+    if (isDragging && startCell && endCell) {
+      const selectedCoords = [];
+      // Determine the boundaries of the selection rectangle
+      const minRow = Math.min(startCell.row, endCell.row);
+      const maxRow = Math.max(startCell.row, endCell.row);
+      const minCol = Math.min(startCell.col, endCell.col);
+      const maxCol = Math.max(startCell.col, endCell.col);
+
+      // Collect all coordinates within the selection
+      for (let row = minRow; row <= maxRow; row++) {
+        for (let col = minCol; col <= maxCol; col++) {
+          selectedCoords.push({ row, col, rowData: data[row] });
+        }
+      }
+
+      // Pass the final coordinates to the parent component
+      if (onSelectionChange) {
+        onSelectionChange(selectedCoords);
+      }
+    }
+
+    // Reset state to end the drag selection
+    setIsDragging(false);
+    setStartCell(null);
+    setEndCell(null);
+  }, [isDragging, startCell, endCell, data, onSelectionChange]);
+
+  useEffect(() => {
+    window.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [handleMouseUp]);
+  const isCellSelected = (rowIndex, colIndex) => {
+    if (!isDragging || !startCell || !endCell) return false;
+    const minRow = Math.min(startCell.row, endCell.row);
+    const maxRow = Math.max(startCell.row, endCell.row);
+    const minCol = Math.min(startCell.col, endCell.col);
+    const maxCol = Math.max(startCell.col, endCell.col);
+    return (
+      rowIndex >= minRow &&
+      rowIndex <= maxRow &&
+      colIndex >= minCol &&
+      colIndex <= maxCol
+    );
+  };
+
   return (
     <div className="w-full">
       <div className="overflow-x-auto sm:overflow-x-visible">
