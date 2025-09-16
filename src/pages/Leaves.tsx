@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { fetchEmployee } from "@/lib/worker";
 import { Employee } from "@/types/Employee";
 import UserTableWrapper from "@/components/UserTableWrapper";
+import { Cell } from "@/types/Cell";
+import PopupDialog from "@/components/PopUp";
 
 const Leave: React.FC = () => {
   const [data, setData] = useState<Leavex[]>([]);
@@ -15,6 +17,8 @@ const Leave: React.FC = () => {
   const [search, setSearch] = useState("");
   const [filteredData, setFilteredData] = useState<Leavex[]>([]);
   const [error, setError] = useState<any>(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const [popupData, setPopupData] = useState<Cell[] | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -48,8 +52,19 @@ const Leave: React.FC = () => {
       );
     }
   }, [search, data]);
+  function callback(x) {
+    const data = x as Cell[];
+    setPopupData(data);
+    setIsOpen(true);
+    console.log(data);
+  }
   return (
     <MainFrame>
+      <PopupDialog
+        isOpen={isOpen}
+        selected={popupData}
+        onClose={() => setIsOpen(false)}
+      />
       <main className="p-6 space-y-4 ">
         <Input
           type="text"
@@ -63,7 +78,7 @@ const Leave: React.FC = () => {
           placeholder="Add leave type"
         />
 
-        <UserTableWrapper users={employee} />
+        <UserTableWrapper users={employee} callback={callback} />
         <div>
           {filteredData.map((leave, index) => {
             const start = parseISO(leave.From);

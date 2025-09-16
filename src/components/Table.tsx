@@ -101,7 +101,16 @@ function Table<T>({
       // Collect all coordinates within the selection
       for (let row = minRow; row <= maxRow; row++) {
         for (let col = minCol; col <= maxCol; col++) {
-          selectedCoords.push({ row, col, rowData: data[row] });
+          const day = col - 1;
+          const name = data[row].name;
+          selectedCoords.push({
+            name,
+            shift,
+            day,
+            month,
+            year,
+            rowData: data[row],
+          });
         }
       }
 

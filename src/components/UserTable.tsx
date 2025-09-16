@@ -6,9 +6,16 @@ type UserTableProps = {
   year?: number;
   month?: number; // 1–12
   shift: string;
+  callback: Function;
 };
 
-const UserTable: React.FC<UserTableProps> = ({ users, year, month, shift }) => {
+const UserTable: React.FC<UserTableProps> = ({
+  users,
+  year,
+  month,
+  shift,
+  callback,
+}) => {
   // default to current month if not provided
   const today = new Date();
   const activeYear = year ?? today.getFullYear();
@@ -39,16 +46,14 @@ const UserTable: React.FC<UserTableProps> = ({ users, year, month, shift }) => {
     }
     return { ...u, ...dayData };
   });
-  function callbackfunc(data) {
-    console.log(data);
-  }
+
   return (
     <Table
       data={extendedUsers}
       columns={columns}
       year={year}
       month={month}
-      onSelectionChange={callbackfunc}
+      onSelectionChange={callback}
       shift={shift}
     />
   );

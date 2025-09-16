@@ -3,7 +3,10 @@ import UserTable from "./UserTable";
 import { Employee } from "@/types/Employee";
 import { RowHead } from "@/types/RowHead";
 
-const UserTableWrapper: React.FC<{ users: Employee[] }> = ({ users }) => {
+const UserTableWrapper: React.FC<{ users: Employee[]; callback: Function }> = ({
+  users,
+  callback,
+}) => {
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth() + 1); // 1–12
@@ -84,6 +87,7 @@ const UserTableWrapper: React.FC<{ users: Employee[] }> = ({ users }) => {
         year={year}
         month={month}
         shift={shift}
+        callback={callback}
       />
     </div>
   );
