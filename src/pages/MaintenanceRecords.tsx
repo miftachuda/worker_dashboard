@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
 import MainFrame from "./MainFrame";
-import supabase from "@/lib/supabaseClient";
 import { Input } from "@/components/ui/input";
 import { Maintenancex } from "@/types/Maintenance";
 import PocketBase, { RecordModel } from "pocketbase";
 import { motion, AnimatePresence } from "framer-motion";
+import { Timeline } from "primereact/timeline";
+import { Card } from "primereact/card";
+import { Button } from "primereact/button";
+import MaintenanceCard from "@/components/TimelineCard";
+import TimelineCanvas from "@/components/TimelineCanvas";
 
 const Maintenance: React.FC = () => {
-  const [data, setData] = useState<Maintenancex[]>([]);
-  const [filteredData, setFilteredData] = useState<Maintenancex[]>([]);
   const [selectedEquipment, setSelectedEquipment] =
     useState<RecordModel | null>(null);
   const [filteredEquipment, setFilteredEquipment] = useState<RecordModel[]>([]);
@@ -17,7 +19,6 @@ const Maintenance: React.FC = () => {
   const [error, setError] = useState<any>(null);
   const pb = new PocketBase("https://base.miftachuda.my.id");
 
-  // Fetch equipment list from PocketBase
   useEffect(() => {
     const fetchEquipment = async () => {
       try {
@@ -26,25 +27,11 @@ const Maintenance: React.FC = () => {
         });
         setListEquipment(records);
       } catch (err) {
+        setError(err);
         console.error("Error fetching equipment:", err);
       }
     };
     fetchEquipment();
-  }, []);
-
-  // Fetch maintenance data from Supabase
-  useEffect(() => {
-    const fetchMaintenances = async () => {
-      const { data: Maintenances, error } = await supabase
-        .from("Maintenances")
-        .select("*");
-      if (error) setError(error);
-      else {
-        setData(Maintenances || []);
-        setFilteredData(Maintenances || []);
-      }
-    };
-    fetchMaintenances();
   }, []);
 
   // Search logic for equipment
@@ -66,6 +53,25 @@ const Maintenance: React.FC = () => {
 
   const handleClick = (data: RecordModel) => setSelectedEquipment(data);
   const handleBack = () => setSelectedEquipment(null);
+  const customizedMarker = (item) => {
+    return (
+      <span className="flex w-2rem h-2rem align-items-center justify-content-center text-white border-circle z-1 shadow-1 bg-red-600">
+        <i className="bg-red-900"></i>
+      </span>
+    );
+  };
+
+  const customizedContent = (item) => {
+    return (
+      <MaintenanceCard
+        title={item.title}
+        description={item.description}
+        start_time={item.start_time}
+        status={item.status}
+        image="bamboo-watch.jpg"
+      />
+    );
+  };
 
   return (
     <MainFrame>
@@ -161,19 +167,7 @@ const Maintenance: React.FC = () => {
               Back
             </button>
 
-            <div className="border rounded-lg p-6 shadow-md bg-slate-950 text-white">
-              <h2 className="text-2xl font-bold mb-2">
-                {selectedEquipment.nametag}
-              </h2>
-              <p className="text-gray-400 mb-4">
-                {selectedEquipment.description}
-              </p>
-
-              <div className="text-sm text-gray-300">
-                <p>ID: {selectedEquipment.id}</p>
-                {/* Add more fields as needed */}
-              </div>
-            </div>
+            <TimelineCanvas items={selectedEquipment} />
           </motion.div>
         )}
       </AnimatePresence>
@@ -182,50 +176,3 @@ const Maintenance: React.FC = () => {
 };
 
 export default Maintenance;
-
-// {filteredData
-//             .sort((a, b) => b.created_at.localeCompare(a.created_at))
-//             .map((data, index) => {
-//               return (
-//                 <div key={data.id} className="border p-4 rounded-lg shadow">
-//                   {data.name}
-//                   <div>
-//                     {Array.isArray(data.record.record) &&
-//                       data.record.record.map((rec, idx) => {
-//                         console.log("rec:", rec);
-//                         return (
-//                           <div key={idx} className="mt-2 p-2 border-t">
-//                             <p>
-//                               <strong>Shift:</strong> {rec.shift}
-//                             </p>
-//                             <p>
-//                               <strong>Period:</strong> {rec.period}
-//                             </p>
-
-//                             {rec.description?.length > 0 && (
-//                               <ul className="list-disc ml-6 mt-1">
-//                                 {rec.description.map((desc, i) => (
-//                                   <li key={i}>{desc}</li>
-//                                 ))}
-//                               </ul>
-//                             )}
-
-//                             {rec.photos?.length > 0 && (
-//                               <div className="flex gap-2 mt-2">
-//                                 {rec.photos.map((url, i) => (
-//                                   <img
-//                                     key={i}
-//                                     src={url}
-//                                     alt={`photo-${i}`}
-//                                     className="w-20 h-20 object-cover rounded"
-//                                   />
-//                                 ))}
-//                               </div>
-//                             )}
-//                           </div>
-//                         );
-//                       })}
-//                   </div>
-//                 </div>
-//               );
-//             })}
