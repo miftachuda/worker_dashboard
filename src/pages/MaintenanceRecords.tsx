@@ -1,29 +1,42 @@
 import React, { useEffect, useState } from "react";
 import MainFrame from "./MainFrame";
 import { Input } from "@/components/ui/input";
-import { Maintenancex } from "@/types/Maintenance";
 import PocketBase, { RecordModel } from "pocketbase";
 import { motion, AnimatePresence } from "framer-motion";
-import { Timeline } from "primereact/timeline";
-import { Card } from "primereact/card";
-import { Button } from "primereact/button";
-import MaintenanceCard from "@/components/TimelineCard";
 import TimelineCanvas from "@/components/TimelineCanvas";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import CreateMaintenanceRecord from "@/components/inputRecordPopup";
 
 const Maintenance: React.FC = () => {
-  const [selectedEquipment, setSelectedEquipment] =
-    useState<RecordModel | null>(null);
+  const [selectedEquipment, setSelectedEquipment] = useState<
+    RecordModel[] | null
+  >(null);
+  const [selectedEquipmentTimeline, setSelectedEquipmentTimeline] =
+    useState<RecordModel>();
   const [filteredEquipment, setFilteredEquipment] = useState<RecordModel[]>([]);
   const [listEquipment, setListEquipment] = useState<RecordModel[]>([]);
   const [search, setSearch] = useState("");
   const [error, setError] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [loading2, setLoading2] = useState(false);
+  const [errorDialog, setErrorDialog] = useState<string | null>(null);
+
   const pb = new PocketBase("https://base.miftachuda.my.id");
 
+  // 🔹 Fetch Equipment List
   useEffect(() => {
     const fetchEquipment = async () => {
       try {
         const records = await pb.collection("list_equipment").getFullList({
-          sort: "-created",
+          sort: "created",
         });
         setListEquipment(records);
       } catch (err) {
@@ -34,7 +47,7 @@ const Maintenance: React.FC = () => {
     fetchEquipment();
   }, []);
 
-  // Search logic for equipment
+  // 🔹 Search Logic
   useEffect(() => {
     const lowerSearch = search.toLowerCase();
     if (lowerSearch.trim() === "") {
@@ -51,30 +64,85 @@ const Maintenance: React.FC = () => {
     }
   }, [search, listEquipment]);
 
-  const handleClick = (data: RecordModel) => setSelectedEquipment(data);
-  const handleBack = () => setSelectedEquipment(null);
-  const customizedMarker = (item) => {
-    return (
-      <span className="flex w-2rem h-2rem align-items-center justify-content-center text-white border-circle z-1 shadow-1 bg-red-600">
-        <i className="bg-red-900"></i>
-      </span>
-    );
+  // 🔹 Handle Click on Equipment Card
+  const handleClick = async (data: RecordModel) => {
+    if (loading2) return;
+
+    try {
+      setLoading2(true);
+      const records = await pb
+        .collection("maintenance_collection")
+        .getFullList({
+          sort: "created",
+          expand: "nametag",
+          filter: `nametag.nametag = '${data.nametag}'`,
+        });
+
+      setSelectedEquipmentTimeline(data);
+      setSelectedEquipment(records);
+    } catch (err: any) {
+      console.error("Error fetching maintenance data:", err);
+      setErrorDialog(err?.message || "Failed to fetch maintenance data.");
+    } finally {
+      setLoading2(false);
+    }
   };
 
-  const customizedContent = (item) => {
-    return (
-      <MaintenanceCard
-        title={item.title}
-        description={item.description}
-        start_time={item.start_time}
-        status={item.status}
-        image="bamboo-watch.jpg"
-      />
-    );
+  // 🔹 Go Back to Equipment List
+  const handleBack = () => setSelectedEquipment(null);
+
+  // 🔹 Refresh Maintenance Records After Editing
+  const refreshMaintenanceRecords = async () => {
+    if (!selectedEquipmentTimeline) return;
+    const records = await pb.collection("maintenance_collection").getFullList({
+      sort: "created",
+      expand: "nametag",
+      filter: `nametag.nametag = '${selectedEquipmentTimeline.nametag}'`,
+    });
+    setSelectedEquipment(records);
   };
 
   return (
     <MainFrame>
+      {/* 🔹 Top Loading Bar */}
+      <AnimatePresence>
+        {loading && (
+          <motion.div
+            key="loading-bar"
+            initial={{ width: "0%" }}
+            animate={{ width: "100%" }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8, ease: "easeInOut" }}
+            className="fixed top-0 left-0 h-[3px] bg-blue-500 z-50"
+          />
+        )}
+      </AnimatePresence>
+
+      {/* 🔹 Error Dialog */}
+      <AlertDialog
+        open={!!errorDialog}
+        onOpenChange={() => setErrorDialog(null)}
+      >
+        <AlertDialogContent className="bg-slate-900 text-white border border-slate-700">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-red-400">
+              Fetch Failed
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-300">
+              {errorDialog}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction
+              onClick={() => setErrorDialog(null)}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              OK
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <AnimatePresence mode="wait">
         {/* =======================
             PAGE 1: Equipment List
@@ -108,32 +176,23 @@ const Maintenance: React.FC = () => {
             <main>
               <div className="p-6 grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {filteredEquipment
-                  .sort((a, b) => b.nametag.localeCompare(a.nametag))
+                  .sort((a, b) => a.nametag.localeCompare(b.nametag))
                   .map((data) => (
                     <motion.div
                       key={data.id}
                       layout
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => handleClick(data)}
-                      className="
-                        border select-none
-                        rounded-lg 
-                        px-4 py-2 
-                        shadow-md 
-                        bg-slate-950
-                        text-white 
-                        font-semibold 
-                        text-center 
-                        cursor-pointer 
-                        transition 
-                        duration-200 
-                        ease-in-out 
-                        hover:bg-slate-900
-                        hover:shadow-lg 
-                        active:bg-slate-800
-                        mb-3
-                      "
+                      whileHover={!loading ? { scale: 1.02 } : {}}
+                      whileTap={!loading ? { scale: 0.98 } : {}}
+                      onClick={!loading ? () => handleClick(data) : undefined}
+                      className={`border select-none rounded-lg px-4 py-2 shadow-md 
+                        ${
+                          loading
+                            ? "opacity-50 cursor-not-allowed"
+                            : "cursor-pointer"
+                        } 
+                        bg-slate-950 text-white font-semibold text-center 
+                        transition duration-200 ease-in-out 
+                        hover:bg-slate-900 hover:shadow-lg active:bg-slate-800 mb-3`}
                     >
                       {data.nametag}
                       <div>
@@ -141,6 +200,12 @@ const Maintenance: React.FC = () => {
                           {data.description}
                         </p>
                       </div>
+
+                      {loading && (
+                        <div className="mt-2 text-xs text-gray-400 animate-pulse">
+                          Loading...
+                        </div>
+                      )}
                     </motion.div>
                   ))}
               </div>
@@ -162,11 +227,15 @@ const Maintenance: React.FC = () => {
           >
             <button
               onClick={handleBack}
-              className="mb-4 px-4 py-2 bg-slate-900 text-white rounded hover:bg-slate-800 active:[transform:scale(0.98)]"
+              className="mb-4 px-4 py-2 mx-5 bg-slate-900 text-white rounded hover:bg-slate-800 active:[transform:scale(0.98)]"
             >
-              Back
+              ← Back
             </button>
 
+            {/* 🔹 Create Record Popup */}
+            <CreateMaintenanceRecord items={selectedEquipmentTimeline} />
+
+            {/* 🔹 Timeline with integrated Edit */}
             <TimelineCanvas items={selectedEquipment} />
           </motion.div>
         )}

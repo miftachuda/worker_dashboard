@@ -1,0 +1,181 @@
+import React, { useState } from "react";
+import PocketBase, { RecordModel } from "pocketbase";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+const pb = new PocketBase("https://base.miftachuda.my.id");
+interface CreateMaintenanceRecordProps {
+  items: RecordModel;
+  onCreated?: () => void;
+}
+
+const CreateMaintenanceRecord: React.FC<CreateMaintenanceRecordProps> = ({
+  items,
+  onCreated,
+}) => {
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState({
+    title: "",
+    description: "",
+    discipline: "",
+    start_time: "",
+    end_time: "",
+    performed_by: "",
+    status: "",
+    type: "",
+    nametag: items.id,
+    part_used: "",
+    link_image: "",
+  });
+
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    if (name === "start_time" || name === "end_time") {
+      const timestamp = Math.floor(new Date(value).getTime() / 1000);
+      setForm({ ...form, [name]: timestamp.toString() });
+    } else {
+      setForm({ ...form, [name]: value });
+    }
+  };
+
+  const handleValueChange = (name: string, value: string) => {
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleCreate = async () => {
+    setLoading(true);
+    try {
+      const record = {
+        ...form,
+        part_used: {
+          part_used: form.part_used.split(",").map((p) => p.trim()),
+        },
+        link_image: { link_image: [form.link_image] },
+      };
+
+      await pb.collection("maintenance_collection").create(record);
+      setOpen(false);
+      onCreated?.();
+    } catch (err) {
+      alert("Failed to create record: " + (err as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <>
+      <Button onClick={() => setOpen(true)}>+ New Record</Button>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create Maintenance Record</DialogTitle>
+          </DialogHeader>
+          <DialogTitle>{items.nametag}</DialogTitle>
+          <div className="grid gap-2 py-2">
+            <Input
+              name="title"
+              placeholder="Judul Pekerjaan"
+              value={form.title}
+              onChange={handleChange}
+            />
+            <Textarea
+              name="description"
+              placeholder="Description"
+              value={form.description}
+              onChange={handleChange}
+            />
+            <Select
+              value={form.discipline}
+              onValueChange={(value) => handleValueChange("discipline", value)}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select Discipline" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Stationary">Stationary</SelectItem>
+                <SelectItem value="Electrical">Electrical</SelectItem>
+                <SelectItem value="Instrumentation">Instrumentation</SelectItem>
+                <SelectItem value="Rotating">Rotating</SelectItem>
+                <SelectItem value="Others">Others</SelectItem>
+              </SelectContent>
+            </Select>
+            <Input
+              name="performed_by"
+              placeholder="Performed by"
+              value={form.performed_by}
+              onChange={handleChange}
+            />
+
+            <Input
+              type="datetime-local"
+              name="start_time"
+              placeholder="Start Perbaikan"
+              onChange={handleChange}
+            />
+            <Input
+              type="datetime-local"
+              name="end_time"
+              placeholder="End Perbaikan"
+              onChange={handleChange}
+            />
+            <Input
+              name="status"
+              placeholder="Status"
+              value={form.status}
+              onChange={handleChange}
+            />
+            <Input
+              name="type"
+              placeholder="Type"
+              value={form.type}
+              onChange={handleChange}
+            />
+            <Input
+              name="part_used"
+              placeholder="Comma-separated parts (plug, gasket...)"
+              value={form.part_used}
+              onChange={handleChange}
+            />
+            <Input
+              name="link_image"
+              placeholder="Image URL"
+              value={form.link_image}
+              onChange={handleChange}
+            />
+          </div>
+
+          <DialogFooter>
+            <Button onClick={() => setOpen(false)} variant="outline">
+              Cancel
+            </Button>
+            <Button onClick={handleCreate} disabled={loading}>
+              {loading ? "Saving..." : "Save"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+};
+export default CreateMaintenanceRecord;

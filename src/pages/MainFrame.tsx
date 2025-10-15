@@ -16,10 +16,10 @@ const MainFrame: React.FC<{ children?: ReactNode }> = ({ children }) => (
             <SidebarTrigger className="text-foreground hover:text-primary" />
             <div>
               <h1 className="text-sm sm:text-xl font-bold text-foreground">
-                Worker Dashboard
+                LOC II Dashboard
               </h1>
               <p className="text-xs sm:text-sm text-muted-foreground">
-                Track and manage workforce
+                Track and manage workspace
               </p>
             </div>
             <HitWebCounter />
