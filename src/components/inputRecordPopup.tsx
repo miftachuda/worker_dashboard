@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { DateRangeWithStatusPicker } from "./DateTimePicker";
 const pb = new PocketBase("https://base.miftachuda.my.id");
 interface CreateMaintenanceRecordProps {
   items: RecordModel;
@@ -99,62 +100,101 @@ const CreateMaintenanceRecord: React.FC<CreateMaintenanceRecordProps> = ({
               value={form.title}
               onChange={handleChange}
             />
-            <Textarea
-              name="description"
-              placeholder="Description"
-              value={form.description}
-              onChange={handleChange}
-            />
+
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <Select
+                  value={form.discipline}
+                  onValueChange={(value) =>
+                    handleValueChange("discipline", value)
+                  }
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select Discipline" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Stationary">Stationary</SelectItem>
+                    <SelectItem value="Electrical">Electrical</SelectItem>
+                    <SelectItem value="Instrumentation">
+                      Instrumentation
+                    </SelectItem>
+                    <SelectItem value="Rotating">Rotating</SelectItem>
+                    <SelectItem value="Others">Others</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex-1">
+                <Input
+                  name="performed_by"
+                  placeholder="Technician"
+                  value={form.performed_by}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
             <Select
-              value={form.discipline}
-              onValueChange={(value) => handleValueChange("discipline", value)}
+              value={form.status}
+              defaultValue="In Progress"
+              onValueChange={(value) => handleValueChange("status", value)}
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select Discipline" />
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Stationary">Stationary</SelectItem>
-                <SelectItem value="Electrical">Electrical</SelectItem>
-                <SelectItem value="Instrumentation">Instrumentation</SelectItem>
-                <SelectItem value="Rotating">Rotating</SelectItem>
+                <SelectItem value="Completed">Completed</SelectItem>
+                <SelectItem value="In Progress">In Progress</SelectItem>
+                <SelectItem value="Pending">Pending</SelectItem>
+              </SelectContent>
+            </Select>
+            <div className="space-y-4 p-4">
+              {/* ✅ Show both start and end when Completed */}
+              {form.status === "Completed" && (
+                <DateRangeWithStatusPicker
+                  form={form}
+                  setForm={setForm}
+                  showStart
+                  showEnd
+                />
+              )}
+
+              {/* ✅ Show only start when In Progress or Pending */}
+              {(form.status === "In Progress" || form.status === "Pending") && (
+                <DateRangeWithStatusPicker
+                  form={form}
+                  setForm={setForm}
+                  showStart
+                  showEnd={false}
+                />
+              )}
+            </div>
+
+            <Select
+              value={form.type}
+              onValueChange={(value) => handleValueChange("type", value)}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Maintenance">Maintenance</SelectItem>
+                <SelectItem value="Preventive Maintenance">
+                  Preventive Maintenance
+                </SelectItem>
+                <SelectItem value="Inspekction">Inspection</SelectItem>
                 <SelectItem value="Others">Others</SelectItem>
               </SelectContent>
             </Select>
             <Input
-              name="performed_by"
-              placeholder="Performed by"
-              value={form.performed_by}
-              onChange={handleChange}
-            />
-
-            <Input
-              type="datetime-local"
-              name="start_time"
-              placeholder="Start Perbaikan"
-              onChange={handleChange}
-            />
-            <Input
-              type="datetime-local"
-              name="end_time"
-              placeholder="End Perbaikan"
-              onChange={handleChange}
-            />
-            <Input
-              name="status"
-              placeholder="Status"
-              value={form.status}
-              onChange={handleChange}
-            />
-            <Input
-              name="type"
-              placeholder="Type"
-              value={form.type}
-              onChange={handleChange}
-            />
-            <Input
               name="part_used"
               placeholder="Comma-separated parts (plug, gasket...)"
               value={form.part_used}
+              onChange={handleChange}
+            />
+            <Textarea
+              name="description"
+              placeholder="Description"
+              value={form.description}
               onChange={handleChange}
             />
             <Input
