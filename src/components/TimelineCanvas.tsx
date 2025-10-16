@@ -8,16 +8,21 @@ import "react-vertical-timeline-component/style.min.css";
 import { Button } from "./ui/button";
 import { Edit } from "lucide-react";
 import PocketBase from "pocketbase";
+import MiniTimeline from "./MiniTimeline";
 
-function formatTimestampToDateString(timestamp: number): string {
-  const date = new Date(timestamp * 1000); // convert seconds → milliseconds
-  return date.toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  });
+function formatTimestampToDateString(timestamp?: number | null): string {
+  // If timestamp is null, undefined, or not a valid number → use current date
+  const date =
+    !timestamp || isNaN(timestamp) ? new Date() : new Date(timestamp * 1000);
+
+  const hours = date.getHours().toString().padStart(2, "0");
+  const minutes = date.getMinutes().toString().padStart(2, "0");
+  const day = date.getDate().toString().padStart(2, "0");
+  const month = date.toLocaleString("en-GB", { month: "short" }); // e.g. Dec
+  const year = date.getFullYear();
+
+  return `${day}-${month}-${year} ${hours}.${minutes}`;
 }
-
 function formatTimestamp(isoString: string): string {
   const date = new Date(isoString);
   const hours = date.getHours().toString().padStart(2, "0");
@@ -25,7 +30,30 @@ function formatTimestamp(isoString: string): string {
   const day = date.getDate().toString().padStart(2, "0");
   const month = date.toLocaleString("en-US", { month: "short" }); // e.g., "Oct"
   const year = date.getFullYear();
-  return `${hours}.${minutes} ${day}.${month}.${year}`;
+  return ` ${day} ${month} ${year}, ${hours}.${minutes}`;
+}
+function calculateDuration(start?: number | null, end?: number | null): string {
+  // If missing → use current timestamp in seconds
+  const startTime = !start || isNaN(start) ? Date.now() / 1000 : start;
+  const endTime = !end || isNaN(end) ? Date.now() / 1000 : end;
+
+  // Duration in seconds
+  const diffSeconds = endTime - startTime;
+  const totalMinutes = Math.floor(diffSeconds / 60);
+
+  // Handle negative or zero durations
+  if (totalMinutes <= 0) return "0 Min";
+
+  const days = Math.floor(totalMinutes / (60 * 24));
+  const hours = Math.floor((totalMinutes % (60 * 24)) / 60);
+  const minutes = totalMinutes % 60;
+
+  const parts = [];
+  if (days > 0) parts.push(`${days} Day${days > 1 ? "s" : ""}`);
+  if (hours > 0) parts.push(`${hours} Hour${hours > 1 ? "s" : ""}`);
+  if (minutes > 0 || parts.length === 0) parts.push(`${minutes} Min`);
+
+  return parts.join(" ");
 }
 
 interface TimelineProps {
@@ -51,9 +79,7 @@ const TimelineCanvas: React.FC<TimelineProps> = ({ items }) => {
     if (!editingItem) return;
     setLoading(true);
     try {
-      const pb = new PocketBase(
-        import.meta.env.VITE_PB_URL || "https://your-pocketbase-url"
-      );
+      const pb = new PocketBase("https://base.miftachuda.my.id");
       await pb.collection("maintenance_collection").update(editingItem.id, {
         title: editingItem.title,
         description: editingItem.description,
@@ -88,89 +114,120 @@ const TimelineCanvas: React.FC<TimelineProps> = ({ items }) => {
           </h3>
 
           <VerticalTimeline>
-            {items.map((item, index) => {
-              const color = "rgb(9, 6, 84)";
-              let initials: string;
-              const isEdited = item.updated !== item.created;
+            {items
+              .slice() // prevent mutating the original array
+              .sort(
+                (a, b) =>
+                  new Date(b.start_time).getTime() -
+                  new Date(a.start_time).getTime()
+              )
+              .map((item, index) => {
+                const color = "rgb(9, 6, 84)";
+                let initials: string;
+                const isEdited = item.updated !== item.created;
 
-              switch (item.discipline) {
-                case "Electrical":
-                  initials = "ELC";
-                  break;
-                case "Stationary":
-                  initials = "STA";
-                  break;
-                case "Rotating":
-                  initials = "ROT";
-                  break;
-                case "Instrumentation":
-                  initials = "INS";
-                  break;
-                default:
-                  initials = "N/A";
-                  break;
-              }
+                switch (item.discipline) {
+                  case "Electrical":
+                    initials = "ELC";
+                    break;
+                  case "Stationary":
+                    initials = "STA";
+                    break;
+                  case "Rotating":
+                    initials = "ROT";
+                    break;
+                  case "Instrumentation":
+                    initials = "INS";
+                    break;
+                  default:
+                    initials = "N/A";
+                    break;
+                }
 
-              const disciplineColors: Record<string, string> = {
-                Stationary: "#C0392B",
-                Electrical: "#2980B9",
-                Rotating: "#27AE60",
-                Instrumentation: "#8E44AD",
-                Default: "#7F8C8D",
-              };
+                const disciplineColors: Record<string, string> = {
+                  Stationary: "#C0392B",
+                  Electrical: "#2980B9",
+                  Rotating: "#27AE60",
+                  Instrumentation: "#8E44AD",
+                  Default: "#7F8C8D",
+                };
 
-              const iconColor =
-                disciplineColors[
-                  item.discipline as keyof typeof disciplineColors
-                ] || disciplineColors.Default;
+                const iconColor =
+                  disciplineColors[
+                    item.discipline as keyof typeof disciplineColors
+                  ] || disciplineColors.Default;
+                const start = formatTimestampToDateString(item.start_time);
+                const end = formatTimestampToDateString(item.end_time);
 
-              return (
-                <VerticalTimelineElement
-                  key={index}
-                  className="vertical-timeline-element"
-                  date={`${formatTimestampToDateString(
-                    item.start_time
-                  )} - ${formatTimestampToDateString(item.end_time)} `}
-                  contentStyle={{ background: color }}
-                  contentArrowStyle={{ borderRight: `15px solid ${color}` }}
-                  iconStyle={{
-                    background: iconColor,
-                    color: "#fff",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontWeight: "bold",
-                    fontSize: "0.9rem",
-                  }}
-                  icon={<span>{initials}</span>}
-                >
-                  <div className="absolute top-2 right-2">
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="h-6 w-6 text-gray-300 hover:text-white hover:bg-gray-700"
-                      onClick={() => handleEdit(item)}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                  </div>
+                return (
+                  <VerticalTimelineElement
+                    key={index}
+                    className="vertical-timeline-element"
+                    date={
+                      <div
+                        style={{
+                          transform: "translateY(-30%)",
+                        }}
+                        className="mx-4"
+                      >
+                        <MiniTimeline
+                          steps={[
+                            { time: end, label: item.status },
+                            { time: start, label: "Start" },
+                          ]}
+                          // Pass the alignment prop based on the index.
+                          // `react-vertical-timeline-component` puts even indices on the left
+                          // (so their dates should be on the right), and odd on the right.
+                          align={index % 2 === 0 ? "left" : "right"}
+                          duration={calculateDuration(
+                            item.start_time,
+                            item.end_time
+                          )}
+                        />
 
-                  <h3 className="vertical-timeline-element-title font-medium">
-                    {item.title}
-                  </h3>
-                  <p className="!font-extralight text-gray-400">
-                    {item.description}
-                  </p>
+                        {/* This div will be aligned to the right */}
+                      </div>
+                    }
+                    contentStyle={{ background: color }}
+                    contentArrowStyle={{ borderRight: `15px solid ${color}` }}
+                    iconStyle={{
+                      background: iconColor,
+                      color: "#fff",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontWeight: "bold",
+                      fontSize: "0.9rem",
+                    }}
+                    icon={<span>{initials}</span>}
+                  >
+                    <div className="absolute top-2 right-2">
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-6 w-6 text-gray-300 hover:text-white hover:bg-gray-700"
+                        onClick={() => handleEdit(item)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                    </div>
 
-                  <div className="absolute bottom-2 right-3 text-xs text-gray-400 italic">
-                    {isEdited && (
-                      <>Edited: {formatTimestamp(item.updated)} · </>
-                    )}
-                    Created: {formatTimestamp(item.created)}
-                  </div>
-                </VerticalTimelineElement>
-              );
-            })}
+                    <h3 className="vertical-timeline-element-title font-medium">
+                      {item.title}
+                    </h3>
+                    <p className="!font-extralight text-gray-400">
+                      {item.description}
+                    </p>
+
+                    <div className="absolute bottom-2 right-3 text-[9px] leading-tight text-gray-400 italic">
+                      {isEdited && (
+                        <>Edited: {formatTimestamp(item.updated)} · </>
+                      )}
+                      Created: {formatTimestamp(item.created)}
+                    </div>
+                  </VerticalTimelineElement>
+                );
+              })}
           </VerticalTimeline>
         </>
       )}

@@ -14,10 +14,10 @@ import { Badge } from "@/components/ui/badge";
 
 export function UserProfile() {
   const [user] = useState({
-    name: "Admin User",
-    email: "admin@guardiverde.com",
+    name: "Miftachul Huda",
+    email: "admin@miftachuda.my.id",
     role: "Administrator",
-    avatar: "/placeholder.svg"
+    avatar: "/public/avatar.png",
   });
 
   const handleLogout = () => {
@@ -30,22 +30,28 @@ export function UserProfile() {
       {/* Notifications */}
       <Button variant="ghost" size="icon" className="relative">
         <Bell className="h-5 w-5" />
-        <Badge 
-          variant="destructive" 
+        <Badge
+          variant="destructive"
           className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
         >
-          3
+          1
         </Badge>
       </Button>
 
       {/* User Menu */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="relative h-10 w-auto px-3 space-x-2 hover:bg-secondary">
+          <Button
+            variant="ghost"
+            className="relative h-10 w-auto px-3 space-x-2 hover:bg-secondary"
+          >
             <Avatar className="h-8 w-8">
               <AvatarImage src={user.avatar} alt={user.name} />
               <AvatarFallback className="bg-gradient-primary text-primary-foreground">
-                {user.name.split(" ").map(n => n[0]).join("")}
+                {user.name
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")}
               </AvatarFallback>
             </Avatar>
             <div className="hidden md:flex md:flex-col md:items-start md:text-sm">
@@ -66,22 +72,22 @@ export function UserProfile() {
               </p>
             </div>
           </DropdownMenuLabel>
-          
+
           <DropdownMenuSeparator />
-          
+
           <DropdownMenuItem className="cursor-pointer">
             <User className="mr-2 h-4 w-4" />
             <span>Profile</span>
           </DropdownMenuItem>
-          
+
           <DropdownMenuItem className="cursor-pointer">
             <Settings className="mr-2 h-4 w-4" />
             <span>Settings</span>
           </DropdownMenuItem>
-          
+
           <DropdownMenuSeparator />
-          
-          <DropdownMenuItem 
+
+          <DropdownMenuItem
             className="cursor-pointer text-destructive focus:text-destructive"
             onClick={handleLogout}
           >

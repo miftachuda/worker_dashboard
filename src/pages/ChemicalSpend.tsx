@@ -4,10 +4,10 @@ import { UserProfile } from "@/components/UserProfile";
 import React from "react";
 import MainFrame from "./MainFrame";
 
-const Notif: React.FC = () => (
+const ChemicalSpend: React.FC = () => (
   <MainFrame>
-    <main>Notification pages</main>
+    <main>Chemical Spend in Progress</main>
   </MainFrame>
 );
 
-export default Notif;
+export default ChemicalSpend;

@@ -7,6 +7,7 @@ import {
   Calendar,
   FileText,
   Bell,
+  Droplet,
   Plus,
   BookAudio,
   Wrench,
@@ -33,7 +34,7 @@ const mainItems = [
   { title: "Reports", url: "/reports", icon: FileText },
   { title: "Maintenance Records", url: "/maintenances", icon: Wrench },
   { title: "Orders", url: "/orders", icon: BookAudio },
-  { title: "Notifications", url: "/notifications", icon: Bell },
+  { title: "Chemical Spend", url: "/chemical", icon: Droplet },
 ];
 
 const adminItems = [

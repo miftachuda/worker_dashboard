@@ -73,13 +73,9 @@ const Leave: React.FC = () => {
           onChange={(e) => setSearch(e.target.value)}
           className="w-full"
         />
-        <PlusInputButton
-          onAdd={(v) => console.log(v)}
-          placeholder="Add leave type"
-        />
 
         <UserTableWrapper users={employee} callback={callback} />
-        <div>
+        {/* <div>
           {filteredData.map((leave, index) => {
             const start = parseISO(leave.From);
             const end = parseISO(leave.To);
@@ -99,7 +95,7 @@ const Leave: React.FC = () => {
               </div>
             );
           })}
-        </div>
+        </div> */}
       </main>
     </MainFrame>
   );

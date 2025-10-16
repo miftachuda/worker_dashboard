@@ -9,11 +9,11 @@ import Worker from "./pages/Workers";
 import Shift from "./pages/ShiftCalendar";
 import Leave from "./pages/Leaves";
 import Report from "./pages/Report";
-import Notif from "./pages/Notif";
 import Setting from "./pages/Settings";
 import Orders from "./pages/Orders";
 import Maintenance from "./pages/MaintenanceRecords";
 import Test from "./pages/Test";
+import ChemicalSpend from "./pages/ChemicalSpend";
 
 const queryClient = new QueryClient();
 
@@ -30,7 +30,7 @@ const App = () => (
           <Route path="/leaves" element={<Leave />} />
           <Route path="/reports" element={<Report />} />
           <Route path="/maintenances" element={<Maintenance />} />
-          <Route path="/notifications" element={<Notif />} />
+          <Route path="/chemical" element={<ChemicalSpend />} />
           <Route path="/settings" element={<Test />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="*" element={<NotFound />} />
