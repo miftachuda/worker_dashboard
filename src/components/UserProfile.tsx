@@ -17,7 +17,7 @@ export function UserProfile() {
     name: "Miftachul Huda",
     email: "admin@miftachuda.my.id",
     role: "Administrator",
-    avatar: "/public/avatar.png",
+    avatar: "/avatar.png",
   });
 
   const handleLogout = () => {

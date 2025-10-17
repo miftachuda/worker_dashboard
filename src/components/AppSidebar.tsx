@@ -75,7 +75,7 @@ export function AppSidebar() {
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-gradient-primary rounded-sm flex p-1 items-center justify-center">
                 <img
-                  src="/public/logo.png"
+                  src="/logo.png"
                   alt="Example"
                   className="w-full h-full object-contain"
                 />
@@ -87,7 +87,7 @@ export function AppSidebar() {
           ) : (
             <div className="w-8 h-8 bg-gradient-primary rounded-sm flex p-1 items-center justify-center mx-auto ">
               <img
-                src="/public/logo.png"
+                src="/logo.png"
                 alt="Example"
                 className="w-full h-full object-contain"
               />
