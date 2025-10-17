@@ -29,16 +29,20 @@ export function DateRangeWithStatusPicker({
   return (
     <div className="flex flex-col gap-4">
       {showStart && (
-        <Flatpickr
-          data-enable-time
-          options={{ enableTime: true, time_24hr: true }}
-          value={form.start_time * 1000}
-          onChange={(dates) =>
+        <Input
+          type="datetime-local"
+          name="end_time"
+          value={formattedEndTime}
+          onChange={(e) =>
             setForm((prev) => ({
               ...prev,
-              start_time: Math.floor(dates[0].getTime() / 1000),
+              end_time: Math.floor(new Date(e.target.value).getTime() / 1000),
             }))
           }
+          className="w-64 text-sm text-gray-200 bg-slate-900 rounded-md p-2"
+          style={{
+            colorScheme: "dark", // makes native picker dark mode friendly
+          }}
         />
       )}
 

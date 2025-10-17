@@ -41,6 +41,7 @@ export function OrderCard({ num, ...order }: Orderx & { num: number }) {
       console.error("Update failed:", error);
     } else {
       setOpen(false);
+      window.location.reload(); // ✅ reload the page
     }
   };
 

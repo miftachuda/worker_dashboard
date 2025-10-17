@@ -8,15 +8,16 @@ interface TimelineStep {
 interface MiniTimelineProps {
   steps: [TimelineStep, TimelineStep];
   duration: string;
-  activeIndex?: number;
+
   align?: "left" | "right";
+  status: string;
 }
 
 const MiniTimeline: React.FC<MiniTimelineProps> = ({
   steps,
-  activeIndex = 0,
   duration,
   align = "left",
+  status,
 }) => {
   return (
     // This part remains the same - it correctly aligns the whole block
@@ -35,15 +36,34 @@ const MiniTimeline: React.FC<MiniTimelineProps> = ({
         }`}
       >
         {steps.map((step, index) => {
-          const isActive = index <= activeIndex;
+          var dotColor = "bg-gray-300 border-gray-300 ";
+          if (step.label == "Start") {
+            dotColor = "bg-gray-300 border-gray-300";
+          } else {
+            dotColor = "bg-gray-300 border-gray-300 ";
+            if (status == "Completed") {
+              dotColor =
+                "bg-green-500 border-green-500 shadow-[0_0_4px_rgba(34,197,94,0.5)]";
+            } else if (status == "In Progress") {
+              dotColor =
+                "bg-yellow-500 border-yellow-500 shadow-[0_0_4px_rgba(249,115,22,0.5)]";
+            }
+          }
+          var fontColor = "text-gray-100";
+          if (step.label == "Start") {
+            fontColor = "text-gray-100";
+          } else {
+            if (status == "Completed") {
+              fontColor = "text-green-500";
+            } else if (status == "In Progress") {
+              fontColor = "text-yellow-500";
+            } else if (status == "Pending") {
+              fontColor = "text-yellow-200";
+            }
+          }
+
           const dot = (
-            <div
-              className={`w-3 h-3 rounded-full border-2 z-10 ${
-                isActive
-                  ? "bg-blue-500 border-blue-500 shadow-[0_0_4px_rgba(59,130,246,0.5)]"
-                  : "bg-gray-300 border-gray-300"
-              }`}
-            />
+            <div className={`w-3 h-3 rounded-full border-2 z-10 ${dotColor}`} />
           );
 
           return (
@@ -52,19 +72,15 @@ const MiniTimeline: React.FC<MiniTimelineProps> = ({
             <div
               key={index}
               className={`flex items-center relative 
-    flex-row  // default (mobile)
-    ${align === "right" ? "lg:flex-row-reverse" : "lg:flex-row"}
-  `}
+                flex-row  // default (mobile)
+                ${align === "right" ? "lg:flex-row-reverse" : "lg:flex-row"}
+              `}
             >
               <div className="text-sm text-gray-500 whitespace-nowrap mx-1">
                 {step.time}
               </div>
               {dot}
-              <div
-                className={`font-medium mx-1 ${
-                  isActive ? "text-blue-700" : "text-gray-300"
-                }`}
-              >
+              <div className={`font-medium mx-1 ${fontColor}`}>
                 {step.label}
               </div>
             </div>

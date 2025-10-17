@@ -58,9 +58,10 @@ function calculateDuration(start?: number | null, end?: number | null): string {
 
 interface TimelineProps {
   items: RecordModel[];
+  onReload?: () => void;
 }
 
-const TimelineCanvas: React.FC<TimelineProps> = ({ items }) => {
+const TimelineCanvas: React.FC<TimelineProps> = ({ items, onReload }) => {
   const [openEdit, setOpenEdit] = useState(false);
   const [editingItem, setEditingItem] = useState<RecordModel | null>(null);
   const [loading, setLoading] = useState(false);
@@ -86,8 +87,10 @@ const TimelineCanvas: React.FC<TimelineProps> = ({ items }) => {
       });
       console.log("Record updated:", editingItem.id);
       handleClose();
+      onReload?.();
     } catch (err) {
       console.error("Update failed:", err);
+      alert("Update failed: " + (err as Error).message);
     } finally {
       setLoading(false);
     }
@@ -116,11 +119,18 @@ const TimelineCanvas: React.FC<TimelineProps> = ({ items }) => {
           <VerticalTimeline>
             {items
               .slice() // prevent mutating the original array
-              .sort(
-                (a, b) =>
-                  new Date(b.start_time).getTime() -
-                  new Date(a.start_time).getTime()
-              )
+              .sort((a, b) => {
+                const now = Math.floor(Date.now() / 1000); // current UNIX timestamp in seconds
+
+                const aTime = isNaN(Number(a.start_time))
+                  ? now
+                  : Number(a.start_time);
+                const bTime = isNaN(Number(b.start_time))
+                  ? now
+                  : Number(b.start_time);
+
+                return bTime - aTime; // descending (newest first)
+              })
               .map((item, index) => {
                 const color = "rgb(9, 6, 84)";
                 let initials: string;
@@ -175,14 +185,12 @@ const TimelineCanvas: React.FC<TimelineProps> = ({ items }) => {
                             { time: end, label: item.status },
                             { time: start, label: "Start" },
                           ]}
-                          // Pass the alignment prop based on the index.
-                          // `react-vertical-timeline-component` puts even indices on the left
-                          // (so their dates should be on the right), and odd on the right.
                           align={index % 2 === 0 ? "left" : "right"}
                           duration={calculateDuration(
                             item.start_time,
                             item.end_time
                           )}
+                          status={item.status}
                         />
 
                         {/* This div will be aligned to the right */}
@@ -215,7 +223,7 @@ const TimelineCanvas: React.FC<TimelineProps> = ({ items }) => {
                     <h3 className="vertical-timeline-element-title font-medium">
                       {item.title}
                     </h3>
-                    <p className="!font-extralight text-gray-400">
+                    <p className="!font-extralight text-gray-400 whitespace-pre-line">
                       {item.description}
                     </p>
 

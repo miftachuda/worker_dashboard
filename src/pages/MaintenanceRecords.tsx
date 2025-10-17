@@ -236,7 +236,10 @@ const Maintenance: React.FC = () => {
             <CreateMaintenanceRecord items={selectedEquipmentTimeline} />
 
             {/* 🔹 Timeline with integrated Edit */}
-            <TimelineCanvas items={selectedEquipment} />
+            <TimelineCanvas
+              items={selectedEquipment}
+              onReload={refreshMaintenanceRecords}
+            />
           </motion.div>
         )}
       </AnimatePresence>
