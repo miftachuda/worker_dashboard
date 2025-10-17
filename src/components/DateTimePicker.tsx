@@ -1,4 +1,6 @@
 import { Input } from "./ui/input";
+import Flatpickr from "react-flatpickr";
+import "flatpickr/dist/themes/dark.css";
 
 interface DateRangeWithStatusPickerProps {
   form: any;
@@ -27,14 +29,14 @@ export function DateRangeWithStatusPicker({
   return (
     <div className="flex flex-col gap-4">
       {showStart && (
-        <Input
-          type="datetime-local"
-          name="start_time"
-          value={formattedStartTime}
-          onChange={(e) =>
+        <Flatpickr
+          data-enable-time
+          options={{ enableTime: true, time_24hr: true }}
+          value={form.start_time * 1000}
+          onChange={(dates) =>
             setForm((prev) => ({
               ...prev,
-              start_time: Math.floor(new Date(e.target.value).getTime() / 1000),
+              start_time: Math.floor(dates[0].getTime() / 1000),
             }))
           }
         />
@@ -51,6 +53,10 @@ export function DateRangeWithStatusPicker({
               end_time: Math.floor(new Date(e.target.value).getTime() / 1000),
             }))
           }
+          className="w-64 text-sm text-gray-200 bg-slate-900 rounded-md p-2"
+          style={{
+            colorScheme: "dark", // makes native picker dark mode friendly
+          }}
         />
       )}
     </div>

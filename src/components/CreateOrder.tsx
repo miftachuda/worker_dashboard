@@ -25,9 +25,9 @@ export function CreateOrder({
     tag: "",
   });
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
+  const handleChange: React.ChangeEventHandler<
+    HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+  > = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
@@ -71,11 +71,12 @@ export function CreateOrder({
           </div>
           <div>
             <Label htmlFor="description">Description</Label>
-            <Input
+            <textarea
               name="description"
               value={form.description}
               onChange={handleChange}
               placeholder="Enter description"
+              className="w-full p-2 rounded bg-gray-900 border border-gray-900 text-white min-h-[100px]"
             />
           </div>
           <div>

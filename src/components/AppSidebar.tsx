@@ -70,19 +70,27 @@ export function AppSidebar() {
     >
       <SidebarContent className="bg-sidebar">
         {/* Logo/Brand */}
-        <div className="p-4 border-b border-border">
+        <div className="p-1 border-b border-border">
           {!collapsed ? (
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-                <Users className="w-5 h-5 text-primary-foreground" />
+                <img
+                  src="/public/logo.png"
+                  alt="Example"
+                  className="w-full h-full object-contain"
+                />
               </div>
               <span className="font-bold text-lg text-foreground">
                 Lube Oil Complex II
               </span>
             </div>
           ) : (
-            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center mx-auto">
-              <Users className="w-5 h-5 text-primary-foreground" />
+            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center mx-auto ">
+              <img
+                src="/public/logo.png"
+                alt="Example"
+                className="w-full h-full object-contain"
+              />
             </div>
           )}
         </div>

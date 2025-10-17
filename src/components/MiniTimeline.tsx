@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 interface TimelineStep {
   time: string;
@@ -21,14 +21,17 @@ const MiniTimeline: React.FC<MiniTimelineProps> = ({
   return (
     // This part remains the same - it correctly aligns the whole block
     <div
-      className={`relative flex items-center justify-end ${
-        align === "left" ? "flex-row-reverse text-right" : "flex-row text-left"
-      }`}
+      className={`relative flex items-center justify-end
+    ${
+      align === "left"
+        ? "flex-row-reverse text-left lg:flex-row-reverse lg:text-right"
+        : "flex-row-reverse text-left lg:flex-row"
+    }`}
     >
       <div className="px-4 text-[11px] font-thin">{`( ${duration} )`}</div>
       <div
         className={`relative flex flex-col space-y-1 px-0 ${
-          align === "right" ? "items-end" : "items-start"
+          align === "right" ? "lg:items-end items-start" : "items-start"
         }`}
       >
         {steps.map((step, index) => {
@@ -46,41 +49,24 @@ const MiniTimeline: React.FC<MiniTimelineProps> = ({
           return (
             // We now use a ternary operator to render two different layouts
             // based on the 'align' prop.
-            <div key={index} className="flex items-center relative">
-              {align === "right" ? (
-                // ✅ RIGHT-ALIGNED LAYOUT: [Label] [Dot] [Time]
-                <>
-                  <div
-                    className={`mr-2 font-medium ${
-                      // Note: margin is now mr-2
-                      isActive ? "text-blue-700" : "text-gray-300"
-                    }`}
-                  >
-                    {step.label}
-                  </div>
-                  {dot}
-                  <div className="text-sm text-gray-500 text-left whitespace-nowrap ml-3">
-                    {" "}
-                    {/* Note: margin is now ml-3 */}
-                    {step.time}
-                  </div>
-                </>
-              ) : (
-                // ✅ LEFT-ALIGNED LAYOUT (Original): [Time] [Dot] [Label]
-                <>
-                  <div className="text-sm text-gray-500 text-right whitespace-nowrap mr-3">
-                    {step.time}
-                  </div>
-                  {dot}
-                  <div
-                    className={`ml-2 font-medium ${
-                      isActive ? "text-blue-700" : "text-gray-300"
-                    }`}
-                  >
-                    {step.label}
-                  </div>
-                </>
-              )}
+            <div
+              key={index}
+              className={`flex items-center relative 
+    flex-row  // default (mobile)
+    ${align === "right" ? "lg:flex-row-reverse" : "lg:flex-row"}
+  `}
+            >
+              <div className="text-sm text-gray-500 whitespace-nowrap mx-1">
+                {step.time}
+              </div>
+              {dot}
+              <div
+                className={`font-medium mx-1 ${
+                  isActive ? "text-blue-700" : "text-gray-300"
+                }`}
+              >
+                {step.label}
+              </div>
             </div>
           );
         })}

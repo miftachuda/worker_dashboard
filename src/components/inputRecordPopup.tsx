@@ -196,6 +196,7 @@ const CreateMaintenanceRecord: React.FC<CreateMaintenanceRecordProps> = ({
               placeholder="Description"
               value={form.description}
               onChange={handleChange}
+              className="w-full p-2 text-sm font-thin italic rounded bg-gray-900 border border-gray-700 text-white min-h-[250px]"
             />
             <Input
               name="link_image"

@@ -65,9 +65,11 @@ const EditMaintenanceRecord: React.FC<EditMaintenanceRecordProps> = ({
 
       {/* Edit popup */}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-lg text-sm">
           <DialogHeader>
-            <DialogTitle>Edit Maintenance Record</DialogTitle>
+            <DialogTitle className="text-sm">
+              Edit Maintenance Record
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-3 mt-2">
             <Input
@@ -81,6 +83,7 @@ const EditMaintenanceRecord: React.FC<EditMaintenanceRecordProps> = ({
               placeholder="Description"
               value={form.description}
               onChange={handleChange}
+              className="!text-base font-extralight"
             />
             <Input
               name="discipline"

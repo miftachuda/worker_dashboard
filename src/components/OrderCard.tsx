@@ -14,14 +14,16 @@ import supabase from "@/lib/supabaseClient";
 import { Orderx } from "@/types/Order";
 import { formatDistanceToNow } from "date-fns";
 import { CreateOrder } from "./CreateOrder";
+import { Textarea } from "./ui/textarea";
+import { Pencil } from "lucide-react";
 
 export function OrderCard({ num, ...order }: Orderx & { num: number }) {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(order);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
+  const handleChange: React.ChangeEventHandler<
+    HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+  > = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
@@ -43,7 +45,7 @@ export function OrderCard({ num, ...order }: Orderx & { num: number }) {
   };
 
   return (
-    <Card className="relative ml-4 mt-2 shadow-md rounded-2xl hover:shadow-lg transition-shadow">
+    <Card className="relative ml-4 mt-2 pb-12 shadow-md rounded-2xl hover:shadow-lg transition-shadow">
       <div className="absolute bottom-2 right-2 bg-primary text-black text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow-md">
         {num}
       </div>
@@ -51,7 +53,7 @@ export function OrderCard({ num, ...order }: Orderx & { num: number }) {
         {formatDistanceToNow(order.created_at, { addSuffix: true })}
       </div>
       <CardHeader>
-        <CardTitle className="text-lg mt-0 font-semibold">
+        <CardTitle className="text-sm mt-0 font-semibold">
           {order.title}
         </CardTitle>
       </CardHeader>
@@ -65,42 +67,48 @@ export function OrderCard({ num, ...order }: Orderx & { num: number }) {
         <p>
           <span className="font-medium">Tag :</span> {order.tag}
         </p>
-
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button className="mt-2" size="sm" variant="outline">
-              Edit
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Edit order</DialogTitle>
-            </DialogHeader>
-
-            <div className="space-y-3">
-              <div>
-                <Label htmlFor="Nama">Title</Label>
-                <Input name="Nama" value={form.title} onChange={handleChange} />
-              </div>
-              <div>
-                <Label htmlFor="Position">Description</Label>
-                <Input
-                  name="Position"
-                  value={form.description}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-2 mt-4">
-              <Button variant="outline" onClick={() => setOpen(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleSave}>Save</Button>
-            </div>
-          </DialogContent>
-        </Dialog>
       </CardContent>
+
+      {/* Move dialog outside so fixed button is truly visible */}
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          <Button
+            size="icon"
+            variant="outline"
+            className="absolute bottom-2 left-2 rounded-full shadow-lg z-50"
+          >
+            <Pencil className="h-2 w-2" />
+          </Button>
+        </DialogTrigger>
+
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit order</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-3">
+            <div>
+              <Label htmlFor="title">Title</Label>
+              <Input name="title" value={form.title} onChange={handleChange} />
+            </div>
+            <div>
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                name="description"
+                value={form.description}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2 mt-4">
+            <Button variant="outline" onClick={() => setOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSave}>Save</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

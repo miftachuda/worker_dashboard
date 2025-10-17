@@ -1,5 +1,5 @@
 import { RecordModel } from "pocketbase";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   VerticalTimeline,
   VerticalTimelineElement,
@@ -235,7 +235,7 @@ const TimelineCanvas: React.FC<TimelineProps> = ({ items }) => {
       {openEdit && editingItem && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
           <div className="bg-gray-800 rounded-lg p-6 w-full max-w-md relative shadow-lg border border-gray-700">
-            <h2 className="text-xl font-semibold mb-4 text-white">
+            <h2 className="text-base font-medium mb-4 text-white">
               Edit Maintenance Record
             </h2>
 
@@ -247,7 +247,7 @@ const TimelineCanvas: React.FC<TimelineProps> = ({ items }) => {
                   setEditingItem({ ...editingItem, title: e.target.value })
                 }
                 placeholder="Title"
-                className="w-full p-2 rounded bg-gray-900 border border-gray-700 text-white"
+                className="w-full p-2 text-sm font-extralight rounded bg-gray-900 border border-gray-700 text-white"
               />
 
               <textarea
@@ -259,7 +259,7 @@ const TimelineCanvas: React.FC<TimelineProps> = ({ items }) => {
                   })
                 }
                 placeholder="Description"
-                className="w-full p-2 rounded bg-gray-900 border border-gray-700 text-white min-h-[100px]"
+                className="w-full p-2 text-sm font-thin italic rounded bg-gray-900 border border-gray-700 text-white min-h-[250px]"
               />
             </div>
 
