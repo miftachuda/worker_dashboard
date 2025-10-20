@@ -233,7 +233,10 @@ const Maintenance: React.FC = () => {
             </button>
 
             {/* 🔹 Create Record Popup */}
-            <CreateMaintenanceRecord items={selectedEquipmentTimeline} />
+            <CreateMaintenanceRecord
+              items={selectedEquipmentTimeline}
+              onCreated={refreshMaintenanceRecords}
+            />
 
             {/* 🔹 Timeline with integrated Edit */}
             <TimelineCanvas
