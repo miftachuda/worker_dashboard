@@ -64,9 +64,23 @@ const CreateMaintenanceRecord: React.FC<CreateMaintenanceRecordProps> = ({
 
   const handleCreate = async () => {
     setLoading(true);
+    let start_time = form.start_time;
+    let end_time = form.end_time;
+    const now = String(Math.floor(Date.now() / 1000));
+    if (form.status === "Completed") {
+      if (start_time === "Now") start_time = now;
+      if (end_time === "Now") end_time = now;
+    } else if (form.status === "Pending" || form.status === "In Progress") {
+      // Start time should not be "Now"
+      if (start_time === "Now") start_time = now;
+      end_time = "Now";
+    }
+
     try {
       const record = {
         ...form,
+        start_time,
+        end_time,
         part_used: {
           part_used: form.part_used.split(",").map((p) => p.trim()),
         },

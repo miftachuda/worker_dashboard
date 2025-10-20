@@ -15,11 +15,13 @@ export default {
       padding: "2rem",
       screens: {
         "2xl": "1400px",
-        md: "768px",
-        lg: "1170px",
       },
     },
-
+    screens: {
+      sm: "640px",
+      md: "768px",
+      lg: "1170px", // 👈 this changes the breakpoint globally
+    },
     extend: {
       colors: {
         border: "hsl(var(--border))",

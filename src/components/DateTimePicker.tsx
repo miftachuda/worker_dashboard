@@ -1,6 +1,11 @@
-import { Input } from "./ui/input";
-import Flatpickr from "react-flatpickr";
-import "flatpickr/dist/themes/dark.css";
+import React, { useState } from "react";
+
+import dayjs from "dayjs";
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import EditCalendarIcon from "@mui/icons-material/EditCalendar";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
 
 interface DateRangeWithStatusPickerProps {
   form: any;
@@ -9,60 +14,131 @@ interface DateRangeWithStatusPickerProps {
   showEnd?: boolean;
 }
 
+// Create a custom theme to override input styles specifically for the pickers
+const darkTheme = createTheme({
+  palette: {
+    mode: "dark",
+    text: {
+      primary: "#ffffff",
+      secondary: "#ffffff",
+    },
+  },
+  components: {
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          "& .MuiOutlinedInput-notchedOutline": {
+            borderColor: "#ffffff",
+          },
+          "&:hover .MuiOutlinedInput-notchedOutline": {
+            borderColor: "#ffffff",
+          },
+          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+            borderColor: "#ffffff",
+          },
+        },
+      },
+    },
+    MuiInputLabel: {
+      styleOverrides: {
+        root: {
+          color: "#ffffff",
+          "&.Mui-focused": {
+            color: "#ffffff",
+          },
+        },
+      },
+    },
+    MuiSvgIcon: {
+      styleOverrides: {
+        root: {
+          color: "#ffffff",
+        },
+      },
+    },
+  },
+});
+
 export function DateRangeWithStatusPicker({
   form,
   setForm,
   showStart = true,
   showEnd = true,
 }: DateRangeWithStatusPickerProps) {
-  const endTimeValue =
-    form.end_time && !isNaN(form.end_time)
-      ? new Date(form.end_time * 1000)
-      : new Date();
-  const startTimeValue =
-    form.start_time && !isNaN(form.start_time)
-      ? new Date(form.start_time * 1000)
-      : new Date();
+  // Local states for the MUI pickers
+  const [startValue, setStartValue] = useState<dayjs.Dayjs | null>(
+    form.start_time ? dayjs(form.start_time * 1000) : dayjs()
+  );
+  const [endValue, setEndValue] = useState<dayjs.Dayjs | null>(
+    form.end_time ? dayjs(form.end_time * 1000) : dayjs()
+  );
 
-  const formattedStartTime = startTimeValue.toISOString().slice(0, 16);
-  const formattedEndTime = endTimeValue.toISOString().slice(0, 16);
   return (
-    <div className="flex flex-col gap-4">
-      {showStart && (
-        <Input
-          type="datetime-local"
-          name="end_time"
-          value={formattedEndTime}
-          onChange={(e) =>
-            setForm((prev) => ({
-              ...prev,
-              end_time: Math.floor(new Date(e.target.value).getTime() / 1000),
-            }))
-          }
-          className="w-64 text-sm text-gray-200 bg-slate-900 rounded-md p-2"
-          style={{
-            colorScheme: "dark", // makes native picker dark mode friendly
-          }}
-        />
-      )}
+    <ThemeProvider theme={darkTheme}>
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <div className="flex flex-col gap-4">
+          {showStart && (
+            <DateTimePicker
+              label="Start Maintenance Time"
+              value={startValue}
+              ampm={false}
+              format="DD/MMM/YYYY HH:mm"
+              onChange={(newValue) => {
+                setStartValue(newValue);
+                if (newValue) {
+                  setForm((prev) => ({
+                    ...prev,
+                    start_time: Math.floor(newValue.unix()),
+                  }));
+                }
+              }}
+              slots={{
+                openPickerIcon: EditCalendarIcon,
+              }}
+              slotProps={{
+                popper: {
+                  disablePortal: true,
+                  style: {
+                    zIndex: 1300,
+                  },
+                },
+              }}
+            />
+          )}
 
-      {showEnd && (
-        <Input
-          type="datetime-local"
-          name="end_time"
-          value={formattedEndTime}
-          onChange={(e) =>
-            setForm((prev) => ({
-              ...prev,
-              end_time: Math.floor(new Date(e.target.value).getTime() / 1000),
-            }))
-          }
-          className="w-64 text-sm text-gray-200 bg-slate-900 rounded-md p-2"
-          style={{
-            colorScheme: "dark", // makes native picker dark mode friendly
-          }}
-        />
-      )}
-    </div>
+          {showEnd && (
+            <div className="flex flex-col gap-2">
+              <DateTimePicker
+                label="End Maintenance Time"
+                value={endValue}
+                ampm={false} // 24-hour format
+                format="DD/MMM/YYYY HH:mm"
+                views={["year", "month", "day", "hours", "minutes"]}
+                slots={{
+                  openPickerIcon: EditCalendarIcon,
+                }}
+                slotProps={{
+                  popper: {
+                    disablePortal: true,
+                    style: {
+                      zIndex: 1300,
+                    },
+                  },
+                }}
+                onChange={(newValue) => {
+                  setEndValue(newValue);
+                  if (newValue) {
+                    setForm((prev) => ({
+                      ...prev,
+                      end_time: Math.floor(newValue.unix()),
+                    }));
+                  }
+                }}
+              />
+            </div>
+          )}
+        </div>
+      </LocalizationProvider>
+    </ThemeProvider>
   );
 }

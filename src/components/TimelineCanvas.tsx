@@ -33,17 +33,10 @@ function formatTimestamp(isoString: string): string {
   return ` ${day} ${month} ${year}, ${hours}.${minutes}`;
 }
 function calculateDuration(start?: number | null, end?: number | null): string {
-  // If missing → use current timestamp in seconds
   const startTime = !start || isNaN(start) ? Date.now() / 1000 : start;
   const endTime = !end || isNaN(end) ? Date.now() / 1000 : end;
-
-  // Duration in seconds
   const diffSeconds = endTime - startTime;
   const totalMinutes = Math.floor(diffSeconds / 60);
-
-  // Handle negative or zero durations
-  if (totalMinutes <= 0) return "0 Min";
-
   const days = Math.floor(totalMinutes / (60 * 24));
   const hours = Math.floor((totalMinutes % (60 * 24)) / 60);
   const minutes = totalMinutes % 60;

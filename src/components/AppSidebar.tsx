@@ -11,6 +11,7 @@ import {
   Plus,
   BookAudio,
   Wrench,
+  Minus,
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 
@@ -39,9 +40,8 @@ const mainItems = [
 
 const adminItems = [
   { title: "Settings", url: "/settings", icon: Settings },
-  { title: "Add Feature", url: "/add-feature", icon: Plus },
+  { title: "Test", url: "/test", icon: Minus },
 ];
-
 export function AppSidebar() {
   const { state } = useSidebar();
   const location = useLocation();

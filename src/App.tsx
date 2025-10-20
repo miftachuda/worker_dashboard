@@ -14,6 +14,7 @@ import Orders from "./pages/Orders";
 import Maintenance from "./pages/MaintenanceRecords";
 import Test from "./pages/Test";
 import ChemicalSpend from "./pages/ChemicalSpend";
+import DatePickerTest from "./pages/Page";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +34,7 @@ const App = () => (
           <Route path="/chemical" element={<ChemicalSpend />} />
           <Route path="/settings" element={<Test />} />
           <Route path="/orders" element={<Orders />} />
+          <Route path="/test" element={<DatePickerTest />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </HashRouter>
