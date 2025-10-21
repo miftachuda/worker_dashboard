@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-
 import dayjs from "dayjs";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -64,7 +63,6 @@ export function DateRangeWithStatusPicker({
   setForm,
   showStart = true,
   showEnd = true,
-  lastDate,
 }: DateRangeWithStatusPickerProps) {
   // Local states for the MUI pickers
   const [startValue, setStartValue] = useState<dayjs.Dayjs | null>(

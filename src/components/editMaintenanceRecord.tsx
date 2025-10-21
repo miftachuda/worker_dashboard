@@ -9,7 +9,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Edit } from "lucide-react";
-import PocketBase, { RecordModel } from "pocketbase";
+import { RecordModel } from "pocketbase";
+import { pb } from "@/lib/pocketbase";
 
 interface EditMaintenanceRecordProps {
   item: RecordModel;
@@ -40,7 +41,6 @@ const EditMaintenanceRecord: React.FC<EditMaintenanceRecordProps> = ({
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      const pb = new PocketBase("https://base.miftachuda.my.id");
       await pb.collection("maintenance_collection").update(item.id, form);
       setOpen(false);
       onUpdated?.();

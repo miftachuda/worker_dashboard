@@ -19,7 +19,8 @@ import {
 } from "@/components/ui/select";
 import { DateRangeWithStatusPicker } from "./DateTimePicker";
 import { Edit } from "lucide-react";
-const pb = new PocketBase("https://base.miftachuda.my.id");
+import { pb } from "@/lib/pocketbase";
+
 interface EditRecordPopupProps {
   items: RecordModel;
   onCreated?: () => void;

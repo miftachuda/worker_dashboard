@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import MainFrame from "./MainFrame";
 import { Input } from "@/components/ui/input";
-import PocketBase, { RecordModel } from "pocketbase";
+import { RecordModel } from "pocketbase";
 import { motion, AnimatePresence } from "framer-motion";
 import TimelineCanvas from "@/components/TimelineCanvas";
 import {
@@ -14,6 +14,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import CreateMaintenanceRecord from "@/components/inputRecordPopup";
+import { pb } from "@/lib/pocketbase";
 
 const Maintenance: React.FC = () => {
   const [selectedEquipment, setSelectedEquipment] = useState<
@@ -28,8 +29,6 @@ const Maintenance: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [loading2, setLoading2] = useState(false);
   const [errorDialog, setErrorDialog] = useState<string | null>(null);
-
-  const pb = new PocketBase("https://base.miftachuda.my.id");
 
   // 🔹 Fetch Equipment List
   useEffect(() => {

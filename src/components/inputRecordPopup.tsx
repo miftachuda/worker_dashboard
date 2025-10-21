@@ -18,7 +18,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { DateRangeWithStatusPicker } from "./DateTimePicker";
-const pb = new PocketBase("https://base.miftachuda.my.id");
+import { pb } from "@/lib/pocketbase";
+
 interface CreateMaintenanceRecordProps {
   items: RecordModel;
   onCreated?: () => void;

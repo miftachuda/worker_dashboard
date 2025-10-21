@@ -1,18 +1,16 @@
 import { RecordModel } from "pocketbase";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   VerticalTimeline,
   VerticalTimelineElement,
 } from "react-vertical-timeline-component";
 import "react-vertical-timeline-component/style.min.css";
 import { Button } from "./ui/button";
-import { Edit } from "lucide-react";
-import PocketBase from "pocketbase";
 import MiniTimeline from "./MiniTimeline";
-import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import { PreviewPhotoSlider } from "./PhotoSlide";
 import EditRecordPopup from "./editRecordPopup";
+import { pb } from "@/lib/pocketbase";
 
 function formatTimestampToDateString(timestamp?: number | null): string {
   // If timestamp is null, undefined, or not a valid number → use current date
@@ -77,7 +75,6 @@ const TimelineCanvas: React.FC<TimelineProps> = ({ items, onReload }) => {
     if (!editingItem) return;
     setLoading(true);
     try {
-      const pb = new PocketBase("https://base.miftachuda.my.id");
       await pb.collection("maintenance_collection").update(editingItem.id, {
         title: editingItem.title,
         description: editingItem.description,
@@ -216,9 +213,11 @@ const TimelineCanvas: React.FC<TimelineProps> = ({ items, onReload }) => {
                     <div className="bg-blue-950 border text-gray-50 border-gray-300 rounded-[5px] px-3 py-1 whitespace-pre-line  font-thin italic mb-8">
                       {item.description}
                     </div>
-                    {images?.length > 0 && (
-                      <PreviewPhotoSlider images={images} />
-                    )}
+                    <div className="mb-2">
+                      {images?.length > 0 && (
+                        <PreviewPhotoSlider images={images} />
+                      )}
+                    </div>
 
                     <div className="absolute bottom-2 right-3 text-[9px] leading-tight text-gray-400 italic">
                       {isEdited && (

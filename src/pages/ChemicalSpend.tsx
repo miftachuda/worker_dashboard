@@ -18,24 +18,72 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Plus } from "lucide-react";
+import { pb } from "@/lib/pocketbase";
+import { ToastContainer, toast } from "react-toastify";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import dayjs, { Dayjs } from "dayjs";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
 
-// Mock data for chemicals and their associated units
 const chemicalData = [
-  { name: "Furfural", units: ["m³", "% Vessel"] },
+  { name: "Furfural", units: ["m³", "kg", "% Vessel"] },
   { name: "MEK", units: ["m³", "% Vessel"] },
   { name: "Toluene", units: ["m³", "% Vessel"] },
   { name: "Sobi", units: ["kg", "Sack"] },
-  { name: "Antifoam", units: ["Litre", "kg"] },
+  { name: "Antifoam", units: ["Liter", "kg"] },
   { name: "Propane", units: ["m³", "% Vessel"] },
 ];
 
+const darkTheme = createTheme({
+  palette: {
+    mode: "dark",
+    text: {
+      primary: "#ffffff",
+      secondary: "#ffffff",
+    },
+  },
+  components: {
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          "& .MuiOutlinedInput-notchedOutline": { borderColor: "#ffffff" },
+          "&:hover .MuiOutlinedInput-notchedOutline": {
+            borderColor: "#ffffff",
+          },
+          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+            borderColor: "#ffffff",
+          },
+        },
+      },
+    },
+    MuiInputLabel: {
+      styleOverrides: {
+        root: {
+          color: "#ffffff",
+          "&.Mui-focused": { color: "#ffffff" },
+        },
+      },
+    },
+    MuiSvgIcon: {
+      styleOverrides: {
+        root: { color: "#ffffff" },
+      },
+    },
+  },
+});
+
 const ChemicalSpend: React.FC = () => {
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+
   const [form, setForm] = useState({
     chemicalName: "",
     amount: "",
     unit: "",
+    time: dayjs(), // store time directly here
   });
+
   const [availableUnits, setAvailableUnits] = useState<string[]>([]);
 
   const handleChemicalChange = (chemicalName: string) => {
@@ -45,20 +93,45 @@ const ChemicalSpend: React.FC = () => {
     setForm((prev) => ({
       ...prev,
       chemicalName,
-      unit: units[0] || "", // Default to the first available unit
+      unit: units[0] || "",
     }));
   };
 
-  const handleSave = () => {
-    console.log("Saving chemical spend:", form);
-    setOpen(false);
+  const handleSave = async () => {
+    if (!form.chemicalName || !form.amount || !form.unit) {
+      alert("Please fill all fields");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await pb.collection("chemical_spend").create({
+        chemical_name: form.chemicalName,
+        amount: parseFloat(form.amount),
+        unit: form.unit,
+        time: form.time ? Math.floor((form.time as Dayjs).unix()) : undefined,
+      });
+
+      setOpen(false);
+      setForm({
+        chemicalName: "",
+        amount: "",
+        unit: "",
+        time: dayjs(),
+      });
+      toast.success("Chemical spend saved successfully!");
+    } catch (error) {
+      toast.error("Failed to save.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <MainFrame>
       <main className="p-6">
         <h2 className="text-2xl font-bold mb-4">Chemical Spend Records</h2>
-
+        <ToastContainer />
         <Button onClick={() => setOpen(true)}>
           <Plus className="mr-2 h-4 w-4" /> Add Spend Record
         </Button>
@@ -68,7 +141,9 @@ const ChemicalSpend: React.FC = () => {
             <DialogHeader>
               <DialogTitle>Add Chemical Spend</DialogTitle>
             </DialogHeader>
+
             <div className="grid gap-4 py-4">
+              {/* Chemical Name */}
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="chemicalName" className="text-right">
                   Chemical
@@ -89,6 +164,8 @@ const ChemicalSpend: React.FC = () => {
                   </SelectContent>
                 </Select>
               </div>
+
+              {/* Amount */}
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="amount" className="text-right">
                   Amount
@@ -103,6 +180,8 @@ const ChemicalSpend: React.FC = () => {
                   className="col-span-3"
                 />
               </div>
+
+              {/* Unit */}
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="unit" className="text-right">
                   Unit
@@ -124,17 +203,43 @@ const ChemicalSpend: React.FC = () => {
                   </SelectContent>
                 </Select>
               </div>
+
+              {/* Time */}
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="time" className="text-right">
+                  Time
+                </Label>
+                <div className="col-span-3">
+                  <ThemeProvider theme={darkTheme}>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DateTimePicker
+                        label="Select Time"
+                        ampm={false}
+                        value={form.time}
+                        onChange={(newValue) =>
+                          setForm({ ...form, time: newValue })
+                        }
+                        format="DD/MMM/YYYY HH:mm"
+                        slotProps={{
+                          popper: { disablePortal: true },
+                        }}
+                      />
+                    </LocalizationProvider>
+                  </ThemeProvider>
+                </div>
+              </div>
             </div>
+
             <DialogFooter>
               <Button variant="outline" onClick={() => setOpen(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleSave}>Save</Button>
+              <Button onClick={handleSave} disabled={loading}>
+                {loading ? "Saving..." : "Save"}
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
-
-        {/* TODO: Display the list of chemical spend records here */}
       </main>
     </MainFrame>
   );
