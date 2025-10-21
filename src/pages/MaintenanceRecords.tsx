@@ -173,42 +173,66 @@ const Maintenance: React.FC = () => {
               </div>
             </div>
 
-            <main>
-              <div className="p-6 grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {filteredEquipment
-                  .sort((a, b) => a.nametag.localeCompare(b.nametag))
-                  .map((data) => (
-                    <motion.div
-                      key={data.id}
-                      layout
-                      whileHover={!loading ? { scale: 1.02 } : {}}
-                      whileTap={!loading ? { scale: 0.98 } : {}}
-                      onClick={!loading ? () => handleClick(data) : undefined}
-                      className={`border select-none rounded-lg px-4 py-2 shadow-md 
-                        ${
-                          loading
-                            ? "opacity-50 cursor-not-allowed"
-                            : "cursor-pointer"
-                        } 
-                        bg-slate-950 text-white font-semibold text-center 
-                        transition duration-200 ease-in-out 
-                        hover:bg-slate-900 hover:shadow-lg active:bg-slate-800 mb-3`}
-                    >
-                      {data.nametag}
-                      <div>
-                        <p className="text-sm text-gray-500">
-                          {data.description}
-                        </p>
-                      </div>
+            <main className="p-6 space-y-6">
+              {Object.entries(
+                filteredEquipment.reduce((acc, item) => {
+                  const prefix = item.nametag.slice(0, 3).toUpperCase(); // first 3 chars
+                  if (!acc[prefix]) acc[prefix] = [];
+                  acc[prefix].push(item);
+                  return acc;
+                }, {} as Record<string, typeof filteredEquipment>)
+              )
+                .sort(([a], [b]) => a.localeCompare(b))
+                .map(([prefix, items], i) => (
+                  <div
+                    key={prefix}
+                    className={`p-4 rounded-2xl border-2 shadow-inner transition-colors duration-200 
+        ${
+          i % 3 === 0
+            ? "border-blue-500/50 bg-blue-950/20"
+            : i % 3 === 1
+            ? "border-emerald-500/50 bg-emerald-950/20"
+            : "border-fuchsia-500/50 bg-fuchsia-950/20"
+        }`}
+                  >
+                    <h2 className="text-lg font-bold mb-3 text-white tracking-widest">
+                      {prefix}
+                    </h2>
 
-                      {loading && (
-                        <div className="mt-2 text-xs text-gray-400 animate-pulse">
-                          Loading...
-                        </div>
-                      )}
-                    </motion.div>
-                  ))}
-              </div>
+                    <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                      {items
+                        .sort((a, b) => a.nametag.localeCompare(b.nametag))
+                        .map((data) => (
+                          <motion.div
+                            key={data.id}
+                            layout
+                            whileHover={!loading ? { scale: 1.02 } : {}}
+                            whileTap={!loading ? { scale: 0.98 } : {}}
+                            onClick={
+                              !loading ? () => handleClick(data) : undefined
+                            }
+                            className={`border select-none rounded-lg px-4 py-2 shadow-md 
+                ${loading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"} 
+                bg-slate-950 text-white font-semibold text-center 
+                transition duration-200 ease-in-out 
+                hover:bg-slate-900 hover:shadow-lg active:bg-slate-800`}
+                          >
+                            {data.nametag}
+                            <div>
+                              <p className="text-sm text-gray-500">
+                                {data.description}
+                              </p>
+                            </div>
+                            {loading && (
+                              <div className="mt-2 text-xs text-gray-400 animate-pulse">
+                                Loading...
+                              </div>
+                            )}
+                          </motion.div>
+                        ))}
+                    </div>
+                  </div>
+                ))}
             </main>
           </motion.div>
         )}

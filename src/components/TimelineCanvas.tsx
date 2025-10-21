@@ -9,6 +9,10 @@ import { Button } from "./ui/button";
 import { Edit } from "lucide-react";
 import PocketBase from "pocketbase";
 import MiniTimeline from "./MiniTimeline";
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
+import { PreviewPhotoSlider } from "./PhotoSlide";
+import EditRecordPopup from "./editRecordPopup";
 
 function formatTimestampToDateString(timestamp?: number | null): string {
   // If timestamp is null, undefined, or not a valid number → use current date
@@ -161,7 +165,7 @@ const TimelineCanvas: React.FC<TimelineProps> = ({ items, onReload }) => {
                   ] || disciplineColors.Default;
                 const start = formatTimestampToDateString(item.start_time);
                 const end = formatTimestampToDateString(item.end_time);
-
+                const images = item.link_image.link_image;
                 return (
                   <VerticalTimelineElement
                     key={index}
@@ -203,22 +207,18 @@ const TimelineCanvas: React.FC<TimelineProps> = ({ items, onReload }) => {
                     icon={<span>{initials}</span>}
                   >
                     <div className="absolute top-2 right-2">
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="h-6 w-6 text-gray-300 hover:text-white hover:bg-gray-700"
-                        onClick={() => handleEdit(item)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
+                      <EditRecordPopup items={item} />
                     </div>
 
                     <h3 className="vertical-timeline-element-title font-medium">
                       {item.title}
                     </h3>
-                    <p className="!font-extralight text-gray-400 whitespace-pre-line">
+                    <div className="bg-blue-950 border text-gray-50 border-gray-300 rounded-[5px] px-3 py-1 whitespace-pre-line  font-thin italic mb-8">
                       {item.description}
-                    </p>
+                    </div>
+                    {images?.length > 0 && (
+                      <PreviewPhotoSlider images={images} />
+                    )}
 
                     <div className="absolute bottom-2 right-3 text-[9px] leading-tight text-gray-400 italic">
                       {isEdited && (

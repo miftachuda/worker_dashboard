@@ -31,7 +31,7 @@ const MiniTimeline: React.FC<MiniTimelineProps> = ({
     >
       <div className="px-4 text-[11px] font-thin">{`( ${duration} )`}</div>
       <div
-        className={`relative flex flex-col space-y-1 px-0 ${
+        className={`relative flex flex-col text-[10px] space-y-1 px-0 ${
           align === "right" ? "lg:items-end items-start" : "items-start"
         }`}
       >
@@ -76,13 +76,11 @@ const MiniTimeline: React.FC<MiniTimelineProps> = ({
                 ${align === "right" ? "lg:flex-row-reverse" : "lg:flex-row"}
               `}
             >
-              <div className="text-sm text-gray-500 whitespace-nowrap mx-1">
+              <div className="text-[10px] text-gray-500 whitespace-nowrap mx-1">
                 {step.time}
               </div>
               {dot}
-              <div className={`font-medium mx-1 ${fontColor}`}>
-                {step.label}
-              </div>
+              <div className={`font-thin mx-1 ${fontColor}`}>{step.label}</div>
             </div>
           );
         })}

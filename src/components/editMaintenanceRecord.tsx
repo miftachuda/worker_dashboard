@@ -65,7 +65,7 @@ const EditMaintenanceRecord: React.FC<EditMaintenanceRecordProps> = ({
 
       {/* Edit popup */}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-lg text-sm">
+        <DialogContent className="sm:max-w-lg text-sm max-w-3xl w-[800px]">
           <DialogHeader>
             <DialogTitle className="text-sm">
               Edit Maintenance Record

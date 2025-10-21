@@ -18,13 +18,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { DateRangeWithStatusPicker } from "./DateTimePicker";
+import { Edit } from "lucide-react";
 const pb = new PocketBase("https://base.miftachuda.my.id");
-interface CreateMaintenanceRecordProps {
+interface EditRecordPopupProps {
   items: RecordModel;
   onCreated?: () => void;
 }
 
-const CreateMaintenanceRecord: React.FC<CreateMaintenanceRecordProps> = ({
+const EditRecordPopup: React.FC<EditRecordPopupProps> = ({
   items,
   onCreated,
 }) => {
@@ -62,7 +63,7 @@ const CreateMaintenanceRecord: React.FC<CreateMaintenanceRecordProps> = ({
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleCreate = async () => {
+  const handleUpdate = async () => {
     setLoading(true);
     let start_time = form.start_time;
     let end_time = form.end_time;
@@ -99,22 +100,29 @@ const CreateMaintenanceRecord: React.FC<CreateMaintenanceRecordProps> = ({
 
   return (
     <>
-      <Button onClick={() => setOpen(true)}>+ New Record</Button>
-
+      {/* <Button onClick={() => setOpen(true)}>+ New Record</Button> */}
+      <Button
+        size="icon"
+        variant="ghost"
+        className="h-6 w-6 text-gray-300 hover:text-white hover:bg-gray-700"
+        onClick={() => setOpen(true)}
+      >
+        <Edit className="h-4 w-4" />
+      </Button>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-3xl w-[800px]">
           <DialogHeader>
             <div className="flex items-center space-x-2">
               <DialogTitle>Create Maintenance Record</DialogTitle>
               <DialogTitle className="text-lime-400">
-                {items.nametag}
+                {items.expand?.nametag?.nametag}
               </DialogTitle>
             </div>
           </DialogHeader>
           <Input
             name="title"
             placeholder="Judul Pekerjaan"
-            value={form.title}
+            value={items.title}
             onChange={handleChange}
             className="w-full"
           />
@@ -123,7 +131,7 @@ const CreateMaintenanceRecord: React.FC<CreateMaintenanceRecordProps> = ({
               {/* Left Section */}
               <div className="flex-1 flex flex-col gap-2 w-full">
                 <Select
-                  value={form.type}
+                  value={items.type}
                   onValueChange={(value) => handleValueChange("type", value)}
                 >
                   <SelectTrigger className="w-full">
@@ -142,7 +150,7 @@ const CreateMaintenanceRecord: React.FC<CreateMaintenanceRecordProps> = ({
                 <div className="flex gap-2 w-full">
                   <div className="flex-1">
                     <Select
-                      value={form.discipline}
+                      value={items.discipline}
                       onValueChange={(value) =>
                         handleValueChange("discipline", value)
                       }
@@ -166,14 +174,14 @@ const CreateMaintenanceRecord: React.FC<CreateMaintenanceRecordProps> = ({
                     <Input
                       name="performed_by"
                       placeholder="Technician"
-                      value={form.performed_by}
+                      value={items.performed_by}
                       onChange={handleChange}
                       className="w-full"
                     />
                   </div>
                 </div>
                 <Select
-                  value={form.status}
+                  value={items.status}
                   defaultValue="In Progress"
                   onValueChange={(value) => handleValueChange("status", value)}
                 >
@@ -232,7 +240,7 @@ const CreateMaintenanceRecord: React.FC<CreateMaintenanceRecordProps> = ({
             <Button onClick={() => setOpen(false)} variant="outline">
               Cancel
             </Button>
-            <Button onClick={handleCreate} disabled={loading}>
+            <Button onClick={handleUpdate} disabled={loading}>
               {loading ? "Saving..." : "Save"}
             </Button>
           </DialogFooter>
@@ -241,4 +249,4 @@ const CreateMaintenanceRecord: React.FC<CreateMaintenanceRecordProps> = ({
     </>
   );
 };
-export default CreateMaintenanceRecord;
+export default EditRecordPopup;

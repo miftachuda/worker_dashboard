@@ -64,6 +64,7 @@ export function DateRangeWithStatusPicker({
   setForm,
   showStart = true,
   showEnd = true,
+  lastDate,
 }: DateRangeWithStatusPickerProps) {
   // Local states for the MUI pickers
   const [startValue, setStartValue] = useState<dayjs.Dayjs | null>(
