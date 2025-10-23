@@ -5,7 +5,6 @@ import {
   VerticalTimelineElement,
 } from "react-vertical-timeline-component";
 import "react-vertical-timeline-component/style.min.css";
-import { Button } from "./ui/button";
 import MiniTimeline from "./MiniTimeline";
 import "swiper/css";
 import { PreviewPhotoSlider } from "./PhotoSlide";
@@ -13,10 +12,8 @@ import EditRecordPopup from "./editRecordPopup";
 import { pb } from "@/lib/pocketbase";
 
 function formatTimestampToDateString(timestamp?: number | null): string {
-  // If timestamp is null, undefined, or not a valid number → use current date
   const date =
     !timestamp || isNaN(timestamp) ? new Date() : new Date(timestamp * 1000);
-
   const hours = date.getHours().toString().padStart(2, "0");
   const minutes = date.getMinutes().toString().padStart(2, "0");
   const day = date.getDate().toString().padStart(2, "0");
@@ -57,39 +54,6 @@ interface TimelineProps {
 }
 
 const TimelineCanvas: React.FC<TimelineProps> = ({ items, onReload }) => {
-  const [openEdit, setOpenEdit] = useState(false);
-  const [editingItem, setEditingItem] = useState<RecordModel | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  const handleEdit = (item: RecordModel) => {
-    setEditingItem(item);
-    setOpenEdit(true);
-  };
-
-  const handleClose = () => {
-    setOpenEdit(false);
-    setEditingItem(null);
-  };
-
-  const handleSaveEdit = async () => {
-    if (!editingItem) return;
-    setLoading(true);
-    try {
-      await pb.collection("maintenance_collection").update(editingItem.id, {
-        title: editingItem.title,
-        description: editingItem.description,
-      });
-      console.log("Record updated:", editingItem.id);
-      handleClose();
-      onReload?.();
-    } catch (err) {
-      console.error("Update failed:", err);
-      alert("Update failed: " + (err as Error).message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const isEmpty = !items || items.length === 0;
 
   return (
@@ -162,7 +126,6 @@ const TimelineCanvas: React.FC<TimelineProps> = ({ items, onReload }) => {
                   ] || disciplineColors.Default;
                 const start = formatTimestampToDateString(item.start_time);
                 const end = formatTimestampToDateString(item.end_time);
-                const images = item.link_image.link_image;
                 return (
                   <VerticalTimelineElement
                     key={index}
@@ -204,7 +167,7 @@ const TimelineCanvas: React.FC<TimelineProps> = ({ items, onReload }) => {
                     icon={<span>{initials}</span>}
                   >
                     <div className="absolute top-2 right-2">
-                      <EditRecordPopup items={item} />
+                      <EditRecordPopup items={item} onCreated={onReload} />
                     </div>
 
                     <h3 className="vertical-timeline-element-title font-medium">
@@ -214,8 +177,8 @@ const TimelineCanvas: React.FC<TimelineProps> = ({ items, onReload }) => {
                       {item.description}
                     </div>
                     <div className="mb-2">
-                      {images?.length > 0 && (
-                        <PreviewPhotoSlider images={images} />
+                      {item.photo?.length > 0 && (
+                        <PreviewPhotoSlider item={item} images={item.photo} />
                       )}
                     </div>
 
@@ -230,53 +193,6 @@ const TimelineCanvas: React.FC<TimelineProps> = ({ items, onReload }) => {
               })}
           </VerticalTimeline>
         </>
-      )}
-
-      {openEdit && editingItem && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-          <div className="bg-gray-800 rounded-lg p-6 w-full max-w-md relative shadow-lg border border-gray-700">
-            <h2 className="text-base font-medium mb-4 text-white">
-              Edit Maintenance Record
-            </h2>
-
-            <div className="space-y-3">
-              <input
-                type="text"
-                value={editingItem.title}
-                onChange={(e) =>
-                  setEditingItem({ ...editingItem, title: e.target.value })
-                }
-                placeholder="Title"
-                className="w-full p-2 text-sm font-extralight rounded bg-gray-900 border border-gray-700 text-white"
-              />
-
-              <textarea
-                value={editingItem.description}
-                onChange={(e) =>
-                  setEditingItem({
-                    ...editingItem,
-                    description: e.target.value,
-                  })
-                }
-                placeholder="Description"
-                className="w-full p-2 text-sm font-thin italic rounded bg-gray-900 border border-gray-700 text-white min-h-[250px]"
-              />
-            </div>
-
-            <div className="flex justify-end gap-2 mt-6">
-              <Button
-                variant="ghost"
-                onClick={handleClose}
-                className="text-gray-400 hover:text-white"
-              >
-                Cancel
-              </Button>
-              <Button onClick={handleSaveEdit} disabled={loading}>
-                {loading ? "Saving..." : "Save"}
-              </Button>
-            </div>
-          </div>
-        </div>
       )}
     </div>
   );

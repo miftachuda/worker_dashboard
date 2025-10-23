@@ -13,7 +13,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import CreateMaintenanceRecord from "@/components/inputRecordPopup";
+import CreateMaintenanceRecord from "@/components/createMaintenanceRecordPopup";
 import { pb } from "@/lib/pocketbase";
 
 const Maintenance: React.FC = () => {

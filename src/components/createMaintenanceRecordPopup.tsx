@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { DateRangeWithStatusPicker } from "./DateTimePicker";
 import { pb } from "@/lib/pocketbase";
+import MultiImageUploadPB from "./uploadImage";
 
 interface CreateMaintenanceRecordProps {
   items: RecordModel;
@@ -42,7 +43,6 @@ const CreateMaintenanceRecord: React.FC<CreateMaintenanceRecordProps> = ({
     type: "",
     nametag: items.id,
     part_used: "",
-    link_image: "",
   });
 
   const handleChange = (
@@ -85,7 +85,6 @@ const CreateMaintenanceRecord: React.FC<CreateMaintenanceRecordProps> = ({
         part_used: {
           part_used: form.part_used.split(",").map((p) => p.trim()),
         },
-        link_image: { link_image: [form.link_image] },
       };
 
       await pb.collection("maintenance_collection").create(record);
@@ -221,12 +220,7 @@ const CreateMaintenanceRecord: React.FC<CreateMaintenanceRecordProps> = ({
               onChange={handleChange}
               className="w-full p-2 text-sm font-thin italic rounded bg-gray-900 border border-gray-700 text-white min-h-[250px]"
             />
-            <Input
-              name="link_image"
-              placeholder="Image URL"
-              value={form.link_image}
-              onChange={handleChange}
-            />
+            <MultiImageUploadPB />
           </div>
 
           <DialogFooter>

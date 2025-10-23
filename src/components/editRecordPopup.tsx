@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PocketBase, { RecordModel } from "pocketbase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,19 +33,26 @@ const EditRecordPopup: React.FC<EditRecordPopupProps> = ({
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
-    title: "",
-    description: "",
-    discipline: "",
-    start_time: "Now",
-    end_time: "Now",
-    performed_by: "",
-    status: "",
-    type: "",
-    nametag: items.id,
-    part_used: "",
-    link_image: "",
+    title: items.title,
+    description: items.description,
+    discipline: items.discipline,
+    start_time: items.start_time,
+    end_time: items.end_time,
+    performed_by: items.performed_by,
+    status: items.status,
+    type: items.type,
+    nametag: items.nametag,
+    part_used: items.part_used,
+    link_image: items.link_image,
   });
-
+  useEffect(() => {
+    if (form.status === "In Progress" || form.status === "Pending") {
+      setForm((prev) => ({
+        ...prev,
+        end_time: "Now",
+      }));
+    }
+  }, [form.status, setForm]);
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -69,31 +76,22 @@ const EditRecordPopup: React.FC<EditRecordPopupProps> = ({
     let start_time = form.start_time;
     let end_time = form.end_time;
     const now = String(Math.floor(Date.now() / 1000));
+
     if (form.status === "Completed") {
       if (start_time === "Now") start_time = now;
       if (end_time === "Now") end_time = now;
     } else if (form.status === "Pending" || form.status === "In Progress") {
-      // Start time should not be "Now"
       if (start_time === "Now") start_time = now;
       end_time = "Now";
     }
 
     try {
-      const record = {
-        ...form,
-        start_time,
-        end_time,
-        part_used: {
-          part_used: form.part_used.split(",").map((p) => p.trim()),
-        },
-        link_image: { link_image: [form.link_image] },
-      };
-
-      await pb.collection("maintenance_collection").create(record);
+      await pb.collection("maintenance_collection").update(items.id, form);
       setOpen(false);
       onCreated?.();
     } catch (err) {
-      alert("Failed to create record: " + (err as Error).message);
+      console.error("PocketBase update failed:", JSON.stringify(err, null, 2));
+      alert("Failed to update record:\n" + JSON.stringify(err, null, 2));
     } finally {
       setLoading(false);
     }
@@ -101,7 +99,6 @@ const EditRecordPopup: React.FC<EditRecordPopupProps> = ({
 
   return (
     <>
-      {/* <Button onClick={() => setOpen(true)}>+ New Record</Button> */}
       <Button
         size="icon"
         variant="ghost"
@@ -123,7 +120,7 @@ const EditRecordPopup: React.FC<EditRecordPopupProps> = ({
           <Input
             name="title"
             placeholder="Judul Pekerjaan"
-            value={items.title}
+            value={form.title}
             onChange={handleChange}
             className="w-full"
           />
@@ -132,7 +129,7 @@ const EditRecordPopup: React.FC<EditRecordPopupProps> = ({
               {/* Left Section */}
               <div className="flex-1 flex flex-col gap-2 w-full">
                 <Select
-                  value={items.type}
+                  value={form.type}
                   onValueChange={(value) => handleValueChange("type", value)}
                 >
                   <SelectTrigger className="w-full">
@@ -151,7 +148,7 @@ const EditRecordPopup: React.FC<EditRecordPopupProps> = ({
                 <div className="flex gap-2 w-full">
                   <div className="flex-1">
                     <Select
-                      value={items.discipline}
+                      value={form.discipline}
                       onValueChange={(value) =>
                         handleValueChange("discipline", value)
                       }
@@ -182,7 +179,7 @@ const EditRecordPopup: React.FC<EditRecordPopupProps> = ({
                   </div>
                 </div>
                 <Select
-                  value={items.status}
+                  value={form.status}
                   defaultValue="In Progress"
                   onValueChange={(value) => handleValueChange("status", value)}
                 >

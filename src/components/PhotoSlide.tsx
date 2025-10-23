@@ -1,13 +1,16 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import { pb } from "@/lib/pocketbase";
 
 interface PreviewPhotoSliderProps {
   images: string[]; // array of image URLs
   width?: string; // optional Tailwind width (default w-64)
   height?: string; // optional Tailwind height (default h-40)
+  item: any;
 }
 
 export const PreviewPhotoSlider: React.FC<PreviewPhotoSliderProps> = ({
+  item,
   images,
   width = "w-64",
   height = "h-40",
@@ -35,7 +38,7 @@ export const PreviewPhotoSlider: React.FC<PreviewPhotoSliderProps> = ({
       {/* Left Preview */}
       <motion.img
         key={`left-${prevIndex}`}
-        src={images[prevIndex]}
+        src={pb.files.getURL(item, images[prevIndex])}
         alt="Previous"
         className="w-20 h-20 object-cover rounded-lg opacity-50 cursor-pointer hover:opacity-80"
         onClick={handlePrev}
@@ -50,7 +53,7 @@ export const PreviewPhotoSlider: React.FC<PreviewPhotoSliderProps> = ({
       >
         <motion.img
           key={index}
-          src={images[index]}
+          src={pb.files.getURL(item, images[index])}
           alt="Main"
           className="absolute w-full h-full object-cover"
           initial={{ opacity: 0, scale: 0.95 }}
@@ -75,7 +78,7 @@ export const PreviewPhotoSlider: React.FC<PreviewPhotoSliderProps> = ({
       {/* Right Preview */}
       <motion.img
         key={`right-${nextIndex}`}
-        src={images[nextIndex]}
+        src={pb.files.getURL(item, images[nextIndex])}
         alt="Next"
         className="w-20 h-20 object-cover rounded-lg opacity-50 cursor-pointer hover:opacity-80"
         onClick={handleNext}
