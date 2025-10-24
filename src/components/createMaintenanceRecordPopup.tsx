@@ -43,6 +43,7 @@ const CreateMaintenanceRecord: React.FC<CreateMaintenanceRecordProps> = ({
     type: "",
     nametag: items.id,
     part_used: "",
+    photo: [],
   });
 
   const handleChange = (
@@ -65,32 +66,54 @@ const CreateMaintenanceRecord: React.FC<CreateMaintenanceRecordProps> = ({
 
   const handleCreate = async () => {
     setLoading(true);
+
     let start_time = form.start_time;
     let end_time = form.end_time;
     const now = String(Math.floor(Date.now() / 1000));
+
     if (form.status === "Completed") {
       if (start_time === "Now") start_time = now;
       if (end_time === "Now") end_time = now;
     } else if (form.status === "Pending" || form.status === "In Progress") {
-      // Start time should not be "Now"
       if (start_time === "Now") start_time = now;
       end_time = "Now";
     }
 
     try {
-      const record = {
-        ...form,
-        start_time,
-        end_time,
-        part_used: {
-          part_used: form.part_used.split(",").map((p) => p.trim()),
-        },
-      };
+      // ✅ Create FormData for PocketBase
+      const formData = new FormData();
 
-      await pb.collection("maintenance_collection").create(record);
+      // Append text fields
+      formData.append("title", form.title);
+      formData.append("description", form.description);
+      formData.append("discipline", form.discipline);
+      formData.append("performed_by", form.performed_by);
+      formData.append("status", form.status);
+      formData.append("type", form.type);
+      formData.append("nametag", form.nametag);
+      formData.append("start_time", start_time);
+      formData.append("end_time", end_time);
+      formData.append(
+        "part_used",
+        JSON.stringify({
+          part_used: form.part_used.split(",").map((p) => p.trim()),
+        })
+      );
+
+      // ✅ Append each selected image
+      if (form.photo && form.photo.length > 0) {
+        form.photo.forEach((file: File) => {
+          formData.append("photo", file); // Must match PocketBase field name
+        });
+      }
+      const data = formData.getAll("photo");
+      // ✅ Create record with files
+      await pb.collection("maintenance_collection").create(formData);
+
       setOpen(false);
       onCreated?.();
     } catch (err) {
+      console.error(err);
       alert("Failed to create record: " + (err as Error).message);
     } finally {
       setLoading(false);
@@ -220,7 +243,7 @@ const CreateMaintenanceRecord: React.FC<CreateMaintenanceRecordProps> = ({
               onChange={handleChange}
               className="w-full p-2 text-sm font-thin italic rounded bg-gray-900 border border-gray-700 text-white min-h-[250px]"
             />
-            <MultiImageUploadPB />
+            <MultiImageUploadPB form={form} setForm={setForm} />
           </div>
 
           <DialogFooter>

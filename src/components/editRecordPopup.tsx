@@ -20,6 +20,7 @@ import {
 import { DateRangeWithStatusPicker } from "./DateTimePicker";
 import { Edit } from "lucide-react";
 import { pb } from "@/lib/pocketbase";
+import MultiImageUploadPBEdit from "./editUploadImage";
 
 interface EditRecordPopupProps {
   items: RecordModel;
@@ -43,7 +44,7 @@ const EditRecordPopup: React.FC<EditRecordPopupProps> = ({
     type: items.type,
     nametag: items.nametag,
     part_used: items.part_used,
-    link_image: items.link_image,
+    photo: items.photo,
   });
   useEffect(() => {
     if (form.status === "In Progress" || form.status === "Pending") {
@@ -73,6 +74,9 @@ const EditRecordPopup: React.FC<EditRecordPopupProps> = ({
 
   const handleUpdate = async () => {
     setLoading(true);
+    const formData = new FormData();
+
+    // --- 1. Handle Time Logic (same as your code) ---
     let start_time = form.start_time;
     let end_time = form.end_time;
     const now = String(Math.floor(Date.now() / 1000));
@@ -82,16 +86,44 @@ const EditRecordPopup: React.FC<EditRecordPopupProps> = ({
       if (end_time === "Now") end_time = now;
     } else if (form.status === "Pending" || form.status === "In Progress") {
       if (start_time === "Now") start_time = now;
-      end_time = "Now";
+      end_time = "Now"; // Or send null/"" if you want to clear it
     }
 
+    // --- 2. Append All Non-File Fields ---
+    formData.append("title", form.title);
+    formData.append("description", form.description);
+    formData.append("discipline", form.discipline);
+    formData.append("performed_by", form.performed_by);
+    formData.append("status", form.status);
+    formData.append("type", form.type);
+    formData.append("nametag", form.nametag);
+    formData.append("part_used", form.part_used);
+    formData.append("start_time", start_time);
+    formData.append("end_time", end_time);
+
+    // --- 3. Append File Data (The Deletion Fix) ---
+
+    // If the photo array is empty, send an empty string to clear the field
+    if (form.photo.length === 0) {
+      formData.append("photo", "");
+    } else {
+      // Append all items.
+      // Strings = "keep this existing file"
+      // File objects = "add this new file"
+      form.photo.forEach((fileOrName: string | File) => {
+        formData.append("photo", fileOrName);
+      });
+    }
+
+    // --- 4. Submit FormData ---
     try {
-      await pb.collection("maintenance_collection").update(items.id, form);
+      // Send FormData instead of the 'form' object
+      await pb.collection("maintenance_collection").update(items.id, formData);
       setOpen(false);
       onCreated?.();
     } catch (err) {
       console.error("PocketBase update failed:", JSON.stringify(err, null, 2));
-      alert("Failed to update record:\n" + JSON.stringify(err, null, 2));
+      alert("Failed to update record: " + (err as Error).message);
     } finally {
       setLoading(false);
     }
@@ -111,7 +143,7 @@ const EditRecordPopup: React.FC<EditRecordPopupProps> = ({
         <DialogContent className="max-w-3xl w-[800px]">
           <DialogHeader>
             <div className="flex items-center space-x-2">
-              <DialogTitle>Create Maintenance Record</DialogTitle>
+              <DialogTitle>Edit Maintenance Record</DialogTitle>
               <DialogTitle className="text-lime-400">
                 {items.expand?.nametag?.nametag}
               </DialogTitle>
@@ -172,7 +204,7 @@ const EditRecordPopup: React.FC<EditRecordPopupProps> = ({
                     <Input
                       name="performed_by"
                       placeholder="Technician"
-                      value={items.performed_by}
+                      value={form.performed_by}
                       onChange={handleChange}
                       className="w-full"
                     />
@@ -226,11 +258,11 @@ const EditRecordPopup: React.FC<EditRecordPopupProps> = ({
               onChange={handleChange}
               className="w-full p-2 text-sm font-thin italic rounded bg-gray-900 border border-gray-700 text-white min-h-[250px]"
             />
-            <Input
-              name="link_image"
-              placeholder="Image URL"
-              value={form.link_image}
-              onChange={handleChange}
+            <MultiImageUploadPBEdit
+              form={form}
+              setForm={setForm}
+              record={items}
+              fieldName="photo"
             />
           </div>
 

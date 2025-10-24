@@ -1,158 +1,105 @@
 import React, { useState } from "react";
-import { pb } from "../lib/pocketbase";
 import { X, Upload } from "lucide-react";
+import imageCompression from "browser-image-compression";
 
-interface UploadItem {
-  file: File;
-  preview: string;
-  progress: number;
-  uploadedUrl?: string;
-  isUploading: boolean;
+interface MultiImageUploadPBProps {
+  form: any;
+  setForm: (form: any) => void;
+  maxFiles?: number;
 }
 
-const MAX_FILES = 9;
-
-const MultiImageUploadPB = () => {
-  const [files, setFiles] = useState<UploadItem[]>([]);
-  const [saving, setSaving] = useState(false);
+const MultiImageUploadPB: React.FC<MultiImageUploadPBProps> = ({
+  form,
+  setForm,
+  maxFiles = 9,
+}) => {
+  const [previews, setPreviews] = useState<string[]>([]);
 
   // ---- Handle File Selection ----
-  const handleSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files ? Array.from(e.target.files) : [];
-    if (files.length + selected.length > MAX_FILES) {
-      alert(`Maksimal ${MAX_FILES} foto`);
-      return;
+    if (selected.length === 0) return;
+
+    // Limit total count
+    const remainingSlots = maxFiles - (form.photo?.length || 0);
+    const limitedFiles = selected.slice(0, remainingSlots);
+
+    try {
+      const compressedFiles = await Promise.all(
+        limitedFiles.map(async (file) => {
+          // ✅ Set max size & quality for smoother UX
+          const compressed = await imageCompression(file, {
+            maxWidthOrHeight: 1280,
+            maxSizeMB: 1, // optional limit
+            useWebWorker: true,
+          });
+          return compressed;
+        })
+      );
+
+      // Generate preview URLs
+      const newPreviews = compressedFiles.map((f) => URL.createObjectURL(f));
+
+      // Update both form and local previews
+      setPreviews((prev) => [...prev, ...newPreviews]);
+      setForm((prev: any) => ({
+        ...prev,
+        photo: [...(prev.photo || []), ...compressedFiles],
+      }));
+    } catch (err) {
+      console.error("Error compressing images:", err);
+    } finally {
+      // Reset input value so user can reselect same file if needed
+      e.target.value = "";
     }
-
-    const newFiles = selected.map((file) => ({
-      file,
-      preview: URL.createObjectURL(file),
-      progress: 0,
-      isUploading: false,
-    }));
-
-    setFiles((prev) => [...prev, ...newFiles]);
   };
 
   // ---- Remove File ----
   const handleRemove = (index: number) => {
-    const file = files[index];
-    if (file.uploadedUrl) {
-      const path = file.uploadedUrl.split(
-        "/storage/files/images_collection/"
-      )[1];
-      if (path)
-        pb.collection("images_collection")
-          .delete(path)
-          .catch(() => {});
-    }
-    setFiles((prev) => prev.filter((_, i) => i !== index));
-  };
+    const updatedFiles = (form.photo || []).filter(
+      (_: any, i: number) => i !== index
+    );
+    const updatedPreviews = previews.filter((_, i) => i !== index);
 
-  // ---- Upload with Progress ----
-  const uploadFile = async (item: UploadItem, index: number) => {
-    return new Promise<void>((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      const formData = new FormData();
-      formData.append("images", item.file);
+    setForm((prev: any) => ({
+      ...prev,
+      photo: updatedFiles,
+    }));
 
-      xhr.open(
-        "POST",
-        `${pb.baseUrl}/api/collections/images_collection/records`
-      );
-
-      xhr.setRequestHeader("Authorization", pb.authStore.token || "");
-
-      xhr.upload.onprogress = (e) => {
-        if (e.lengthComputable) {
-          const percent = Math.round((e.loaded / e.total) * 100);
-          setFiles((prev) =>
-            prev.map((f, i) => (i === index ? { ...f, progress: percent } : f))
-          );
-        }
-      };
-
-      xhr.onload = () => {
-        if (xhr.status === 200) {
-          const record = JSON.parse(xhr.responseText);
-          const url = pb.files.getUrl(record, record.images[0]);
-          setFiles((prev) =>
-            prev.map((f, i) =>
-              i === index
-                ? { ...f, uploadedUrl: url, isUploading: false, progress: 100 }
-                : f
-            )
-          );
-          resolve();
-        } else reject(xhr.statusText);
-      };
-
-      xhr.onerror = () => reject("Upload failed");
-      setFiles((prev) =>
-        prev.map((f, i) => (i === index ? { ...f, isUploading: true } : f))
-      );
-      xhr.send(formData);
-    });
-  };
-
-  // ---- Save all ----
-  const handleSave = async () => {
-    if (files.length === 0) return alert("Tambahkan minimal 1 foto");
-    setSaving(true);
-
-    try {
-      for (let i = 0; i < files.length; i++) {
-        if (!files[i].uploadedUrl) await uploadFile(files[i], i);
-      }
-      alert("Semua foto berhasil diunggah!");
-    } catch (err) {
-      console.error(err);
-      alert("Gagal mengunggah foto");
-    } finally {
-      setSaving(false);
-    }
+    setPreviews(updatedPreviews);
   };
 
   return (
-    <div className="p-4 border rounded-lg w-full max-w-2xl ">
+    <div className="p-4 border rounded-lg w-full max-w-2xl">
       <div className="grid grid-cols-5 gap-3">
-        {files.map((item, i) => (
+        {previews.map((preview, i) => (
           <div
             key={i}
-            className="relative group rounded-md border overflow-hidden aspect-square "
+            className="relative group rounded-md border overflow-hidden aspect-square"
           >
             <img
-              src={item.preview}
-              alt=""
+              src={preview}
+              alt={`preview-${i}`}
               className="object-cover w-full h-full"
             />
 
             {/* Delete Button */}
             <button
+              type="button"
               onClick={() => handleRemove(i)}
               className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition"
             >
               <X size={14} />
             </button>
-
-            {/* Progress Bar */}
-            {item.isUploading && (
-              <div className="absolute bottom-0 left-0 w-full bg-gray-200 h-1">
-                <div
-                  className="bg-blue-500 h-1 transition-all"
-                  style={{ width: `${item.progress}%` }}
-                ></div>
-              </div>
-            )}
           </div>
         ))}
 
         {/* Add Image Button */}
-        {files.length < MAX_FILES && (
-          <label className="border-2 border-dashed rounded-md aspect-square flex flex-col items-center justify-center text-gray-500 cursor-pointer ">
+        {(form.photo?.length || 0) < maxFiles && (
+          <label className="border-2 border-dashed rounded-md aspect-square flex flex-col items-center justify-center text-gray-500 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition">
             <Upload className="w-6 h-6 mb-1" />
-            <span className="text-xs">
-              Tambahkan Foto ({files.length}/{MAX_FILES})
+            <span className="text-xs text-center px-1">
+              Tambah Foto ({form.photo?.length || 0}/{maxFiles})
             </span>
             <input
               type="file"
