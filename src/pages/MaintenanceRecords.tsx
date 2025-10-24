@@ -3,7 +3,7 @@ import MainFrame from "./MainFrame";
 import { Input } from "@/components/ui/input";
 import { RecordModel } from "pocketbase";
 import { motion, AnimatePresence } from "framer-motion";
-import TimelineCanvas from "@/components/TimelineCanvas";
+import TimelineCanvas from "@/components/maintenance_records/TimelineCanvas";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,7 +13,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import CreateMaintenanceRecord from "@/components/createMaintenanceRecordPopup";
+import CreateMaintenanceRecord from "@/components/maintenance_records/createMaintenanceRecordPopup";
 import { pb } from "@/lib/pocketbase";
 
 const Maintenance: React.FC = () => {

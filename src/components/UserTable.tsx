@@ -1,5 +1,5 @@
 import React from "react";
-import Table from "./Table";
+import Table from "./shift_calender/Table";
 import { RowHead } from "@/types/RowHead";
 type UserTableProps = {
   users: RowHead[];

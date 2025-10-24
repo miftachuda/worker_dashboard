@@ -1,5 +1,5 @@
-import { DateSelector } from "@/components/DateSelector";
-import ShiftSelector from "@/components/ShiftSelector";
+import { DateSelector } from "@/components/shift_calender/DateSelector";
+import ShiftSelector from "@/components/shift_calender/ShiftSelector";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import React, { useRef, useState } from "react";

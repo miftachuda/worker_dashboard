@@ -3,8 +3,8 @@ import MainFrame from "./MainFrame";
 import { Orderx } from "@/types/Order";
 import supabase from "@/lib/supabaseClient";
 import { Input } from "@/components/ui/input";
-import { OrderCard } from "@/components/OrderCard";
-import { CreateOrder } from "@/components/CreateOrder";
+import { OrderCard } from "@/components/orders/OrderCard";
+import { CreateOrder } from "@/components/orders/CreateOrder";
 
 const Orders: React.FC = () => {
   const [data, setData] = useState<Orderx[]>([]);

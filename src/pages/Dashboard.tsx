@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { WorkerGroupCard } from "@/components/WorkerGroupCard";
+import { WorkerGroupCard } from "@/components/workers/WorkerGroupCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Plane, UserRoundX, UserRoundCheck } from "lucide-react";
 import { useEffect } from "react";
