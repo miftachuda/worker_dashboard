@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react";
 import MainFrame from "./MainFrame";
-import PlusInputButton from "@/components/PlusInputButton";
+import PlusInputButton from "@/components/leaves/PlusInputButton";
 import supabase from "@/lib/supabaseClient";
 import { Leavex } from "@/types/Leavex";
 import { differenceInDays, format, parseISO } from "date-fns";
 import { Input } from "@/components/ui/input";
 import { fetchEmployee } from "@/lib/worker";
 import { Employee } from "@/types/Employee";
-import UserTableWrapper from "@/components/UserTableWrapper";
+import UserTableWrapper from "@/components/leaves/UserTableWrapper";
 import { Cell } from "@/types/Cell";
-import PopupDialog from "@/components/PopUp";
+import PopupDialog from "@/components/leaves/PopUp";
 //upload test
 const Leave: React.FC = () => {
   const [data, setData] = useState<Leavex[]>([]);

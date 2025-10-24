@@ -4,7 +4,7 @@ import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import React, { useRef, useState } from "react";
 import MainFrame from "./MainFrame";
-import ModeSelector from "@/components/ModeSelector";
+import ModeSelector from "@/components/shift_calender/ModeSelector";
 import { getShiftList, getShiftList2 } from "../lib/shift";
 import { findHariLiburByDate, HariLibur, loadHariLibur } from "@/lib/libur";
 import { Employee } from "../types/Employee";
