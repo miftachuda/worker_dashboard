@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import supabase from "../lib/supabaseClient";
-import { WorkerCard } from "@/components/WorkerCard";
+import { WorkerCard } from "@/components/workers/WorkerCard";
 import { Person } from "@/types/Person";
 import { Input } from "@/components/ui/input"; // 👈 assuming shadcn/ui input
 import MainFrame from "./MainFrame";

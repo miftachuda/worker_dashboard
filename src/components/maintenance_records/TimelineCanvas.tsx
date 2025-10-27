@@ -9,7 +9,6 @@ import MiniTimeline from "./MiniTimeline";
 import "swiper/css";
 import { PreviewPhotoSlider } from "./PhotoSlide";
 import EditRecordPopup from "./editRecordPopup";
-import { pb } from "@/lib/pocketbase";
 
 function formatTimestampToDateString(timestamp?: number | null): string {
   const date =

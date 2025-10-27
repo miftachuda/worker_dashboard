@@ -13,8 +13,8 @@ import { Label } from "@/components/ui/label";
 import supabase from "@/lib/supabaseClient";
 import { Orderx } from "@/types/Order";
 import { formatDistanceToNow } from "date-fns";
-import { CreateOrder } from "./CreateOrder";
-import { Textarea } from "./ui/textarea";
+import { CreateOrder } from "../orders/CreateOrder";
+import { Textarea } from "../ui/textarea";
 import { Pencil } from "lucide-react";
 
 export function OrderCard({ num, ...order }: Orderx & { num: number }) {

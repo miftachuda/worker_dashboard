@@ -3,6 +3,7 @@ import { X, Upload, Loader2 } from "lucide-react";
 import imageCompression from "browser-image-compression";
 import { pb } from "@/lib/pocketbase";
 import { RecordModel } from "pocketbase";
+import { ToastContainer, toast } from "react-toastify";
 
 // This interface defines the objects we'll use for previews
 interface PreviewObject {
@@ -69,7 +70,7 @@ const MultiImageUploadPBEdit: React.FC<MultiImageUploadPBEditProps> = ({
       const allSources = allPreviews.map((p) => p.source);
       setForm({ ...form, [fieldName]: allSources });
     } catch (error) {
-      console.error("Image compression failed:", error);
+      toast.error("Failed to process image");
     } finally {
       setIsLoading(false);
     }

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { X, Upload } from "lucide-react";
 import imageCompression from "browser-image-compression";
+import { toast } from "react-toastify";
 
 interface MultiImageUploadPBProps {
   form: any;
@@ -47,7 +48,7 @@ const MultiImageUploadPB: React.FC<MultiImageUploadPBProps> = ({
         photo: [...(prev.photo || []), ...compressedFiles],
       }));
     } catch (err) {
-      console.error("Error compressing images:", err);
+      toast.error("Failed to process image");
     } finally {
       // Reset input value so user can reselect same file if needed
       e.target.value = "";

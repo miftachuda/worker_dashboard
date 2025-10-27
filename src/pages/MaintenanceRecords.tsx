@@ -4,17 +4,10 @@ import { Input } from "@/components/ui/input";
 import { RecordModel } from "pocketbase";
 import { motion, AnimatePresence } from "framer-motion";
 import TimelineCanvas from "@/components/maintenance_records/TimelineCanvas";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import CreateMaintenanceRecord from "@/components/maintenance_records/createMaintenanceRecordPopup";
 import { pb } from "@/lib/pocketbase";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Maintenance: React.FC = () => {
   const [selectedEquipment, setSelectedEquipment] = useState<
@@ -25,22 +18,23 @@ const Maintenance: React.FC = () => {
   const [filteredEquipment, setFilteredEquipment] = useState<RecordModel[]>([]);
   const [listEquipment, setListEquipment] = useState<RecordModel[]>([]);
   const [search, setSearch] = useState("");
-  const [error, setError] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [loading2, setLoading2] = useState(false);
-  const [errorDialog, setErrorDialog] = useState<string | null>(null);
 
   // 🔹 Fetch Equipment List
   useEffect(() => {
     const fetchEquipment = async () => {
+      setLoading(true);
       try {
         const records = await pb.collection("list_equipment").getFullList({
           sort: "created",
         });
         setListEquipment(records);
       } catch (err) {
-        setError(err);
         console.error("Error fetching equipment:", err);
+        toast.error("Failed to fetch equipment list");
+      } finally {
+        setLoading(false);
       }
     };
     fetchEquipment();
@@ -66,9 +60,8 @@ const Maintenance: React.FC = () => {
   // 🔹 Handle Click on Equipment Card
   const handleClick = async (data: RecordModel) => {
     if (loading2) return;
-
+    setLoading2(true);
     try {
-      setLoading2(true);
       const records = await pb
         .collection("maintenance_collection")
         .getFullList({
@@ -76,12 +69,11 @@ const Maintenance: React.FC = () => {
           expand: "nametag",
           filter: `nametag.nametag = '${data.nametag}'`,
         });
-
       setSelectedEquipmentTimeline(data);
       setSelectedEquipment(records);
     } catch (err: any) {
-      console.error("Error fetching maintenance data:", err);
-      setErrorDialog(err?.message || "Failed to fetch maintenance data.");
+      console.error(err);
+      toast.error("Failed to fetch maintenance records");
     } finally {
       setLoading2(false);
     }
@@ -93,17 +85,31 @@ const Maintenance: React.FC = () => {
   // 🔹 Refresh Maintenance Records After Editing
   const refreshMaintenanceRecords = async () => {
     if (!selectedEquipmentTimeline) return;
-    const records = await pb.collection("maintenance_collection").getFullList({
-      sort: "created",
-      expand: "nametag",
-      filter: `nametag.nametag = '${selectedEquipmentTimeline.nametag}'`,
-    });
-    setSelectedEquipment(records);
+    try {
+      const records = await pb
+        .collection("maintenance_collection")
+        .getFullList({
+          sort: "created",
+          expand: "nametag",
+          filter: `nametag.nametag = '${selectedEquipmentTimeline.nametag}'`,
+        });
+      setSelectedEquipment(records);
+      toast.success("Records refreshed");
+    } catch (err) {
+      toast.error("Failed to refresh records");
+    }
   };
 
   return (
     <MainFrame>
-      {/* 🔹 Top Loading Bar */}
+      {/* 🔹 Toast Container */}
+      <ToastContainer
+        position="top-right"
+        autoClose={2500}
+        hideProgressBar
+        theme="dark"
+      />
+
       <AnimatePresence>
         {loading && (
           <motion.div
@@ -117,31 +123,6 @@ const Maintenance: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* 🔹 Error Dialog */}
-      <AlertDialog
-        open={!!errorDialog}
-        onOpenChange={() => setErrorDialog(null)}
-      >
-        <AlertDialogContent className="bg-slate-900 text-white border border-slate-700">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-red-400">
-              Fetch Failed
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-300">
-              {errorDialog}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogAction
-              onClick={() => setErrorDialog(null)}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
-            >
-              OK
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
       <AnimatePresence mode="wait">
         {/* =======================
             PAGE 1: Equipment List
@@ -154,28 +135,20 @@ const Maintenance: React.FC = () => {
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.25 }}
           >
-            {error && <p className="text-red-500">{error.message}</p>}
-
-            <div className="sticky top-4 z-8">
-              <div className="ml-9 mr-6">{/* reserved for CreateOrder */}</div>
-            </div>
-
-            <div className="sticky top-4 z-10 ">
-              <div className="ml-9 mr-6">
-                <Input
-                  type="text"
-                  placeholder="Search Maintenance..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="w-full"
-                />
-              </div>
+            <div className="sticky top-4 z-10 ml-9 mr-6">
+              <Input
+                type="text"
+                placeholder="Search Maintenance..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full"
+              />
             </div>
 
             <main className="p-6 space-y-6">
               {Object.entries(
                 filteredEquipment.reduce((acc, item) => {
-                  const prefix = item.nametag.slice(0, 3).toUpperCase(); // first 3 chars
+                  const prefix = item.nametag.slice(0, 3).toUpperCase();
                   if (!acc[prefix]) acc[prefix] = [];
                   acc[prefix].push(item);
                   return acc;
@@ -186,13 +159,13 @@ const Maintenance: React.FC = () => {
                   <div
                     key={prefix}
                     className={`p-4 rounded-2xl border-2 shadow-inner transition-colors duration-200 
-        ${
-          i % 3 === 0
-            ? "border-blue-500/50 bg-blue-950/20"
-            : i % 3 === 1
-            ? "border-emerald-500/50 bg-emerald-950/20"
-            : "border-fuchsia-500/50 bg-fuchsia-950/20"
-        }`}
+                    ${
+                      i % 3 === 0
+                        ? "border-blue-500/50 bg-blue-950/20"
+                        : i % 3 === 1
+                        ? "border-emerald-500/50 bg-emerald-950/20"
+                        : "border-fuchsia-500/50 bg-fuchsia-950/20"
+                    }`}
                   >
                     <h2 className="text-lg font-bold mb-3 text-white tracking-widest">
                       {prefix}
@@ -211,10 +184,14 @@ const Maintenance: React.FC = () => {
                               !loading ? () => handleClick(data) : undefined
                             }
                             className={`border select-none rounded-lg px-4 py-2 shadow-md 
-                ${loading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"} 
-                bg-slate-950 text-white font-semibold text-center 
-                transition duration-200 ease-in-out 
-                hover:bg-slate-900 hover:shadow-lg active:bg-slate-800`}
+                              ${
+                                loading
+                                  ? "opacity-50 cursor-not-allowed"
+                                  : "cursor-pointer"
+                              } 
+                              bg-slate-950 text-white font-semibold text-center 
+                              transition duration-200 ease-in-out 
+                              hover:bg-slate-900 hover:shadow-lg active:bg-slate-800`}
                           >
                             {data.nametag}
                             <div>

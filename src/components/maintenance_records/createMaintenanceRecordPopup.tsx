@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import PocketBase, { RecordModel } from "pocketbase";
+import { RecordModel } from "pocketbase";
+import { ToastContainer, toast } from "react-toastify";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -112,8 +113,10 @@ const CreateMaintenanceRecord: React.FC<CreateMaintenanceRecordProps> = ({
 
       setOpen(false);
       onCreated?.();
+      toast.success("Maintenance record saved successfully!");
     } catch (err) {
       console.error(err);
+      toast.error("Failed to create record");
       alert("Failed to create record: " + (err as Error).message);
     } finally {
       setLoading(false);

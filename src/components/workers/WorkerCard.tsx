@@ -11,7 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import supabase from "@/lib/supabaseClient";
-import { fullShift } from "../lib/shift";
+import { fullShift } from "../../lib/shift";
 import { Person } from "@/types/Person";
 
 export function WorkerCard({ num, ...worker }: Person & { num: number }) {

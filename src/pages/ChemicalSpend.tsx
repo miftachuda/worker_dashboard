@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import MainFrame from "./MainFrame";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,9 +27,9 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 
 const chemicalData = [
-  { name: "Furfural", units: ["m³", "kg", "% Vessel"] },
-  { name: "MEK", units: ["m³", "% Vessel"] },
-  { name: "Toluene", units: ["m³", "% Vessel"] },
+  { name: "Furfural", units: ["% Vessel", "m³", "kg"] },
+  { name: "MEK", units: ["% Vessel", "m³"] },
+  { name: "Toluene", units: ["% Vessel", "m³"] },
   { name: "Sobi", units: ["kg", "Sack"] },
   { name: "Antifoam", units: ["Liter", "kg"] },
   { name: "Propane", units: ["m³", "% Vessel"] },
@@ -72,10 +72,20 @@ const darkTheme = createTheme({
     },
   },
 });
+interface Post {
+  id: string;
+  chemical_name: string;
+  amount: number;
+  unit: string;
+  time: number;
+  created: string;
+  updated: string;
+}
 
 const ChemicalSpend: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [ChemicalSpend, setChemicalSpend] = useState<Post[]>([]);
 
   const [form, setForm] = useState({
     chemicalName: "",
@@ -83,7 +93,17 @@ const ChemicalSpend: React.FC = () => {
     unit: "",
     time: dayjs(), // store time directly here
   });
+  const grouped = ChemicalSpend.reduce((acc, item) => {
+    if (!acc[item.chemical_name]) {
+      acc[item.chemical_name] = [];
+    }
+    acc[item.chemical_name].push(item);
+    return acc;
+  }, {} as Record<string, typeof ChemicalSpend>);
 
+  // Create separate variables
+  const furfural = grouped["Furfural"] || [];
+  const propane = grouped["Propane"] || [];
   const [availableUnits, setAvailableUnits] = useState<string[]>([]);
 
   const handleChemicalChange = (chemicalName: string) => {
@@ -126,7 +146,21 @@ const ChemicalSpend: React.FC = () => {
       setLoading(false);
     }
   };
-
+  useEffect(() => {
+    const fetchEquipment = async () => {
+      try {
+        const records = await pb
+          .collection("chemical_spend")
+          .getFullList<Post>({
+            sort: "created",
+          });
+        setChemicalSpend(records);
+      } catch (err) {
+        console.error("Error fetching equipment:", err);
+      }
+    };
+    fetchEquipment();
+  }, []);
   return (
     <MainFrame>
       <main className="p-6">
