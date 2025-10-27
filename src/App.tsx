@@ -13,8 +13,9 @@ import Setting from "./pages/Settings";
 import Orders from "./pages/Orders";
 import Maintenance from "./pages/MaintenanceRecords";
 import Test from "./pages/Test";
-import ChemicalSpend from "./pages/ChemicalSpend";
+import Chemicalusage from "./pages/ChemicalUsage";
 import DatePickerTest from "./pages/Page";
+import TankTrend from "./pages/TankTrend";
 
 const queryClient = new QueryClient();
 
@@ -31,7 +32,8 @@ const App = () => (
           <Route path="/leaves" element={<Leave />} />
           <Route path="/reports" element={<Report />} />
           <Route path="/maintenances" element={<Maintenance />} />
-          <Route path="/chemical" element={<ChemicalSpend />} />
+          <Route path="/chemical" element={<Chemicalusage />} />
+          <Route path="/tanktrend" element={<TankTrend />} />
           <Route path="/settings" element={<Test />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/test" element={<DatePickerTest />} />

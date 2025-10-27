@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Users,
   BarChart3,
@@ -6,12 +5,11 @@ import {
   Home,
   Calendar,
   FileText,
-  Bell,
   Droplet,
-  Plus,
   BookAudio,
   Wrench,
   Minus,
+  TrendingUp,
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 
@@ -35,7 +33,8 @@ const mainItems = [
   { title: "Reports", url: "/reports", icon: FileText },
   { title: "Maintenance Records", url: "/maintenances", icon: Wrench },
   { title: "Orders", url: "/orders", icon: BookAudio },
-  { title: "Chemical Spend", url: "/chemical", icon: Droplet },
+  { title: "Chemical Usage", url: "/chemical", icon: Droplet },
+  { title: "tank Trend", url: "/tanktrend", icon: TrendingUp },
 ];
 
 const adminItems = [

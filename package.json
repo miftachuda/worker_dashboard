@@ -55,6 +55,7 @@
     "dayjs": "^1.11.18",
     "embla-carousel-react": "^8.6.0",
     "flatpickr": "^4.6.13",
+    "follow-redirects": "^1.15.11",
     "framer-motion": "^12.23.22",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.542.0",
