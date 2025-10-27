@@ -21,6 +21,7 @@ import { DateRangeWithStatusPicker } from "./DateTimePicker";
 import { Edit } from "lucide-react";
 import { pb } from "@/lib/pocketbase";
 import MultiImageUploadPBEdit from "./editUploadImage";
+import { toast } from "react-toastify";
 
 interface EditRecordPopupProps {
   items: RecordModel;
@@ -107,9 +108,6 @@ const EditRecordPopup: React.FC<EditRecordPopupProps> = ({
     if (form.photo.length === 0) {
       formData.append("photo", "");
     } else {
-      // Append all items.
-      // Strings = "keep this existing file"
-      // File objects = "add this new file"
       form.photo.forEach((fileOrName: string | File) => {
         formData.append("photo", fileOrName);
       });
@@ -121,9 +119,10 @@ const EditRecordPopup: React.FC<EditRecordPopupProps> = ({
       await pb.collection("maintenance_collection").update(items.id, formData);
       setOpen(false);
       onCreated?.();
+      toast.success("Record Updated");
     } catch (err) {
       console.error("PocketBase update failed:", JSON.stringify(err, null, 2));
-      alert("Failed to update record: " + (err as Error).message);
+      toast.error("Failed to update record");
     } finally {
       setLoading(false);
     }

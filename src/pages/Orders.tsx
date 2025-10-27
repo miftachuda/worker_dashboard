@@ -5,21 +5,25 @@ import supabase from "@/lib/supabaseClient";
 import { Input } from "@/components/ui/input";
 import { OrderCard } from "@/components/orders/OrderCard";
 import { CreateOrder } from "@/components/orders/CreateOrder";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Orders: React.FC = () => {
   const [data, setData] = useState<Orderx[]>([]);
   const [filteredData, setFilteredData] = useState<Orderx[]>([]);
   const [search, setSearch] = useState("");
   const [error, setError] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       const { data: Orders, error } = await supabase.from("Orders").select("*");
       if (error) setError(error);
       else {
         setData(Orders || []);
         setFilteredData(Orders || []);
       }
+      setLoading(false);
     };
 
     fetchData();
@@ -33,7 +37,7 @@ const Orders: React.FC = () => {
       setFilteredData(
         data.filter((order) =>
           [order.description]
-            .filter(Boolean) // remove undefined/null
+            .filter(Boolean)
             .some((field) => field.toLowerCase().includes(lowerSearch))
         )
       );
@@ -43,6 +47,7 @@ const Orders: React.FC = () => {
   return (
     <MainFrame>
       {error && <p className="text-red-500">{error.message}</p>}
+
       <div className="sticky top-4 z-8 ">
         <div className="ml-9 mr-6">
           <CreateOrder
@@ -50,6 +55,7 @@ const Orders: React.FC = () => {
           />
         </div>
       </div>
+
       <div className="sticky top-16 z-10 ">
         <div className="ml-9 mr-6">
           <Input
@@ -61,14 +67,32 @@ const Orders: React.FC = () => {
           />
         </div>
       </div>
-      <main>
-        <div className="p-6 grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {filteredData
-            .sort((a, b) => b.created_at.localeCompare(a.created_at))
-            .map((order, index) => (
-              <OrderCard key={order.id} {...order} num={index + 1} />
-            ))}
-        </div>
+
+      <main className="p-6 relative min-h-[300px]">
+        <AnimatePresence>
+          {loading && (
+            <motion.div
+              key="spinner"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="absolute inset-0 flex items-center justify-center bg-transparent"
+            >
+              <div className="w-10 h-10 border-4 border-t-transparent border-blue-500 rounded-full animate-spin" />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {!loading && (
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {filteredData
+              .sort((a, b) => b.created_at.localeCompare(a.created_at))
+              .map((order, index) => (
+                <OrderCard key={order.id} {...order} num={index + 1} />
+              ))}
+          </div>
+        )}
       </main>
     </MainFrame>
   );

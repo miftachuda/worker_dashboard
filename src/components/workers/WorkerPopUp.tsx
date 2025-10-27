@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from "react";
-import { Employee } from "../types/Employee";
+import { useEffect, useRef } from "react";
+import { Employee } from "../../types/Employee";
 
 interface WorkerPopupProps {
   shift: string;

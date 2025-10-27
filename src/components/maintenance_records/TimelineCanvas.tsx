@@ -1,5 +1,5 @@
 import { RecordModel } from "pocketbase";
-import React, { useState } from "react";
+import React from "react";
 import {
   VerticalTimeline,
   VerticalTimelineElement,

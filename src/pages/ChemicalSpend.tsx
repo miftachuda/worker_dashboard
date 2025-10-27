@@ -165,7 +165,12 @@ const ChemicalSpend: React.FC = () => {
     <MainFrame>
       <main className="p-6">
         <h2 className="text-2xl font-bold mb-4">Chemical Spend Records</h2>
-        <ToastContainer />
+        <ToastContainer
+          position="top-right"
+          autoClose={2500}
+          hideProgressBar
+          theme="dark"
+        />
         <Button onClick={() => setOpen(true)}>
           <Plus className="mr-2 h-4 w-4" /> Add Spend Record
         </Button>

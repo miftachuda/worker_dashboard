@@ -3,7 +3,7 @@ import { X, Upload, Loader2 } from "lucide-react";
 import imageCompression from "browser-image-compression";
 import { pb } from "@/lib/pocketbase";
 import { RecordModel } from "pocketbase";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 
 // This interface defines the objects we'll use for previews
 interface PreviewObject {

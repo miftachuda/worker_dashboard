@@ -13,8 +13,13 @@ import { Label } from "@/components/ui/label";
 import supabase from "@/lib/supabaseClient";
 import { fullShift } from "../../lib/shift";
 import { Person } from "@/types/Person";
+import { toast } from "react-toastify";
 
-export function WorkerCard({ num, ...worker }: Person & { num: number }) {
+export function WorkerCard({
+  num,
+  onUpdated, // 👈 add this prop
+  ...worker
+}: Person & { num: number; onUpdated?: () => void }) {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(worker);
 
@@ -26,7 +31,7 @@ export function WorkerCard({ num, ...worker }: Person & { num: number }) {
 
   const handleSave = async () => {
     const { error } = await supabase
-      .from("Manpower_all") // <-- replace with your table name
+      .from("Manpower_all")
       .update({
         Nama: form.Nama,
         Position: form.Position,
@@ -40,8 +45,11 @@ export function WorkerCard({ num, ...worker }: Person & { num: number }) {
 
     if (error) {
       console.error("Update failed:", error);
+      toast.error("Failed to update worker data");
     } else {
+      toast.success("Worker updated successfully");
       setOpen(false);
+      onUpdated?.(); // 👈 notify parent to refresh
     }
   };
 
@@ -78,8 +86,9 @@ export function WorkerCard({ num, ...worker }: Person & { num: number }) {
         <p>
           <span className="font-medium">Status :</span> {worker.Status}
         </p>
-        {/* Edit Button with Dialog */}
       </CardContent>
+
+      {/* Edit Dialog */}
       <div className="ml-2 mb-2">
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
@@ -92,43 +101,25 @@ export function WorkerCard({ num, ...worker }: Person & { num: number }) {
               <DialogTitle>Edit Worker</DialogTitle>
             </DialogHeader>
 
+            {/* Form Fields */}
             <div className="space-y-3">
-              <div>
-                <Label htmlFor="Nama">Nama</Label>
-                <Input name="Nama" value={form.Nama} onChange={handleChange} />
-              </div>
-              <div>
-                <Label htmlFor="Position">Position</Label>
-                <Input
-                  name="Position"
-                  value={form.Position}
-                  onChange={handleChange}
-                />
-              </div>
-              <div>
-                <Label htmlFor="No HP">No HP</Label>
-                <Input
-                  name="No HP"
-                  value={form["No HP"]}
-                  onChange={handleChange}
-                />
-              </div>
-              <div>
-                <Label htmlFor="Nopek">Nopek</Label>
-                <Input
-                  name="Nopek"
-                  value={form.Nopek}
-                  onChange={handleChange}
-                />
-              </div>
-              <div>
-                <Label htmlFor="Alamat">Alamat</Label>
-                <Input
-                  name="Alamat"
-                  value={form.Alamat}
-                  onChange={handleChange}
-                />
-              </div>
+              {[
+                { label: "Nama", name: "Nama" },
+                { label: "Position", name: "Position" },
+                { label: "No HP", name: "No HP" },
+                { label: "Nopek", name: "Nopek" },
+                { label: "Alamat", name: "Alamat" },
+              ].map(({ label, name }) => (
+                <div key={name}>
+                  <Label htmlFor={name}>{label}</Label>
+                  <Input
+                    name={name}
+                    value={form[name as keyof Person] ?? ""}
+                    onChange={handleChange}
+                  />
+                </div>
+              ))}
+
               <div>
                 <Label htmlFor="Shift">Shift</Label>
                 <select
@@ -144,6 +135,7 @@ export function WorkerCard({ num, ...worker }: Person & { num: number }) {
                   <option value="Shift D">Shift D</option>
                 </select>
               </div>
+
               <div>
                 <Label htmlFor="Status">Status</Label>
                 <select
