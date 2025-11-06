@@ -281,7 +281,7 @@ const Chemicalusage: React.FC = () => {
           />
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogContent>
+          <DialogContent aria-describedby={undefined}>
             <DialogHeader>
               <DialogTitle>Add Chemical Spend</DialogTitle>
             </DialogHeader>

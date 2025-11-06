@@ -10,6 +10,7 @@ import {
   Wrench,
   Minus,
   TrendingUp,
+  FlaskConical,
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 
@@ -35,13 +36,10 @@ const mainItems = [
   { title: "Orders", url: "/orders", icon: BookAudio },
   { title: "Chemical Usage", url: "/chemical", icon: Droplet },
   { title: "Tank Trend", url: "/tanktrend", icon: TrendingUp },
-  { title: "LIMS", url: "/labware", icon: TrendingUp },
+  { title: "LIMS", url: "/labware", icon: FlaskConical },
 ];
 
-const adminItems = [
-  { title: "Settings", url: "/settings", icon: Settings },
-  { title: "Test", url: "/test", icon: Minus },
-];
+const adminItems = [{ title: "Settings", url: "/settings", icon: Settings }];
 export function AppSidebar() {
   const { state } = useSidebar();
   const location = useLocation();

@@ -1,6 +1,6 @@
 import React from "react";
 import MainFrame from "./MainFrame";
-import { DemoTimeline } from "@/components/DataTimeline";
+
 import {
   VerticalTimeline,
   VerticalTimelineElement,

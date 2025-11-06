@@ -77,6 +77,29 @@ const TankTrend: React.FC = () => {
   const filteredOptions = tagOptions.filter((tag) =>
     tag.label.toLowerCase().includes(search.toLowerCase())
   );
+  function smoothAnomalies(data: ChartDataPoint[]): ChartDataPoint[] {
+    if (data.length === 0) return [];
+
+    const result: ChartDataPoint[] = [data[0]]; // keep first point as is
+
+    for (let i = 1; i < data.length; i++) {
+      const prev = result[i - 1];
+      const curr = { ...data[i] };
+
+      // Detect anomaly if > 100% increase (i.e., > 2x previous value)
+      if (curr.level > prev.level * 2) {
+        curr.level = prev.level;
+      }
+
+      if (curr.temperature > prev.temperature * 2) {
+        curr.temperature = prev.temperature;
+      }
+
+      result.push(curr);
+    }
+
+    return result;
+  }
   const getData = async (tagName: string[]) => {
     const formattedStartTime = dayjs(startDate).format(
       "MM/DD/YYYY HH:mm:ss.SSS"
@@ -129,7 +152,7 @@ const TankTrend: React.FC = () => {
           };
         })
         .filter((entry): entry is ChartDataPoint => entry !== null);
-      setData(chartData);
+      setData(smoothAnomalies(chartData));
     } catch (err: any) {
       setError(err.message || "Unknown error");
     } finally {

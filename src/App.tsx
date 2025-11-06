@@ -12,9 +12,7 @@ import Report from "./pages/Report";
 import Setting from "./pages/Settings";
 import Orders from "./pages/Orders";
 import Maintenance from "./pages/MaintenanceRecords";
-import Test from "./pages/Test";
 import Chemicalusage from "./pages/ChemicalUsage";
-import DatePickerTest from "./pages/Page";
 import TankTrend from "./pages/TankTrend";
 import Labware from "./pages/Labware";
 
@@ -36,9 +34,8 @@ const App = () => (
           <Route path="/chemical" element={<Chemicalusage />} />
           <Route path="/tanktrend" element={<TankTrend />} />
           <Route path="/labware" element={<Labware />} />
-          <Route path="/settings" element={<Test />} />
+          <Route path="/settings" element={<Setting />} />
           <Route path="/orders" element={<Orders />} />
-          <Route path="/test" element={<DatePickerTest />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </HashRouter>
