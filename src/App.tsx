@@ -16,6 +16,7 @@ import Test from "./pages/Test";
 import Chemicalusage from "./pages/ChemicalUsage";
 import DatePickerTest from "./pages/Page";
 import TankTrend from "./pages/TankTrend";
+import Labware from "./pages/Labware";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +35,7 @@ const App = () => (
           <Route path="/maintenances" element={<Maintenance />} />
           <Route path="/chemical" element={<Chemicalusage />} />
           <Route path="/tanktrend" element={<TankTrend />} />
+          <Route path="/labware" element={<Labware />} />
           <Route path="/settings" element={<Test />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/test" element={<DatePickerTest />} />

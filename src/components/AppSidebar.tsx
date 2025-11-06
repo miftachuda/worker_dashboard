@@ -34,7 +34,8 @@ const mainItems = [
   { title: "Maintenance Records", url: "/maintenances", icon: Wrench },
   { title: "Orders", url: "/orders", icon: BookAudio },
   { title: "Chemical Usage", url: "/chemical", icon: Droplet },
-  { title: "tank Trend", url: "/tanktrend", icon: TrendingUp },
+  { title: "Tank Trend", url: "/tanktrend", icon: TrendingUp },
+  { title: "LIMS", url: "/labware", icon: TrendingUp },
 ];
 
 const adminItems = [
