@@ -115,7 +115,7 @@ const Maintenance: React.FC = () => {
         ✅ Wrapper with relative positioning 
         ensures overlay stays inside MainFrame's content
       */}
-      <div className="relative w-full h-full min-h-[calc(100vh-8rem)] overflow-hidden">
+      <div className="relative w-full h-full min-h-[calc(100vh-8rem)] overflow-y-auto">
         <AnimatePresence>
           {(loading || loading2) && (
             <motion.div
@@ -154,7 +154,7 @@ const Maintenance: React.FC = () => {
                 />
               </div>
 
-              <main className="p-6 space-y-6">
+              <main className="p-6 space-y-6 ">
                 {Object.entries(
                   filteredEquipment.reduce((acc, item) => {
                     const prefix = item.nametag.slice(0, 3).toUpperCase();
