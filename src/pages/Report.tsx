@@ -3,42 +3,54 @@ import MainFrame from "./MainFrame";
 import supabase from "@/lib/supabaseClient";
 import { Input } from "@/components/ui/input";
 import { Reportx } from "@/types/Report";
+import { pb } from "@/lib/pocketbase";
+import ReportCard from "@/components/reports/ReportCard";
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+import { CreateReport } from "@/components/reports/CreateReport";
 
+dayjs.extend(customParseFormat);
 const Report: React.FC = () => {
-  const [data, setData] = useState<Reportx[]>([]);
-  const [filteredData, setFilteredData] = useState<Reportx[]>([]);
+  const [report, setReport] = useState<Reportx[]>([]);
+  const [filteredReport, setFilteredReport] = useState<Reportx[]>([]);
   const [search, setSearch] = useState("");
   const [error, setError] = useState<any>(null);
+  const fetchReports = async () => {
+    try {
+      const records = await pb.collection("reports").getFullList<Reportx>({
+        sort: "created",
+        filter: "isSubmit = true",
+      });
+      setReport(records);
+      setFilteredReport(records);
+    } catch (err) {
+      console.error("Error fetching chemical usage:", err);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      const { data: Reports, error } = await supabase
-        .from("Reports")
-        .select("*");
-      if (error) setError(error);
-      else {
-        setData(Reports || []);
-        setFilteredData(Reports || []);
-      }
-    };
-
-    fetchData();
+    fetchReports();
   }, []);
 
   useEffect(() => {
     const lowerSearch = search.toLowerCase();
-    if (lowerSearch.trim() === "") {
-      setFilteredData(data);
-    } else {
-      setFilteredData(
-        data.filter((order) =>
-          [order.content]
-            .filter(Boolean) // remove undefined/null
-            .some((field) => field.toLowerCase().includes(lowerSearch))
-        )
-      );
+
+    if (!lowerSearch.trim()) {
+      setFilteredReport(report);
+      return;
     }
-  }, [search, data]);
+
+    setFilteredReport(
+      report.filter((order) => {
+        const text =
+          typeof order.content === "string"
+            ? order.content
+            : JSON.stringify(order.content ?? {});
+
+        return text.toLowerCase().includes(lowerSearch);
+      })
+    );
+  }, [search, report]);
 
   return (
     <MainFrame>
@@ -50,6 +62,7 @@ const Report: React.FC = () => {
           /> */}
         </div>
       </div>
+      <CreateReport />
       <div className="sticky top-4 z-10 ">
         <div className="ml-9 mr-6">
           <Input
@@ -62,13 +75,24 @@ const Report: React.FC = () => {
         </div>
       </div>
       <main>
-        <div className="p-6 grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {filteredData
-            .sort((a, b) => b.created_at.localeCompare(a.created_at))
-            .map((order, index) => (
-              <div></div>
-              // <OrderCard key={order.id} {...order} num={index + 1} />
-            ))}
+        <div className="w-full grid ">
+          {filteredReport
+            .sort((a, b) => b.created.localeCompare(a.created))
+            .map((report, index) => {
+              const content =
+                typeof report.content === "string"
+                  ? JSON.parse(report.content)
+                  : report.content;
+
+              return (
+                <ReportCard
+                  key={index}
+                  date={dayjs(report.date).format("DD-MMM-YYYY")}
+                  shift={report.shift}
+                  data={content}
+                />
+              );
+            })}
         </div>
       </main>
     </MainFrame>
