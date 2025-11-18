@@ -56,24 +56,23 @@ export function CreateReport() {
   // ---------------------------
   // FETCH ONLINE DRAFT
   // ---------------------------
-  useEffect(() => {
-    const fetchDraft = async () => {
-      try {
-        const res = await pb.collection("reports").getList(1, 1, {
-          filter: "isSubmit = false",
-          sort: "-created",
-        });
+  const fetchDraft = async () => {
+    console.log("fetchDraft called");
+    try {
+      const res = await pb.collection("reports").getList(1, 1, {
+        sort: "-created",
+      });
 
-        if (res.items.length > 0) {
-          const record = mapRecordToForm(res.items[0]);
-          setForm(record); // 🔧 Now correct type
-          setDraftId(res.items[0].id);
-        }
-      } catch (err) {
-        console.error("Error fetching draft:", err);
+      if (res.items.length > 0) {
+        const record = mapRecordToForm(res.items[0]);
+        setForm(record); // 🔧 Now correct type
+        setDraftId(res.items[0].id);
       }
-    };
-
+    } catch (err) {
+      console.error("Error fetching draft:", err);
+    }
+  };
+  useEffect(() => {
     fetchDraft();
   }, []);
 
@@ -207,8 +206,7 @@ export function CreateReport() {
 
                 {list.map((item, index) => (
                   <div key={index} className="flex items-center gap-2 mt-1">
-                    <input
-                      type="text"
+                    <textarea
                       value={item}
                       onChange={(e) => {
                         const updated = { ...form.content };
@@ -216,6 +214,7 @@ export function CreateReport() {
                         setForm({ ...form, content: updated });
                       }}
                       className="w-full border rounded p-1 bg-gray-900 text-white"
+                      rows={3} // optional: set initial height
                     />
 
                     {index > 0 && (
