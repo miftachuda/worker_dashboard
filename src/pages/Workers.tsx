@@ -4,7 +4,7 @@ import { WorkerCard } from "@/components/workers/WorkerCard";
 import { Person } from "@/types/Person";
 import { Input } from "@/components/ui/input";
 import MainFrame from "./MainFrame";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button"; // 👈 optional for refresh button
 
 export default function Worker() {
@@ -64,12 +64,6 @@ export default function Worker() {
     <MainFrame>
       <main>
         {error && <p className="text-red-500">{error.message}</p>}
-        <ToastContainer
-          position="top-right"
-          autoClose={2500}
-          hideProgressBar
-          theme="dark"
-        />
 
         {/* 🔍 Search + Refresh */}
         <div className="sticky top-4 z-10 flex items-center gap-2 ml-9 mr-6">

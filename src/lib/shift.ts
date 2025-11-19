@@ -58,6 +58,41 @@ function shiftNow() {
   const minutes = Math.trunc(diff.minutes) % 1440;
   return listshift[day][getPeriod(minutes)];
 }
+
+function get5AroundShift() {
+  const now = luxon.DateTime.now().setZone("Asia/Jakarta");
+  const end = luxon.DateTime.fromISO("2021-12-22", { zone: "Asia/Jakarta" });
+  const diff = now.diff(end, ["days", "minutes"]);
+
+  // Determine row & period
+  let dayIndex = Math.trunc(diff.days) % listshift.length;
+  let periodIndex = getPeriod(Math.trunc(diff.minutes) % 1440);
+
+  const totalShifts = listshift.length * 3;
+  const currentShiftPos =
+    (dayIndex * 3 + periodIndex + totalShifts) % totalShifts;
+
+  function getShiftAt(globalIndex: number) {
+    const idx = (globalIndex + totalShifts) % totalShifts;
+    const day = Math.floor(idx / 3);
+    const per = idx % 3;
+    return listshift[day][per];
+  }
+
+  // Build 5 shifts: 2 before, current, 2 after
+  const raw = [
+    getShiftAt(currentShiftPos - 2),
+    getShiftAt(currentShiftPos - 1),
+    getShiftAt(currentShiftPos),
+    getShiftAt(currentShiftPos + 1),
+    getShiftAt(currentShiftPos + 2),
+  ];
+
+  // Remove any that contain "Off"
+  const filtered = raw.filter((x) => !x.toUpperCase().includes("OFF"));
+
+  return filtered;
+}
 function fullShift(input: string) {
   if (typeof input == "string") {
     let shift = input.toUpperCase();
@@ -86,4 +121,4 @@ function fullShift(input: string) {
   }
 }
 
-export { getShiftList, getShiftList2, shiftNow, fullShift };
+export { getShiftList, getShiftList2, shiftNow, fullShift, get5AroundShift };

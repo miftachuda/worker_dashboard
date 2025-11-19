@@ -1,13 +1,14 @@
 import { DateSelector } from "@/components/shift_calender/DateSelector";
 import ShiftSelector from "@/components/shift_calender/ShiftSelector";
-import { format } from "date-fns";
+import { format, set } from "date-fns";
 import { id } from "date-fns/locale";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import MainFrame from "./MainFrame";
 import ModeSelector from "@/components/shift_calender/ModeSelector";
 import { getShiftList, getShiftList2 } from "../lib/shift";
 import { findHariLiburByDate, HariLibur, loadHariLibur } from "@/lib/libur";
 import { Employee } from "../types/Employee";
+import { pb } from "@/lib/pocketbase";
 
 export default function Shift() {
   const now = new Date();
@@ -42,7 +43,7 @@ export default function Shift() {
       el.scrollBy({ left: dx, behavior: "smooth" });
     }
   };
-  React.useEffect(() => {
+  useEffect(() => {
     updateScrollButtons();
     const el = scrollRef.current;
     if (!el) return;
@@ -54,7 +55,27 @@ export default function Shift() {
     };
     // eslint-disable-next-line
   }, []);
+  useEffect(() => {
+    const loadShift = async () => {
+      const user = pb.authStore.model;
+      if (!user) return;
 
+      try {
+        const data = await pb.collection("users").getOne(user.id);
+
+        // data.preferred_shift = "Shift A"
+        const letter = data.preferred_shift?.split(" ")[1] || "A";
+        const mode = data.shift_mode;
+
+        setSelectedShift(letter); // sets "A"
+        setSelectedMode(mode);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    loadShift();
+  }, []);
   function addDays(today: Date, days: number): Date {
     const result = new Date(today);
     result.setDate(result.getDate() + days);

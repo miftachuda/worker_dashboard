@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import TimelineCanvas from "@/components/maintenance_records/TimelineCanvas";
 import CreateMaintenanceRecord from "@/components/maintenance_records/createMaintenanceRecordPopup";
 import { pb } from "@/lib/pocketbase";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const Maintenance: React.FC = () => {
@@ -104,13 +104,6 @@ const Maintenance: React.FC = () => {
 
   return (
     <MainFrame>
-      <ToastContainer
-        position="top-right"
-        autoClose={2500}
-        hideProgressBar
-        theme="dark"
-      />
-
       {/* 
         ✅ Wrapper with relative positioning 
         ensures overlay stays inside MainFrame's content

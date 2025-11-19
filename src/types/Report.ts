@@ -1,6 +1,6 @@
 export type Reportx = {
   id: number;
-  content: string;
+  content: Record<string, string[]>;
   shift: string;
   date: string;
   created: string;

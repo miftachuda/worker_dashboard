@@ -37,7 +37,7 @@ export default function EditableText({ text, onSave }) {
             rows={1} // start small, auto-resize will expand
             onChange={(e) => setValue(e.target.value)}
             className="
-              bg-slate-800 border px-2 py-1 rounded text-sm text-white
+              bg-gray-900 border px-2 py-1 rounded text-sm text-white
               overflow-hidden resize-none w-full
             "
           />

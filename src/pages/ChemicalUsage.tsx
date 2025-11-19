@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/select";
 import { Plus } from "lucide-react";
 import { pb } from "@/lib/pocketbase";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import dayjs, { Dayjs } from "dayjs";
@@ -234,12 +234,6 @@ const Chemicalusage: React.FC = () => {
   return (
     <MainFrame>
       <main className="p-6">
-        <ToastContainer
-          position="top-right"
-          autoClose={2500}
-          hideProgressBar
-          theme="dark"
-        />
         <Button onClick={() => setOpen(true)}>
           <Plus className="mr-2 h-4 w-4" /> Add Chemical usage record
         </Button>

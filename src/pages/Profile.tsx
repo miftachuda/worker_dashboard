@@ -7,14 +7,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { toast } from "sonner";
+import { toast } from "react-toastify";
 
 const Profile: React.FC = () => {
   const user = pb.authStore.model;
 
   const [name, setName] = useState(user?.name || "");
   const [email, setEmail] = useState(user?.email || "");
-  const [role, setRole] = useState(user?.role || "");
+
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [isSubmit, setSubmitting] = useState(false);
 
@@ -30,21 +30,31 @@ const Profile: React.FC = () => {
       const formData = new FormData();
       formData.append("name", name);
       formData.append("email", email);
-      formData.append("role", role);
+      if (avatarFile) formData.append("avatar", avatarFile);
 
-      if (avatarFile) {
-        formData.append("avatar", avatarFile);
-      }
-
+      // 1. Update user
       const updated = await pb.collection("users").update(user.id, formData);
 
-      pb.authStore.save(updated.token, updated.record);
+      // 2. Merge with existing auth user record
+      const currentToken = pb.authStore.token;
+
+      const newRecord = {
+        ...pb.authStore.record,
+        ...updated,
+      };
+
+      // 3. Save back into authStore (SAFE)
+      pb.authStore.save(currentToken, newRecord);
 
       toast.success("Profile updated successfully");
-      setSubmitting(false);
+      setTimeout(() => {
+        window.location.reload();
+      }, 600);
     } catch (err) {
       console.error(err);
       toast.error("Failed to update profile");
+    } finally {
+      setSubmitting(false);
     }
   };
 

@@ -1,9 +1,10 @@
 import { pb } from "@/lib/pocketbase";
 import dayjs from "dayjs";
 import { useState, useEffect } from "react";
-import { shiftNow } from "@/lib/shift";
+import { shiftNow, get5AroundShift } from "@/lib/shift";
 import ReportForm from "@/types/ReportForm";
 import { se } from "date-fns/locale";
+import { toast } from "react-toastify";
 
 const mapRecordToForm = (r: any): ReportForm => ({
   date: dayjs(r.date), // 🔧 ensure Dayjs object
@@ -29,14 +30,20 @@ export function CreateReport() {
   const [error, setError] = useState(null);
   const [draftId, setDraftId] = useState(null);
 
-  const shift = shiftNow().charAt(0);
+  const shift = shiftNow();
+  const [shiftOptions, setShiftOptions] = useState<string[]>([]);
+
+  useEffect(() => {
+    const list = get5AroundShift();
+    setShiftOptions(list);
+  }, []);
 
   // ---------------------------
   // FIX: date MUST be Dayjs object
   // ---------------------------
   const emptyForm: ReportForm = {
     date: dayjs(), // 🔧 FIXED (was string)
-    shift: `Shift ${shift}`,
+    shift: shift,
     isSubmit: false,
     content: {
       "002": [""],
@@ -111,11 +118,16 @@ export function CreateReport() {
       if (submitType === "save") {
         setSaving(true);
 
-        if (draftId) {
-          saved = await pb.collection("reports").update(draftId, record);
-        } else {
-          saved = await pb.collection("reports").create(record);
-          setDraftId(saved.id);
+        try {
+          if (draftId) {
+            saved = await pb.collection("reports").update(draftId, record);
+          } else {
+            saved = await pb.collection("reports").create(record);
+            setDraftId(saved.id);
+          }
+          toast.success("Draft Saved");
+        } catch (error) {
+          toast.error("Error Saving Draft");
         }
 
         setSaving(false);
@@ -125,9 +137,14 @@ export function CreateReport() {
       // FINAL SUBMIT
       setSubmitting(true);
 
-      if (draftId)
-        saved = await pb.collection("reports").update(draftId, record);
-      else saved = await pb.collection("reports").create(record);
+      try {
+        if (draftId)
+          saved = await pb.collection("reports").update(draftId, record);
+        else saved = await pb.collection("reports").create(record);
+        toast.success("Report Submitted");
+      } catch (error) {
+        toast.error("Error Submitting");
+      }
 
       setSubmitting(false);
       setDraftId(null);
@@ -135,12 +152,12 @@ export function CreateReport() {
       setMode("list");
     } catch (err) {
       setError(err.message || String(err));
+      toast.success("Something When Wrong");
     }
   }
   async function handleClear() {
     try {
       setClear(true);
-
       if (draftId) {
         await pb.collection("reports").delete(draftId);
         setDraftId(null);
@@ -151,6 +168,8 @@ export function CreateReport() {
       setClear(false);
     } catch (err) {
       setError(err.message || String(err));
+      setClear(false);
+      toast.error("Error Clearing Draft");
     }
   }
 
@@ -189,10 +208,11 @@ export function CreateReport() {
                 onChange={handleChange}
                 className="mt-1 w-full border rounded p-2 bg-gray-900 text-white"
               >
-                <option value="Shift A">Shift A</option>
-                <option value="Shift B">Shift B</option>
-                <option value="Shift C">Shift C</option>
-                <option value="Shift D">Shift D</option>
+                {shiftOptions.map((opt, i) => (
+                  <option key={i} value={opt}>
+                    {opt}
+                  </option>
+                ))}
               </select>
             </div>
           </div>

@@ -5,6 +5,7 @@ import GoogleAnalytics from "@/lib/google";
 import HitWebCounter from "@/lib/pageCounter";
 import React from "react";
 import { ReactNode } from "react";
+import { ToastContainer } from "react-toastify";
 
 const MainFrame: React.FC<{ children?: ReactNode }> = ({ children }) => (
   <SidebarProvider>
@@ -28,7 +29,15 @@ const MainFrame: React.FC<{ children?: ReactNode }> = ({ children }) => (
           <UserProfile />
         </div>
       </header>
-
+      <ToastContainer
+        position="top-right"
+        autoClose={2000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        pauseOnHover
+        theme="dark"
+      />
       {/* 👇 Render whatever is passed inside <MainFrame> */}
       <div className="flex-1 overflow-auto">{children}</div>
     </div>
