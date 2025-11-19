@@ -33,7 +33,7 @@ const MultiImageUploadPBEdit: React.FC<MultiImageUploadPBEditProps> = ({
   useEffect(() => {
     const existingFiles = record[fieldName] || []; // e.g., items.photo
     const initialPreviews = existingFiles.map((filename: string) => ({
-      url: pb.files.getUrl(record, filename),
+      url: pb.files.getURL(record, filename),
       source: filename, // The source is the original filename string
     }));
     setPreviews(initialPreviews);

@@ -3,6 +3,9 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Routes, Route, HashRouter } from "react-router-dom";
+import ProtectedRoute from "@/components/ProtectedRoute";
+
+import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/Dashboard";
 import Worker from "./pages/Workers";
@@ -15,6 +18,7 @@ import Maintenance from "./pages/MaintenanceRecords";
 import Chemicalusage from "./pages/ChemicalUsage";
 import TankTrend from "./pages/TankTrend";
 import Labware from "./pages/Labware";
+import Profile from "./pages/Profile";
 
 const queryClient = new QueryClient();
 
@@ -25,17 +29,117 @@ const App = () => (
       <Sonner />
       <HashRouter>
         <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/workers" element={<Worker />} />
-          <Route path="/shift" element={<Shift />} />
-          <Route path="/leaves" element={<Leave />} />
-          <Route path="/reports" element={<Report />} />
-          <Route path="/maintenances" element={<Maintenance />} />
-          <Route path="/chemical" element={<Chemicalusage />} />
-          <Route path="/tanktrend" element={<TankTrend />} />
-          <Route path="/labware" element={<Labware />} />
-          <Route path="/settings" element={<Setting />} />
-          <Route path="/orders" element={<Orders />} />
+          {/* Public route */}
+          <Route path="/login" element={<Login />} />
+
+          {/* Protected routes */}
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/workers"
+            element={
+              <ProtectedRoute>
+                <Worker />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/shift"
+            element={
+              <ProtectedRoute>
+                <Shift />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/leaves"
+            element={
+              <ProtectedRoute>
+                <Leave />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/reports"
+            element={
+              <ProtectedRoute>
+                <Report />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/maintenances"
+            element={
+              <ProtectedRoute>
+                <Maintenance />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/chemical"
+            element={
+              <ProtectedRoute>
+                <Chemicalusage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/tanktrend"
+            element={
+              <ProtectedRoute>
+                <TankTrend />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/labware"
+            element={
+              <ProtectedRoute>
+                <Labware />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <Setting />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/orders"
+            element={
+              <ProtectedRoute>
+                <Orders />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+
           <Route path="*" element={<NotFound />} />
         </Routes>
       </HashRouter>

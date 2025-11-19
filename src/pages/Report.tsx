@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import MainFrame from "./MainFrame";
-import supabase from "@/lib/supabaseClient";
 import { Input } from "@/components/ui/input";
 import { Reportx } from "@/types/Report";
 import { pb } from "@/lib/pocketbase";
@@ -90,6 +89,13 @@ const Report: React.FC = () => {
                   date={dayjs(report.date).format("DD-MMM-YYYY")}
                   shift={report.shift}
                   data={content}
+                  onChange={async (updated) => {
+                    report.content = JSON.stringify(updated);
+                    await pb
+                      .collection("reports")
+                      .update(report.id.toString(), report);
+                    console.log("Updated:", updated);
+                  }}
                 />
               );
             })}

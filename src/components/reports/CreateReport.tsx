@@ -3,6 +3,7 @@ import dayjs from "dayjs";
 import { useState, useEffect } from "react";
 import { shiftNow } from "@/lib/shift";
 import ReportForm from "@/types/ReportForm";
+import { se } from "date-fns/locale";
 
 const mapRecordToForm = (r: any): ReportForm => ({
   date: dayjs(r.date), // 🔧 ensure Dayjs object
@@ -23,6 +24,7 @@ const mapRecordToForm = (r: any): ReportForm => ({
 export function CreateReport() {
   const [mode, setMode] = useState("list");
   const [submitting, setSubmitting] = useState(false);
+  const [clear, setClear] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
   const [draftId, setDraftId] = useState(null);
@@ -60,6 +62,7 @@ export function CreateReport() {
     console.log("fetchDraft called");
     try {
       const res = await pb.collection("reports").getList(1, 1, {
+        filter: "isSubmit = false",
         sort: "-created",
       });
 
@@ -74,22 +77,6 @@ export function CreateReport() {
   };
   useEffect(() => {
     fetchDraft();
-  }, []);
-
-  // ---------------------------
-  // LOAD LOCAL DRAFT
-  // ---------------------------
-  useEffect(() => {
-    const draft = localStorage.getItem("reportDraft");
-    const draftIdLocal = localStorage.getItem("reportDraftId");
-
-    if (draft) {
-      const parsed = JSON.parse(draft);
-      parsed.date = dayjs(parsed.date); // 🔧 convert local saved string → Dayjs
-      setForm(parsed);
-    }
-
-    if (draftIdLocal) setDraftId(draftIdLocal);
   }, []);
 
   // ---------------------------
@@ -123,8 +110,6 @@ export function CreateReport() {
 
       if (submitType === "save") {
         setSaving(true);
-        localStorage.setItem("reportDraft", JSON.stringify(form));
-        localStorage.setItem("reportDraftId", draftId);
 
         if (draftId) {
           saved = await pb.collection("reports").update(draftId, record);
@@ -145,11 +130,25 @@ export function CreateReport() {
       else saved = await pb.collection("reports").create(record);
 
       setSubmitting(false);
-      localStorage.removeItem("reportDraft");
-      localStorage.removeItem("reportDraftId");
       setDraftId(null);
       setForm(emptyForm);
       setMode("list");
+    } catch (err) {
+      setError(err.message || String(err));
+    }
+  }
+  async function handleClear() {
+    try {
+      setClear(true);
+
+      if (draftId) {
+        await pb.collection("reports").delete(draftId);
+        setDraftId(null);
+        setForm(emptyForm);
+      } else {
+        setForm(emptyForm);
+      }
+      setClear(false);
     } catch (err) {
       setError(err.message || String(err));
     }
@@ -207,14 +206,24 @@ export function CreateReport() {
                 {list.map((item, index) => (
                   <div key={index} className="flex items-center gap-2 mt-1">
                     <textarea
+                      ref={(el) => {
+                        if (!el) return;
+                        el.style.height = "auto";
+                        el.style.height = el.scrollHeight + "px";
+                      }}
                       value={item}
                       onChange={(e) => {
                         const updated = { ...form.content };
                         updated[key][index] = e.target.value;
                         setForm({ ...form, content: updated });
+
+                        // auto-resize on typing
+                        const el = e.target;
+                        el.style.height = "auto";
+                        el.style.height = el.scrollHeight + "px";
                       }}
-                      className="w-full border rounded p-1 bg-gray-900 text-white"
-                      rows={3} // optional: set initial height
+                      className="w-full border rounded p-1 bg-gray-900 text-white overflow-hidden resize-none"
+                      rows={1}
                     />
 
                     {index > 0 && (
@@ -269,11 +278,17 @@ export function CreateReport() {
             >
               {submitting ? "Submitting..." : "Submit"}
             </button>
-
+            <button
+              type="button"
+              onClick={() => handleClear()}
+              className="flex-1 bg-stone-600 hover:bg-gray-400 p-2 rounded"
+            >
+              {clear ? "Clearing..." : "Clear"}
+            </button>
             <button
               type="button"
               onClick={() => setMode("list")}
-              className="flex-1 bg-gray-300 hover:bg-gray-400 p-2 rounded"
+              className="flex-1 bg-red-400 hover:bg-gray-400 p-2 rounded"
             >
               Close
             </button>
@@ -282,15 +297,11 @@ export function CreateReport() {
       </div>
     );
   }
-
-  // ---------------------------
-  // LIST PAGE
-  // ---------------------------
   return (
     <div className="mb-4">
       <button
         onClick={() => setMode("create")}
-        className="px-4 py-2 m-4 bg-sky-600 hover:bg-sky-700 rounded text-white"
+        className="px-4 py-2 m-4  rounded bg-neon-green text-black "
       >
         Create Report
       </button>
