@@ -18,6 +18,8 @@ import { ChevronDown } from "lucide-react";
 // === NEW: Imports for Date Picker ===
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { pb } from "@/lib/pocketbase";
+
 // === END NEW ===
 
 interface ChartDataPoint {
@@ -47,7 +49,7 @@ const TankTrend: React.FC = () => {
   const [open, setOpen] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [startDate, setStartDate] = useState(
-    dayjs("11/01/2025 00:00:00.000", "MM/DD/YYYY HH:mm:ss.SSS").toDate()
+    dayjs().subtract(7, "day").toDate()
   );
   const [endDate, setEndDate] = useState(new Date());
   const tagOptions: { label: string; value: string; temp: string }[] = [
@@ -87,9 +89,6 @@ const TankTrend: React.FC = () => {
       const curr = { ...data[i] };
 
       // Detect anomaly if > 100% increase (i.e., > 2x previous value)
-      if (curr.level > prev.level * 2) {
-        curr.level = prev.level;
-      }
 
       if (curr.temperature > prev.temperature * 2) {
         curr.temperature = prev.temperature;
@@ -100,7 +99,63 @@ const TankTrend: React.FC = () => {
 
     return result;
   }
-  const getData = async (tagName: string[]) => {
+  interface LevelRecord {
+    timestamp: string; // e.g. "11/20/2025 00:40:34.496"
+    level: number;
+    temperature?: number;
+  }
+
+  interface RateResult {
+    rate_mm_per_hour: number;
+    from: LevelRecord;
+    to: LevelRecord;
+    hoursDiff: number;
+    levelDiff: number;
+  }
+
+  function getRateFromLast15Min(data: LevelRecord[]): RateResult | null {
+    if (!data || data.length < 2) return null;
+
+    // Sort data by timestamp
+    const sorted = [...data].sort(
+      (a, b) =>
+        new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+    );
+
+    const latest = sorted[sorted.length - 1];
+    const latestTime = new Date(latest.timestamp).getTime();
+
+    const targetTime = latestTime - 60 * 60 * 1000; // 15 minutes earlier
+
+    // Find record closest to 15 minutes before latest
+    let closest = sorted[0];
+
+    for (const row of sorted) {
+      const t = new Date(row.timestamp).getTime();
+      if (t <= targetTime) {
+        closest = row;
+      } else {
+        break;
+      }
+    }
+
+    const t1 = new Date(closest.timestamp).getTime();
+    const t2 = latestTime;
+
+    const hoursDiff = (t2 - t1) / (1000 * 60 * 60);
+    const levelDiff = latest.level - closest.level;
+
+    const rate = levelDiff / hoursDiff; // mm per hour
+
+    return {
+      rate_mm_per_hour: rate,
+      from: closest,
+      to: latest,
+      hoursDiff,
+      levelDiff,
+    };
+  }
+  const getData = async (tagName: string[], interval: number) => {
     const formattedStartTime = dayjs(startDate).format(
       "MM/DD/YYYY HH:mm:ss.SSS"
     );
@@ -108,7 +163,7 @@ const TankTrend: React.FC = () => {
     const params: GetDataParams = {
       startTime: formattedStartTime, // Use formatted date from state
       endTime: formattedEndTime, // Use formatted date from state
-      interval: 900000,
+      interval: interval * 1000,
       tagName: tagName,
     };
     try {
@@ -161,7 +216,22 @@ const TankTrend: React.FC = () => {
   };
   useEffect(() => {
     if (startDate && endDate) {
-      getData([selectedTag.value, selectedTag.temp]);
+      const diffMs = endDate.getTime() - startDate.getTime();
+      const diffDays = diffMs / (1000 * 60 * 60 * 24);
+
+      let intervalSec;
+
+      if (diffDays <= 3) {
+        intervalSec = 300; // 5 minutes
+      } else if (diffDays <= 14) {
+        intervalSec = 900; // 15 minutes
+      } else if (diffDays <= 21) {
+        intervalSec = 3600; // 1 hour
+      } else {
+        intervalSec = 28800; // 4 hours
+      }
+
+      getData([selectedTag.value, selectedTag.temp], intervalSec);
     }
   }, [selectedTag, startDate, endDate]); // Refetch when tag OR dates change
   useEffect(() => {
@@ -225,6 +295,70 @@ const TankTrend: React.FC = () => {
   const customTicks2 = [
     0, 15, 30, 45, 60, 75, 90, 105, 120, 135, 150, 165, 180,
   ];
+  interface TankRecord {
+    id: string;
+    tank_name: string;
+    tank_dia: number;
+    sg: number;
+    min_level: number;
+    max_level: number;
+    low_target: number;
+    high_target: number;
+    created: string;
+    updated: string;
+  }
+
+  const [tankData, setTankData] = useState<TankRecord[]>([]);
+
+  useEffect(() => {
+    const fetchTank = async () => {
+      try {
+        const records = await pb.collection("tank").getFullList<TankRecord>(); // ✅ Add generics here
+
+        setTankData(records);
+      } catch (err) {
+        console.error("Error fetching tank:", err);
+      }
+    };
+
+    fetchTank();
+  }, []);
+  const selected_tank_data = tankData.find(
+    (tank) => tank.tank_name === selectedTag.label
+  );
+  const result = getRateFromLast15Min(data);
+
+  const rateValue = Number(result?.rate_mm_per_hour);
+  const rate = `${isNaN(rateValue) ? 0 : rateValue.toFixed(1)} mm/hr`;
+  const startlevel = data.length > 0 ? +data[0].level.toFixed(1) : 0;
+  const endlevel =
+    data.length > 0 ? +data[data.length - 1].level.toFixed(1) : 0;
+
+  function calculateVolumeCubic(level_mm: number): string {
+    if (!selected_tank_data) return "N/A";
+    const level_m = level_mm / 1000; // convert mm to meters
+    const radius_m = selected_tank_data.tank_dia / 2 / 1000;
+    const volume_m3 = Math.PI * Math.pow(radius_m, 2) * level_m;
+    return volume_m3.toFixed(2);
+  }
+  function calculateVolumeLitres(level_mm: number): string {
+    const volume_m3 = calculateVolumeCubic(level_mm);
+    if (volume_m3 === "N/A") return "N/A";
+    const volume_m3_num = parseFloat(volume_m3); // convert to number
+    const volume_liters = volume_m3_num * 1000; // convert m³ to liters
+    return volume_liters.toFixed(2);
+  }
+  function calculateWeight(level_mm: number): string {
+    const volume_m3 = calculateVolumeCubic(level_mm);
+    if (volume_m3 === "N/A") return "N/A";
+    const volume_m3_num = parseFloat(volume_m3); // convert to number
+    const weight_kg =
+      volume_m3_num * Number(selected_tank_data?.sg || 1) * 1000; // density of water approx 1000 kg/m³
+    return weight_kg.toFixed(2);
+  }
+  const diffWeightTon =
+    (Math.round(Number(calculateWeight(endlevel - startlevel)) / 1000) * 100) /
+    100;
   return (
     <MainFrame>
       <div className="w-full h-full flex flex-col gap-4 p-4">
@@ -307,7 +441,84 @@ const TankTrend: React.FC = () => {
               id="endDate"
             />
           </div>
+          <select
+            className="bg-slate-900 text-slate-100 border border-gray-500 rounded-md px-2 py-2 text-sm"
+            defaultValue="1w"
+            onChange={(e) => {
+              const value = e.target.value;
+              const now = new Date();
+
+              let newStart: Date = new Date();
+              let newEnd: Date = now;
+
+              switch (value) {
+                case "current":
+                  newStart = dayjs().startOf("day").toDate(); // 00:00 today
+                  newEnd = now; // now
+                  break;
+
+                case "previous":
+                  newStart = dayjs().subtract(1, "day").startOf("day").toDate(); // yesterday 00:00
+                  newEnd = dayjs().startOf("day").toDate(); // today 00:00
+                  break;
+
+                case "1d":
+                  newStart = dayjs(now).subtract(1, "day").toDate();
+                  break;
+
+                case "3d":
+                  newStart = dayjs(now).subtract(3, "day").toDate();
+                  break;
+
+                case "1w":
+                  newStart = dayjs(now).subtract(7, "day").toDate();
+                  break;
+
+                case "2w":
+                  newStart = dayjs(now).subtract(14, "day").toDate();
+                  break;
+
+                case "1m":
+                  newStart = dayjs(now).subtract(1, "month").toDate();
+                  break;
+
+                default:
+                  return;
+              }
+
+              setStartDate(newStart);
+              setEndDate(newEnd);
+            }}
+          >
+            <option value="current">Current Day</option>
+            <option value="previous">Previous Day</option>
+            <option value="1d">1 Day</option>
+            <option value="3d">3 Days</option>
+            <option value="1w">1 Week</option>
+            <option value="2w">2 Weeks</option>
+            <option value="1m">1 Month</option>
+          </select>
           {/* === END NEW === */}
+
+          <div className="rounded-md p-1 flex flex-row space-x-5 text-white border-neon-green border-2">
+            <div className="flex flex-col justify-center items-center border-green-400 rounded-sm border-[1px] p-1">
+              <div>start level</div>
+              <div>{dayjs(startDate).format("DD-MMM-YYYY HH.mm")}</div>
+              <div className="text-red-600">{startlevel}</div>
+            </div>
+            <div className="flex flex-col ustify-center items-center border-green-400 rounded-sm border-[1px] p-1">
+              <div>end level</div>
+              <div>{dayjs(endDate).format("DD-MMM-YYYY HH.mm")}</div>
+              <div className="text-red-600">{endlevel}</div>
+            </div>
+            <div className="flex flex-col">
+              <div>{rate}</div>
+              <div className="ml-2 text-white">Diff {diffWeightTon} TON</div>
+              <div className="ml-2 text-white">
+                {selected_tank_data?.high_target}
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* === Chart === */}

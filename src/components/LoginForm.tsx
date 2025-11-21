@@ -11,6 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ToastContainer } from "react-toastify";
 
 interface LoginFormProps {
   onLogin: (email: string, password: string) => void;
@@ -37,6 +38,15 @@ export function LoginForm({ onLogin }: LoginFormProps) {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
+        <ToastContainer
+          position="top-right"
+          autoClose={2000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          pauseOnHover
+          theme="dark"
+        />
         {/* Logo/Brand */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-primary rounded-full mb-4 shadow-neon">
@@ -71,7 +81,14 @@ export function LoginForm({ onLogin }: LoginFormProps) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  autoFocus
                   className="bg-input border-border focus:border-primary focus:ring-primary"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleSubmit(e);
+                    }
+                  }}
                 />
               </div>
 
@@ -88,6 +105,12 @@ export function LoginForm({ onLogin }: LoginFormProps) {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     className="bg-input border-border focus:border-primary focus:ring-primary pr-10"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleSubmit(e);
+                      }
+                    }}
                   />
                   <Button
                     type="button"

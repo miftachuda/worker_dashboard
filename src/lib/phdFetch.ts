@@ -15,9 +15,9 @@ export async function fetchPHDData({
     {
       SampleInterval: interval,
       GetEnum: false,
-      ResampleMethod: "Around",
-      MinimumConfidence: 0,
-      MaxRows: 10000,
+      ResampleMethod: "snapshot",
+      MinimumConfidence: 40,
+      MaxRows: 50000,
       TimeFormat: 6,
       ReductionData: "snapshot",
       TagName: tagName,
