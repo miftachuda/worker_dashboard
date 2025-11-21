@@ -102,6 +102,42 @@ const Maintenance: React.FC = () => {
     }
   };
 
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newNametag, setNewNametag] = useState("");
+  const [newDescription, setNewDescription] = useState("");
+  const submitAddEquipment = async () => {
+    if (!newNametag.trim()) return toast.error("Nametag is required");
+
+    try {
+      const existing = listEquipment.some(
+        (item) => item.nametag === newNametag
+      );
+
+      if (existing) {
+        toast.error("Equipment already exists");
+        return;
+      }
+
+      await pb.collection("list_equipment").create({
+        nametag: newNametag,
+        description: newDescription,
+      });
+
+      toast.success("Equipment added successfully");
+      setShowAddModal(false);
+      setNewNametag("");
+      setNewDescription("");
+
+      const records = await pb
+        .collection("list_equipment")
+        .getFullList({ sort: "created" });
+      setListEquipment(records);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to add equipment");
+    }
+  };
+
   return (
     <MainFrame>
       {/* 
@@ -137,16 +173,66 @@ const Maintenance: React.FC = () => {
               transition={{ duration: 0.25 }}
               className="p-6"
             >
-              <div className="sticky top-4 z-10 ml-9 mr-6">
+              <div className="sticky top-4 z-10 ml-9 mr-6 flex flex-row space-x-4">
                 <Input
                   type="text"
-                  placeholder="Search Maintenance..."
+                  placeholder="Search..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full"
+                  className="w-full h-12"
                 />
+                <button
+                  onClick={() => setShowAddModal(true)}
+                  className="whitespace-nowrap px-4 py-2 over bg-neon-green text-black h-12 rounded-md font-semibold text-sm hover:text-gray-800 active:scale-95 transition"
+                >
+                  + Add Equipment
+                </button>
               </div>
+              <AnimatePresence>
+                {showAddModal && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+                  >
+                    <motion.div
+                      initial={{ scale: 0.9, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0.9, opacity: 0 }}
+                      className="bg-slate-900 text-white p-6 rounded-xl w-[400px] space-y-4"
+                    >
+                      <h2 className="text-xl font-bold">Add New Equipment</h2>
 
+                      <Input
+                        placeholder="Nametag"
+                        value={newNametag}
+                        onChange={(e) => setNewNametag(e.target.value)}
+                      />
+                      <Input
+                        placeholder="Description"
+                        value={newDescription}
+                        onChange={(e) => setNewDescription(e.target.value)}
+                      />
+
+                      <div className="flex justify-end gap-3 pt-2">
+                        <button
+                          onClick={() => setShowAddModal(false)}
+                          className="px-4 py-2 bg-gray-600 rounded hover:bg-gray-700"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={submitAddEquipment}
+                          className="px-4 py-2 bg-emerald-600 rounded hover:bg-emerald-700"
+                        >
+                          Save
+                        </button>
+                      </div>
+                    </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
               <main className="p-6 space-y-6 ">
                 {Object.entries(
                   filteredEquipment.reduce((acc, item) => {

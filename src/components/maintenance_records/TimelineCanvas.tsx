@@ -1,5 +1,5 @@
 import { RecordModel } from "pocketbase";
-import React from "react";
+import React, { useState } from "react";
 import {
   VerticalTimeline,
   VerticalTimelineElement,
@@ -9,6 +9,7 @@ import MiniTimeline from "./MiniTimeline";
 import "swiper/css";
 import { PreviewPhotoSlider } from "./PhotoSlide";
 import EditRecordPopup from "./editRecordPopup";
+import { pb } from "@/lib/pocketbase";
 
 function formatTimestampToDateString(timestamp?: number | null): string {
   const date =
@@ -54,7 +55,26 @@ interface TimelineProps {
 
 const TimelineCanvas: React.FC<TimelineProps> = ({ items, onReload }) => {
   const isEmpty = !items || items.length === 0;
+  const [isEditTagOpen, setIsEditTagOpen] = useState(false);
+  const [tagDescription, setTagDescription] = useState(
+    items[0]?.expand?.nametag?.description || ""
+  );
 
+  const nametagId = items[0]?.expand?.nametag?.id;
+  const updateNametag = async () => {
+    if (!nametagId) return;
+
+    try {
+      await pb.collection("nametags").update(nametagId, {
+        description: tagDescription,
+      });
+
+      setIsEditTagOpen(false);
+      onReload?.(); // refresh timeline after update
+    } catch (error) {
+      console.error("Failed to update nametag:", error);
+    }
+  };
   return (
     <div className="bg-gray-900  h-screen pt-10 pb-40 text-white relative overflow-auto">
       {isEmpty ? (

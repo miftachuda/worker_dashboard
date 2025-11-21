@@ -27,6 +27,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import DashboardPerformance from "../components/chemical_usage/chart";
 import { ChemicalUsage } from "../types/ChemicalUsage";
+import CardList from "@/components/chemical_usage/cardlist";
 
 const chemicalData = [
   { name: "Furfural", units: ["% Vessel", "m³", "kg"] },
@@ -79,14 +80,18 @@ const Chemicalusage: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [Chemicalusage, setChemicalusage] = useState<ChemicalUsage[]>([]);
+  const [FilteredChemicalusage, setFilteredChemicalusage] = useState<
+    ChemicalUsage[]
+  >([]);
 
   const [form, setForm] = useState({
     chemicalName: "",
     amount: "",
     unit: "",
+    description: "",
     time: dayjs(), // store time directly here
   });
-  const grouped = Chemicalusage.reduce((acc, item) => {
+  const grouped = FilteredChemicalusage.reduce((acc, item) => {
     if (!acc[item.chemical_name]) {
       acc[item.chemical_name] = [];
     }
@@ -109,7 +114,7 @@ const Chemicalusage: React.FC = () => {
   const mtpersentoton = 0.8279;
   const mttontomcubic = mtpersentonmcubic / mtpersentoton;
 
-  const furfural = (grouped["Furfural"] || []).map((item) => {
+  const Furfural = (grouped["Furfural"] || []).map((item) => {
     if (item.unit === "% Vessel") {
       return {
         ...item,
@@ -166,14 +171,38 @@ const Chemicalusage: React.FC = () => {
       };
     }
   });
-  const propane = grouped["Propane"] || [];
+  const Propane = grouped["Propane"] || [];
 
-  const sumFurfural = sumAmounts(furfural).toFixed(2);
+  const sumFurfural = sumAmounts(Furfural).toFixed(2);
   const sumMEK = sumAmounts(MEK).toFixed(2);
   const sumToluene = sumAmounts(Toluene).toFixed(2);
-  const sumPropane = sumAmounts(propane).toFixed(2);
-  const allChemicalusage = [furfural, MEK, Toluene, propane];
+  const sumPropane = sumAmounts(Propane).toFixed(2);
+  const allChemicalusage = [Furfural, MEK, Toluene, Propane];
   const [availableUnits, setAvailableUnits] = useState<string[]>([]);
+  const [selectedChemical, setSelectedChemical] = useState("Furfural");
+
+  const chemicals = {
+    Furfural,
+    MEK,
+    Toluene,
+    Propane,
+  } as const;
+
+  type ChemicalKey = keyof typeof chemicals;
+
+  const nameMap: Record<string, ChemicalKey> = {
+    furfural: "Furfural",
+    mek: "MEK",
+    toluene: "Toluene",
+    propane: "Propane",
+  };
+
+  function getChemical<T extends string>(
+    raw: T
+  ): (typeof chemicals)[ChemicalKey] | null {
+    const key = nameMap[raw.trim().toLowerCase()];
+    return key ? chemicals[key] : null;
+  }
 
   const handleChemicalChange = (chemicalName: string) => {
     const selectedChemical = chemicalData.find((c) => c.name === chemicalName);
@@ -199,6 +228,7 @@ const Chemicalusage: React.FC = () => {
         amount: parseFloat(form.amount),
         unit: form.unit,
         time: form.time ? Math.floor((form.time as Dayjs).unix()) : undefined,
+        description: form.description,
       });
       await fetchChemicalUsage();
       setOpen(false);
@@ -206,6 +236,7 @@ const Chemicalusage: React.FC = () => {
         chemicalName: "",
         amount: "",
         unit: "",
+        description: "",
         time: dayjs(),
       });
       toast.success("Chemical Usage Record Saved Successfully!");
@@ -215,6 +246,29 @@ const Chemicalusage: React.FC = () => {
       setLoading(false);
     }
   };
+  type FilterRange = "week" | "month" | "year";
+
+  function getRange(filter: FilterRange) {
+    const now = dayjs();
+
+    switch (filter) {
+      case "week":
+        return {
+          start: now.startOf("week"),
+          end: now.endOf("week"),
+        };
+      case "month":
+        return {
+          start: now.startOf("month"),
+          end: now.endOf("month"),
+        };
+      case "year":
+        return {
+          start: now.startOf("year"),
+          end: now.endOf("year"),
+        };
+    }
+  }
   const fetchChemicalUsage = async () => {
     try {
       const records = await pb
@@ -223,6 +277,7 @@ const Chemicalusage: React.FC = () => {
           sort: "time",
         });
       setChemicalusage(records);
+      setFilteredChemicalusage(records);
     } catch (err) {
       console.error("Error fetching chemical usage:", err);
     }
@@ -231,12 +286,32 @@ const Chemicalusage: React.FC = () => {
     fetchChemicalUsage();
   }, []);
 
+  const [filter, setFilter] = useState<FilterRange>("week");
   return (
     <MainFrame>
       <main className="p-6">
         <Button onClick={() => setOpen(true)}>
           <Plus className="mr-2 h-4 w-4" /> Add Chemical usage record
         </Button>
+        <select
+          value={filter}
+          onChange={(e) => {
+            const { start, end } = getRange(filter)!;
+
+            const filteredRecords = Chemicalusage.filter((item) => {
+              const created = dayjs(item.created);
+              return created.isAfter(start) && created.isBefore(end);
+            });
+
+            setFilteredChemicalusage(filteredRecords);
+            setFilter(e.target.value as FilterRange);
+          }}
+          className="h-10 mx-4 rounded-md border border-input bg-background px-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring"
+        >
+          <option value="week">This Week</option>
+          <option value="month">This Month</option>
+          <option value="year">This Year</option>
+        </select>
         <div className="pt-3 min-h-screen">
           <DashboardPerformance
             title="Chart of Chemical Usage"
@@ -269,10 +344,12 @@ const Chemicalusage: React.FC = () => {
               },
             ]}
             onChemicalChange={(chemical) => {
+              setSelectedChemical(chemical);
               console.log("Selected chemical:", chemical);
               // update chartData or fetch new data here
             }}
           />
+          <CardList data={getChemical(selectedChemical)} />
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogContent aria-describedby={undefined}>
@@ -364,6 +441,23 @@ const Chemicalusage: React.FC = () => {
                       />
                     </LocalizationProvider>
                   </ThemeProvider>
+                </div>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="time" className="text-right">
+                  Description
+                </Label>
+                <div className="col-span-3">
+                  <Input
+                    id="description"
+                    name="description"
+                    type="text"
+                    value={form.description}
+                    onChange={(e) =>
+                      setForm({ ...form, description: e.target.value })
+                    }
+                    className="col-span-3"
+                  />
                 </div>
               </div>
             </div>

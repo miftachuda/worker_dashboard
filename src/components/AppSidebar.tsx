@@ -132,7 +132,7 @@ export function AppSidebar() {
         {/* Admin Section */}
         <SidebarGroup>
           <SidebarGroupLabel className={collapsed ? "hidden" : ""}>
-            Admin
+            Lain Lain
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
