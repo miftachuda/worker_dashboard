@@ -27,7 +27,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import DashboardPerformance from "../components/chemical_usage/chart";
 import { ChemicalUsage } from "../types/ChemicalUsage";
-import CardList from "@/components/chemical_usage/cardlist";
+import CardList from "@/components/chemical_usage/cardList";
 
 const chemicalData = [
   { name: "Furfural", units: ["% Vessel", "m³", "kg"] },
