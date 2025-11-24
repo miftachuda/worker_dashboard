@@ -20,6 +20,7 @@ const Maintenance: React.FC = () => {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [loading2, setLoading2] = useState(false);
+  const [prefixFilter, setPrefixFilter] = useState("All");
 
   // 🔹 Fetch Equipment List
   useEffect(() => {
@@ -43,20 +44,26 @@ const Maintenance: React.FC = () => {
 
   // 🔹 Search Logic
   useEffect(() => {
-    const lowerSearch = search.toLowerCase();
-    if (lowerSearch.trim() === "") {
-      setFilteredEquipment(listEquipment);
-    } else {
-      setFilteredEquipment(
-        listEquipment.filter((item) => {
-          const fields = [item.nametag, item.description];
-          return fields
-            .filter(Boolean)
-            .some((f) => f.toLowerCase().includes(lowerSearch));
-        })
-      );
+    let result = [...listEquipment];
+
+    // ✅ First filter by dropdown prefix
+    if (prefixFilter !== "All") {
+      result = result.filter((item) => item.nametag?.startsWith(prefixFilter));
     }
-  }, [search, listEquipment]);
+
+    // ✅ Then apply text search
+    const lowerSearch = search.toLowerCase();
+    if (lowerSearch.trim() !== "") {
+      result = result.filter((item) => {
+        const fields = [item.nametag, item.description];
+        return fields
+          .filter(Boolean)
+          .some((f) => f.toLowerCase().includes(lowerSearch));
+      });
+    }
+
+    setFilteredEquipment(result);
+  }, [search, listEquipment, prefixFilter]);
 
   // 🔹 Handle Click on Equipment Card
   const handleClick = async (data: RecordModel) => {
@@ -181,6 +188,20 @@ const Maintenance: React.FC = () => {
                   onChange={(e) => setSearch(e.target.value)}
                   className="w-full h-12"
                 />
+                <select
+                  value={prefixFilter}
+                  onChange={(e) => setPrefixFilter(e.target.value)}
+                  className="h-12 px-3 rounded-md bg-slate-900 text-white border border-slate-700 focus:outline-none"
+                >
+                  <option value="All">All</option>
+                  <option value="023">002</option>
+                  <option value="021">021</option>
+                  <option value="022">022</option>
+                  <option value="023">023</option>
+                  <option value="023">024</option>
+                  <option value="023">025</option>
+                  <option value="023">041</option>
+                </select>
                 <button
                   onClick={() => setShowAddModal(true)}
                   className="whitespace-nowrap px-4 py-2 over bg-neon-green text-black h-12 rounded-md font-semibold text-sm hover:text-gray-800 active:scale-95 transition"
