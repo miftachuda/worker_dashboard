@@ -19,6 +19,7 @@ import Chemicalusage from "./pages/ChemicalUsage";
 import TankTrend from "./pages/TankTrend";
 import Labware from "./pages/Labware";
 import Profile from "./pages/Profile";
+import LOTO from "./pages/LOTO";
 
 const queryClient = new QueryClient();
 
@@ -110,6 +111,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <Labware />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/loto"
+            element={
+              <ProtectedRoute>
+                <LOTO />
               </ProtectedRoute>
             }
           />

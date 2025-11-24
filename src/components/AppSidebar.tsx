@@ -11,6 +11,7 @@ import {
   Minus,
   TrendingUp,
   FlaskConical,
+  BookLock,
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 
@@ -37,6 +38,7 @@ const mainItems = [
   { title: "Chemical Usage", url: "/chemical", icon: Droplet },
   { title: "Tank Trend", url: "/tanktrend", icon: TrendingUp },
   { title: "LIMS", url: "/labware", icon: FlaskConical },
+  { title: "LOTO", url: "/loto", icon: BookLock },
 ];
 
 const adminItems = [{ title: "Settings", url: "/settings", icon: Settings }];
