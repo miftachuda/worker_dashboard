@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import supabase from "@/lib/supabaseClient";
 import { Orderx } from "@/types/Order";
 import { Plus } from "lucide-react";
+import { sendNotif } from "@/lib/sendnotif";
 
 export function CreateOrder({
   onCreated,
@@ -45,6 +46,11 @@ export function CreateOrder({
       setOpen(false);
       setForm({ title: "", description: "", tag: "" });
     }
+    await sendNotif({
+      title: "[Order] Created",
+      page: "orders",
+      message: `${form.title}.`,
+    });
   };
 
   return (

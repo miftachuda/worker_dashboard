@@ -21,6 +21,7 @@ import {
 import { DateRangeWithStatusPicker } from "./DateTimePicker";
 import { pb } from "@/lib/pocketbase";
 import MultiImageUploadPB from "./uploadImage";
+import { sendNotif } from "@/lib/sendnotif";
 
 interface CreateMaintenanceRecordProps {
   items: RecordModel;
@@ -114,6 +115,11 @@ const CreateMaintenanceRecord: React.FC<CreateMaintenanceRecordProps> = ({
       setOpen(false);
       onCreated?.();
       toast.success("Maintenance record saved successfully!");
+      await sendNotif({
+        title: "[Maintenance Record] created",
+        page: "maintenances",
+        message: `${form.nametag} - ${form.title}`,
+      });
     } catch (err) {
       console.error(err);
       toast.error("Failed to create record");

@@ -7,6 +7,7 @@ import ReportCard from "@/components/reports/ReportCard";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { CreateReport } from "@/components/reports/CreateReport";
+import { sendNotif } from "@/lib/sendnotif";
 
 dayjs.extend(customParseFormat);
 
@@ -104,7 +105,25 @@ const Report: React.FC = () => {
             .sort((a, b) => b.created.localeCompare(a.created))
             .map((rep) => {
               const content = rep.content; // ✅ stable, no re-parsing
+              const formatTanggal = (isoString) => {
+                const date = new Date(isoString);
 
+                const hari = date.toLocaleDateString("id-ID", {
+                  weekday: "long",
+                });
+                const tanggal = date.getDate();
+                const bulan = date.toLocaleDateString("id-ID", {
+                  month: "long",
+                });
+                const tahun = date.getFullYear();
+
+                const capitalize = (str) =>
+                  str.charAt(0).toUpperCase() + str.slice(1);
+
+                return `${capitalize(hari)}, ${tanggal}-${capitalize(
+                  bulan
+                )}-${tahun}`;
+              };
               return (
                 <ReportCard
                   key={rep.id}
@@ -121,6 +140,13 @@ const Report: React.FC = () => {
                     await pb.collection("reports").update(rep.id.toString(), {
                       ...updatedData,
                       content: JSON.stringify(updated),
+                    });
+                    await sendNotif({
+                      title: "[Report] Updated",
+                      page: "reports",
+                      message: `${updatedData.shift}- ${formatTanggal(
+                        updatedData.date
+                      )} has been updated.`,
                     });
 
                     // Update React state

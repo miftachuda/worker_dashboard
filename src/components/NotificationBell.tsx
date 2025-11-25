@@ -10,11 +10,16 @@ import {
 } from "@/components/ui/popover";
 
 import { pb } from "@/lib/pocketbase";
-
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import "dayjs/locale/id";
+dayjs.extend(relativeTime);
+dayjs.locale("id");
 interface EventItem {
   id: string;
   title: string;
-  description?: string;
+  message?: string;
+  page: string;
   created: string;
 }
 
@@ -38,10 +43,8 @@ export default function NotificationBell() {
   };
 
   useEffect(() => {
-    if (open) {
-      fetchEvents();
-    }
-  }, [open]);
+    fetchEvents();
+  }, []);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -76,16 +79,17 @@ export default function NotificationBell() {
           {events.map((event) => (
             <div
               key={event.id}
-              className="p-3 border rounded-xl hover:bg-muted/50 transition"
+              className="p-3 border rounded-xl hover:bg-muted/50 transition cursor-pointer"
+              onClick={() => {
+                window.location.href = `/#/${event.page}`;
+              }}
             >
               <p className="font-medium text-sm">{event.title}</p>
-              {event.description && (
-                <p className="text-xs text-muted-foreground">
-                  {event.description}
-                </p>
+              {event.message && (
+                <p className="text-xs text-muted-foreground">{event.message}</p>
               )}
-              <p className="text-[10px] text-muted-foreground mt-1">
-                {new Date(event.created).toLocaleString()}
+              <p className="text-[10px] text-muted-foreground mt-1 mr-1">
+                {dayjs(event.created).fromNow()}
               </p>
             </div>
           ))}

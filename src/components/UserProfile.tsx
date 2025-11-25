@@ -59,7 +59,7 @@ export function UserProfile() {
 
             <div className="hidden md:flex md:flex-col md:items-start md:text-sm">
               <span className="font-medium text-foreground">{user.name}</span>
-              <Badge variant="secondary" className="text-xs">
+              <Badge variant="secondary" className="text-xs rounded-sm">
                 {user.role || "User"}
               </Badge>
             </div>

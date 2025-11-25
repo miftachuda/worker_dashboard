@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "./SupabaseClient";
 import SearchableDropdown from "./SearchSelect";
 import PspvCards from "./PspvCards";
+import { sendNotif } from "@/lib/sendnotif";
 type EquipmentType = "LOTO" | "PSPV";
 
 const equipmentData: Record<EquipmentType, string[]> = {
@@ -306,6 +307,11 @@ function DashboardPage() {
           setLoading(false); // replace with your actual function
           window.location.reload();
         }, 1000);
+        await sendNotif({
+          title: "[LOTO] record created",
+          page: "loto",
+          message: `${selectedEquipment} LOTO ${lotonumber} `,
+        });
       }
     }
   };

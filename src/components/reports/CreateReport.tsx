@@ -5,6 +5,7 @@ import { shiftNow, get5AroundShift } from "@/lib/shift";
 import ReportForm from "@/types/ReportForm";
 import { se } from "date-fns/locale";
 import { toast } from "react-toastify";
+import { sendNotif } from "@/lib/sendnotif";
 
 const mapRecordToForm = (r: any): ReportForm => ({
   date: dayjs(r.date), // 🔧 ensure Dayjs object
@@ -136,12 +137,30 @@ export function CreateReport() {
 
       // FINAL SUBMIT
       setSubmitting(true);
+      const formatTanggal = (isoString) => {
+        const date = new Date(isoString);
 
+        const hari = date.toLocaleDateString("id-ID", { weekday: "long" });
+        const tanggal = date.getDate();
+        const bulan = date.toLocaleDateString("id-ID", { month: "long" });
+        const tahun = date.getFullYear();
+
+        const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+
+        return `${capitalize(hari)}, ${tanggal}-${capitalize(bulan)}-${tahun}`;
+      };
       try {
         if (draftId)
           saved = await pb.collection("reports").update(draftId, record);
         else saved = await pb.collection("reports").create(record);
         toast.success("Report Submitted");
+        await sendNotif({
+          title: "[Report] Created",
+          page: "reports",
+          message: `${record.shift} ${formatTanggal(
+            record.date
+          )} has been created.`,
+        });
       } catch (error) {
         toast.error("Error Submitting");
       }

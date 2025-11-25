@@ -29,6 +29,7 @@ import DashboardPerformance from "../components/chemical_usage/chart";
 import { ChemicalUsage } from "../types/ChemicalUsage";
 import CardList from "@/components/chemical_usage/cardList";
 import { FILTER_OPTIONS } from "@/components/chemical_usage/option";
+import { sendNotif, EventPayload } from "@/lib/sendnotif";
 
 const chemicalData = [
   { name: "Furfural", units: ["% Vessel", "m³", "kg"] },
@@ -239,6 +240,11 @@ const Chemicalusage: React.FC = () => {
         unit: "",
         description: "",
         time: dayjs(),
+      });
+      await sendNotif({
+        title: "[Chemical Usage] Recorded",
+        page: "Chemical Usage",
+        message: `A new record for ${form.chemicalName} has been added.`,
       });
       toast.success("Chemical Usage Record Saved Successfully!");
     } catch (error) {

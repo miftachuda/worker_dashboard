@@ -8,6 +8,7 @@ import CreateMaintenanceRecord from "@/components/maintenance_records/createMain
 import { pb } from "@/lib/pocketbase";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { sendNotif } from "@/lib/sendnotif";
 
 const Maintenance: React.FC = () => {
   const [selectedEquipment, setSelectedEquipment] = useState<
@@ -131,6 +132,12 @@ const Maintenance: React.FC = () => {
       });
 
       toast.success("Equipment added successfully");
+      await sendNotif({
+        title: "[Maintenance Record] Added",
+        page: "maintenances",
+        message: `${newNametag} has been added to maintenance record.`,
+      });
+
       setShowAddModal(false);
       setNewNametag("");
       setNewDescription("");
