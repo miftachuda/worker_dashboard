@@ -52,7 +52,7 @@ const Labware: React.FC = () => {
           </label>
           <select
             id="shift"
-            value={shift}
+            value={shift || ""}
             onChange={(e) => setShift(e.target.value)}
             className="w-auto border border-gray-600 rounded px-3 py-2 bg-gray-800 text-white"
           >
