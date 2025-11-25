@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { pb } from "@/lib/pocketbase";
 import { useNavigate } from "react-router-dom";
+import NotificationBell from "./NotificationBell";
 
 export function UserProfile() {
   const [user, setUser] = useState<any>(null);
@@ -34,15 +35,7 @@ export function UserProfile() {
   return (
     <div className="flex items-center space-x-3">
       {/* Notifications */}
-      <Button variant="ghost" size="icon" className="relative">
-        <Bell className="h-5 w-5" />
-        <Badge
-          variant="destructive"
-          className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
-        >
-          1
-        </Badge>
-      </Button>
+      <NotificationBell />
 
       {/* User Menu */}
       <DropdownMenu>

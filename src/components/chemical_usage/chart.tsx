@@ -14,6 +14,8 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  BarChart,
+  Bar,
 } from "recharts";
 import { CountUp } from "./countUp";
 import { ChemicalUsage } from "@/types/ChemicalUsage";
@@ -62,7 +64,7 @@ const DashboardPerformance: React.FC<DashboardPerformanceProps> = ({
   chartColor = "#ff66cc",
   yLabel = "Total Engagements",
   metrics,
-  chartType = "line",
+  chartType = "bar",
   onChemicalChange,
 }) => {
   const [selectedChemical, setSelectedChemical] = useState("Furfural");
@@ -78,7 +80,12 @@ const DashboardPerformance: React.FC<DashboardPerformanceProps> = ({
     const lineData = getLineDataByChemical(chartData, selectedChemical);
     setSelectedChemicalData(lineData);
   }, [chartData]);
-
+  const selectedChemicalDataWithTime = (selectedChemicalData ?? []).map(
+    (item) => ({
+      ...item,
+      time: new Date(item.name.split("/").reverse().join("-")).getTime(),
+    })
+  );
   return (
     <div className="bg-[#0f172a] text-white p-6 rounded-sm shadow-lg">
       {/* Header */}
@@ -119,28 +126,45 @@ const DashboardPerformance: React.FC<DashboardPerformanceProps> = ({
         </div>
       </div>
 
-      {/* Chart */}
       <div className="h-64 mb-6">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={selectedChemicalData}>
+          <BarChart data={selectedChemicalDataWithTime}>
             <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-            <XAxis dataKey="name" stroke="#94a3b8" />
+
+            <XAxis
+              dataKey="time"
+              type="number"
+              scale="time"
+              domain={["auto", "auto"]}
+              tickFormatter={(time) =>
+                new Date(time).toLocaleDateString("id-ID")
+              }
+              stroke="#94a3b8"
+              padding={{ left: 25, right: 25 }}
+              angle={-45} // rotate 45 degrees
+              textAnchor="end" // align nicely after rotation
+              height={60} // give space so text isn't clipped
+              tick={{ fontSize: 10 }} // smaller font
+            />
+
             <YAxis stroke="#94a3b8" />
+
             <Tooltip
+              labelFormatter={(time) =>
+                new Date(time).toLocaleDateString("id-ID")
+              }
               contentStyle={{ backgroundColor: "#1e293b", border: "none" }}
               labelStyle={{ color: "#cbd5e1" }}
+              cursor={false}
             />
-            {chartType === "line" && (
-              <Line
-                type="monotone"
-                dataKey="value"
-                stroke={chartColor}
-                strokeWidth={3}
-                dot={{ r: 4 }}
-                activeDot={{ r: 6 }}
-              />
-            )}
-          </LineChart>
+
+            <Bar
+              dataKey="value"
+              fill={chartColor}
+              radius={[6, 6, 0, 0]}
+              barSize={7}
+            />
+          </BarChart>
         </ResponsiveContainer>
       </div>
 

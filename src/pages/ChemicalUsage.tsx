@@ -28,6 +28,7 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import DashboardPerformance from "../components/chemical_usage/chart";
 import { ChemicalUsage } from "../types/ChemicalUsage";
 import CardList from "@/components/chemical_usage/cardList";
+import { FILTER_OPTIONS } from "@/components/chemical_usage/option";
 
 const chemicalData = [
   { name: "Furfural", units: ["% Vessel", "m³", "kg"] },
@@ -246,29 +247,113 @@ const Chemicalusage: React.FC = () => {
       setLoading(false);
     }
   };
-  type FilterRange = "week" | "month" | "year";
+  const [filter, setFilter] = useState<FilterRange>(
+    dayjs().format("MMMM").toLowerCase() as FilterRange
+  );
+  type FilterRange =
+    | "week"
+    | "month"
+    | "year"
+    | "january"
+    | "february"
+    | "march"
+    | "april"
+    | "may"
+    | "june"
+    | "july"
+    | "august"
+    | "september"
+    | "october"
+    | "november"
+    | "december"
+    | "allTime";
 
   function getRange(filter: FilterRange) {
     const now = dayjs();
 
     switch (filter) {
       case "week":
-        return {
-          start: now.startOf("week"),
-          end: now.endOf("week"),
-        };
+        return { start: now.startOf("week"), end: now.endOf("week") };
+
       case "month":
-        return {
-          start: now.startOf("month"),
-          end: now.endOf("month"),
-        };
+        return { start: now.startOf("month"), end: now.endOf("month") };
+
       case "year":
+        return { start: now.startOf("year"), end: now.endOf("year") };
+
+      case "january":
         return {
-          start: now.startOf("year"),
-          end: now.endOf("year"),
+          start: now.month(0).startOf("month"),
+          end: now.month(0).endOf("month"),
+        };
+      case "february":
+        return {
+          start: now.month(1).startOf("month"),
+          end: now.month(1).endOf("month"),
+        };
+      case "march":
+        return {
+          start: now.month(2).startOf("month"),
+          end: now.month(2).endOf("month"),
+        };
+      case "april":
+        return {
+          start: now.month(3).startOf("month"),
+          end: now.month(3).endOf("month"),
+        };
+      case "may":
+        return {
+          start: now.month(4).startOf("month"),
+          end: now.month(4).endOf("month"),
+        };
+      case "june":
+        return {
+          start: now.month(5).startOf("month"),
+          end: now.month(5).endOf("month"),
+        };
+      case "july":
+        return {
+          start: now.month(6).startOf("month"),
+          end: now.month(6).endOf("month"),
+        };
+      case "august":
+        return {
+          start: now.month(7).startOf("month"),
+          end: now.month(7).endOf("month"),
+        };
+      case "september":
+        return {
+          start: now.month(8).startOf("month"),
+          end: now.month(8).endOf("month"),
+        };
+      case "october":
+        return {
+          start: now.month(9).startOf("month"),
+          end: now.month(9).endOf("month"),
+        };
+      case "november":
+        return {
+          start: now.month(10).startOf("month"),
+          end: now.month(10).endOf("month"),
+        };
+      case "december":
+        return {
+          start: now.month(11).startOf("month"),
+          end: now.month(11).endOf("month"),
+        };
+
+      case "allTime":
+        return {
+          start: dayjs("1970-01-01"),
+          end: now,
         };
     }
   }
+  useEffect(() => {
+    if (Chemicalusage.length) {
+      applyFilter(filter);
+    }
+  }, [Chemicalusage, filter]);
   const fetchChemicalUsage = async () => {
     try {
       const records = await pb
@@ -277,7 +362,6 @@ const Chemicalusage: React.FC = () => {
           sort: "time",
         });
       setChemicalusage(records);
-      setFilteredChemicalusage(records);
     } catch (err) {
       console.error("Error fetching chemical usage:", err);
     }
@@ -286,7 +370,16 @@ const Chemicalusage: React.FC = () => {
     fetchChemicalUsage();
   }, []);
 
-  const [filter, setFilter] = useState<FilterRange>("week");
+  const applyFilter = (newFilter: FilterRange) => {
+    const { start, end } = getRange(newFilter)!;
+
+    const filteredRecords = Chemicalusage.filter((item) => {
+      const created = dayjs(item.created);
+      return created.isAfter(start) && created.isBefore(end);
+    });
+
+    setFilteredChemicalusage(filteredRecords);
+  };
   return (
     <MainFrame>
       <main className="p-6">
@@ -296,21 +389,17 @@ const Chemicalusage: React.FC = () => {
         <select
           value={filter}
           onChange={(e) => {
-            const { start, end } = getRange(filter)!;
-
-            const filteredRecords = Chemicalusage.filter((item) => {
-              const created = dayjs(item.created);
-              return created.isAfter(start) && created.isBefore(end);
-            });
-
-            setFilteredChemicalusage(filteredRecords);
-            setFilter(e.target.value as FilterRange);
+            const newFilter = e.target.value as FilterRange;
+            setFilter(newFilter);
+            applyFilter(newFilter);
           }}
           className="h-10 mx-4 rounded-md border border-input bg-background px-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring"
         >
-          <option value="week">This Week</option>
-          <option value="month">This Month</option>
-          <option value="year">This Year</option>
+          {FILTER_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
         </select>
         <div className="pt-3 min-h-screen">
           <DashboardPerformance

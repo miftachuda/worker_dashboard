@@ -6,4 +6,5 @@ export interface ChemicalUsage {
   time: number;
   created: string;
   updated: string;
+  description: string; // ✅ ADD THIS
 }
