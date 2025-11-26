@@ -243,7 +243,7 @@ const Chemicalusage: React.FC = () => {
       });
       await sendNotif({
         title: "[Chemical Usage] Recorded",
-        page: "Chemical Usage",
+        page: "chemical",
         message: `A new record for ${form.chemicalName} has been added.`,
       });
       toast.success("Chemical Usage Record Saved Successfully!");

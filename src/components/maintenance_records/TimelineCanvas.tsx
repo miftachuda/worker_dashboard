@@ -76,7 +76,7 @@ const TimelineCanvas: React.FC<TimelineProps> = ({ items, onReload }) => {
     }
   };
   return (
-    <div className="bg-gray-900  h-screen pt-10 pb-40 text-white relative overflow-auto">
+    <div className="bg-gray-900  h-full pt-10 pb-40 text-white relative overflow-auto">
       {isEmpty ? (
         <div className="flex flex-col items-center justify-center h-full text-center">
           <h2 className="text-2xl font-semibold mb-2">

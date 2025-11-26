@@ -133,7 +133,7 @@ const Maintenance: React.FC = () => {
 
       toast.success("Equipment added successfully");
       await sendNotif({
-        title: "[Maintenance Record] Added",
+        title: "[Maintenance Record] New EquipmentAdded",
         page: "maintenances",
         message: `${newNametag} has been added to maintenance record.`,
       });
@@ -158,7 +158,7 @@ const Maintenance: React.FC = () => {
         ✅ Wrapper with relative positioning 
         ensures overlay stays inside MainFrame's content
       */}
-      <div className="relative w-full h-full min-h-[calc(100vh-8rem)] overflow-y-auto">
+      <div className="relative w-full h-full min-h-[calc(100vh-8rem)] overflow-y-auto custom-scrollbar">
         <AnimatePresence>
           {(loading || loading2) && (
             <motion.div
@@ -222,7 +222,7 @@ const Maintenance: React.FC = () => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+                    className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 "
                   >
                     <motion.div
                       initial={{ scale: 0.9, opacity: 0 }}
@@ -261,7 +261,7 @@ const Maintenance: React.FC = () => {
                   </motion.div>
                 )}
               </AnimatePresence>
-              <main className="p-6 space-y-6 ">
+              <main className="p-6 space-y-1 ">
                 {Object.entries(
                   filteredEquipment.reduce((acc, item) => {
                     const prefix = item.nametag.slice(0, 3).toUpperCase();
@@ -332,11 +332,11 @@ const Maintenance: React.FC = () => {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -30 }}
               transition={{ duration: 0.3 }}
-              className="p-6"
+              className="p-2"
             >
               <button
                 onClick={handleBack}
-                className="mb-4 px-4 py-2 mx-5 bg-slate-900 text-white rounded hover:bg-slate-800 active:[transform:scale(0.98)]"
+                className="mb-4 mt-2 px-4 py-2 mx-5 bg-slate-900 text-white rounded hover:bg-slate-800 active:[transform:scale(0.98)]"
               >
                 ← Back
               </button>

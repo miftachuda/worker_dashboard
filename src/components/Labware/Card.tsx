@@ -1,5 +1,6 @@
 import React from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { SampleLimit } from "@/types/SampleLimit";
 
 const groupColors = [
   "border-emerald-500/40 shadow-emerald-500/30",
@@ -10,10 +11,11 @@ const groupColors = [
   "border-cyan-500/40 shadow-cyan-500/30",
 ];
 
-const DarkSampleGroups: React.FC<{ data: any; loading?: boolean }> = ({
-  data,
-  loading = false,
-}) => {
+const DarkSampleGroups: React.FC<{
+  data: any;
+  loading?: boolean;
+  limit: SampleLimit[];
+}> = ({ data, loading = false, limit }) => {
   if (loading || !data || !data.samples) {
     return (
       <div className="min-h-screen flex flex-col justify-center items-center bg-neutral-900 text-gray-300">
@@ -32,7 +34,23 @@ const DarkSampleGroups: React.FC<{ data: any; loading?: boolean }> = ({
     acc[prefix][id] = sample;
     return acc;
   }, {});
+  function getLimitBySampleAndParam(
+    data: SampleLimit[],
+    sampleCode: string,
+    paramName: string
+  ): { low: number; high: number; isNumber: boolean } | null {
+    const found = data.find(
+      (item) => item.sample_code === sampleCode && item.param_name === paramName
+    );
 
+    if (!found) return null;
+
+    return {
+      low: found.low_limit,
+      high: found.high_limit,
+      isNumber: found.isNumber,
+    };
+  }
   return (
     <div className="min-h-screen bg-neutral-900 text-gray-100 p-2 overflow-hidden">
       <h1 className="text-xl font-semibold mb-1 text-center">
@@ -62,6 +80,7 @@ const DarkSampleGroups: React.FC<{ data: any; loading?: boolean }> = ({
               {Object.entries(groupSamples).map(
                 ([sampleId, sampleData]: any) => {
                   const { sampleName, ...properties } = sampleData;
+
                   return (
                     <Card
                       key={sampleId}
@@ -81,24 +100,58 @@ const DarkSampleGroups: React.FC<{ data: any; loading?: boolean }> = ({
                       <CardContent className="pt-1">
                         <div className="grid grid-cols-2 gap-1">
                           {Object.entries(properties).map(
-                            ([propName, prop]: any) => (
-                              <div
-                                key={propName}
-                                className="bg-neutral-700/40 rounded p-1 hover:bg-neutral-700 transition"
-                              >
-                                <div className="text-gray-400 text-[10px] truncate">
-                                  {propName}
-                                </div>
-                                <div className="text-gray-100 font-semibold text-[11px]">
-                                  {prop.value}
-                                  {prop.unit && (
-                                    <span className="text-gray-400 text-[9px] ml-0.5">
-                                      {prop.unit}
-                                    </span>
+                            ([propName, prop]: any) => {
+                              const limitValue = getLimitBySampleAndParam(
+                                limit,
+                                sampleId,
+                                propName
+                              );
+
+                              let valueClass = "text-gray-100";
+
+                              if (limitValue?.isNumber) {
+                                const numericValue = Number(prop.value);
+
+                                if (
+                                  numericValue < limitValue.low ||
+                                  numericValue > limitValue.high
+                                ) {
+                                  valueClass = "text-red-400"; // ❌ out of limit
+                                } else {
+                                  valueClass = "text-green-400"; // ✅ within limit
+                                }
+                              } else if (limitValue && !limitValue.isNumber) {
+                                valueClass = "text-gray-100"; // non-numeric parameter (status, visual, etc)
+                              }
+
+                              return (
+                                <div
+                                  key={propName}
+                                  className="bg-neutral-700/40 rounded p-1 hover:bg-neutral-700 transition"
+                                >
+                                  <div className="text-gray-400 text-[10px] truncate">
+                                    {propName}
+                                  </div>
+
+                                  <div
+                                    className={`font-semibold text-[11px] ${valueClass}`}
+                                  >
+                                    {prop.value}
+                                    {prop.unit && (
+                                      <span className="text-gray-400 text-[9px] ml-0.5">
+                                        {prop.unit}
+                                      </span>
+                                    )}
+                                  </div>
+
+                                  {limitValue && (
+                                    <div className="text-[9px] text-gray-500">
+                                      Spec: {limitValue.low} - {limitValue.high}
+                                    </div>
                                   )}
                                 </div>
-                              </div>
-                            )
+                              );
+                            }
                           )}
                         </div>
                       </CardContent>

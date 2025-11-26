@@ -65,7 +65,7 @@ export default function NotificationBell() {
       <PopoverContent align="end" side="bottom" className="w-80 p-3">
         <p className="font-semibold text-sm mb-2">Notifications</p>
 
-        <div className="space-y-3 max-h-[350px] overflow-y-auto">
+        <div className="space-y-3 max-h-[350px] overflow-y-auto custom-scrollbar">
           {loading && (
             <p className="text-sm text-muted-foreground">Loading...</p>
           )}

@@ -39,7 +39,7 @@ const MainFrame: React.FC<{ children?: ReactNode }> = ({ children }) => (
         theme="dark"
       />
       {/* 👇 Render whatever is passed inside <MainFrame> */}
-      <div className="flex-1 overflow-auto">{children}</div>
+      <div className="flex-1 overflow-auto custom-scrollbar">{children}</div>
     </div>
   </SidebarProvider>
 );

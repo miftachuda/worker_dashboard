@@ -108,9 +108,14 @@ const CreateMaintenanceRecord: React.FC<CreateMaintenanceRecordProps> = ({
           formData.append("photo", file); // Must match PocketBase field name
         });
       }
-      const data = formData.getAll("photo");
+      // const data = formData.getAll("photo");
       // ✅ Create record with files
       await pb.collection("maintenance_collection").create(formData);
+      const record = await pb
+        .collection("list_equipment")
+        .getOne(form.nametag, {
+          expand: "nametag",
+        });
 
       setOpen(false);
       onCreated?.();
@@ -118,7 +123,7 @@ const CreateMaintenanceRecord: React.FC<CreateMaintenanceRecordProps> = ({
       await sendNotif({
         title: "[Maintenance Record] created",
         page: "maintenances",
-        message: `${form.nametag} - ${form.title}`,
+        message: `${record.nametag} - ${form.title}`,
       });
     } catch (err) {
       console.error(err);
