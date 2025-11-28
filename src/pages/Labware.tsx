@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import MainFrame from "./MainFrame";
-import DarkSampleGroups from "@/components/Labware/Card";
+import SampleGroups from "@/components/Labware/Card";
 import { pb } from "@/lib/pocketbase";
 import { SampleLimit } from "@/types/SampleLimit";
 
@@ -103,8 +103,7 @@ const Labware: React.FC = () => {
           {error && (
             <p className="text-red-400 text-center py-4">Error: {error}</p>
           )}
-
-          <DarkSampleGroups data={data} loading={loading} limit={limit} />
+          <SampleGroups data={data} loading={loading} limit={limit} />
         </div>
       </main>
     </MainFrame>

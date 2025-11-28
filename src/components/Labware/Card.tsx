@@ -142,7 +142,7 @@ function getLimitBySampleAndParam(
   );
 }
 
-const DarkSampleGroups: React.FC<{
+const SampleGroups: React.FC<{
   data: any;
   loading?: boolean;
   limit: SampleLimit[];
@@ -365,4 +365,4 @@ const DarkSampleGroups: React.FC<{
   );
 };
 
-export default DarkSampleGroups;
+export default SampleGroups;
