@@ -280,7 +280,7 @@ const SampleGroups: React.FC<{
                               } else if (propName === "Color") {
                                 const isPass = isASTMWithinMax(
                                   prop.value,
-                                  limitValue.high_limit
+                                  limitValue?.high_limit
                                 );
 
                                 valueClass = isPass
