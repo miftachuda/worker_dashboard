@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { SampleLimit } from "@/types/SampleLimit";
 
@@ -24,8 +24,100 @@ const DarkSampleGroups: React.FC<{
       </div>
     );
   }
+  const [mode023, setMode023] = useState<any>(null);
+  const [mode024, setMode024] = useState<any>(null);
+
+  useEffect(() => {
+    fetchPHDData(payload023)
+      .then((res) => setMode023(res))
+      .catch((err) => console.error(err));
+    fetchPHDData(payload024)
+      .then((res) => setMode024(res))
+      .catch((err) => console.error(err));
+  }, []);
 
   const { samples, shift } = data;
+  interface PHDRequest {
+    SampleInterval: number;
+    GetEnum: boolean;
+    ResampleMethod: string;
+    MinimumConfidence: number;
+    MaxRows: number;
+    TimeFormat: number;
+    ReductionData: string;
+    TagName: string[];
+    StartTime: string;
+    EndTime: string;
+    OutputTimeFormat: number;
+    EventSequence: number;
+  }
+  const payload024: PHDRequest[] = [
+    {
+      SampleInterval: 900000,
+      GetEnum: false,
+      ResampleMethod: "Around",
+      MinimumConfidence: 0,
+      MaxRows: 100,
+      TimeFormat: 6,
+      ReductionData: "snapshot",
+      TagName: [
+        "024FQI_001DA.PV",
+        "024FQI_001DB.PV",
+        "024FQI_001MA.PV",
+        "024FQI_001MB.PV",
+        "024FQI_001LA.PV",
+        "024FQI_001LB.PV",
+      ],
+      StartTime: "NOW",
+      EndTime: "NOW",
+      OutputTimeFormat: 6,
+      EventSequence: 0,
+    },
+  ];
+  const payload023: PHDRequest[] = [
+    {
+      SampleInterval: 900000,
+      GetEnum: false,
+      ResampleMethod: "Around",
+      MinimumConfidence: 0,
+      MaxRows: 100,
+      TimeFormat: 6,
+      ReductionData: "snapshot",
+      TagName: [
+        "023FQI_004DA.PV",
+        "023FQI_004DB.PV",
+        "023FQI_004MA.PV",
+        "023FQI_004MB.PV",
+        "023FQI_004LA.PV",
+        "023FQI_004LB.PV",
+      ],
+      StartTime: "NOW",
+      EndTime: "NOW",
+      OutputTimeFormat: 6,
+      EventSequence: 0,
+    },
+  ];
+  async function fetchPHDData(payload: PHDRequest[]) {
+    try {
+      const response = await fetch("https://phd.miftachuda.my.id/GetData", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP Error ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("PHD Fetch Error:", error);
+      throw error;
+    }
+  }
 
   // Group samples by first 3 chars
   const grouped = Object.entries(samples).reduce((acc: any, [id, sample]) => {
@@ -50,6 +142,60 @@ const DarkSampleGroups: React.FC<{
       high: found.high_limit,
       isNumber: found.isNumber,
     };
+  }
+  function parseLimit(val: unknown): number {
+    if (val === null || val === undefined) return NaN;
+
+    if (typeof val === "string") {
+      if (val.trim() === "") return NaN;
+      return Number(val);
+    }
+
+    if (typeof val === "number") {
+      return val;
+    }
+
+    return NaN;
+  }
+
+  type TagData = {
+    TagName: string;
+    Value: number[];
+  };
+
+  function detectModeStrict(datafeed: TagData[]): string | null {
+    const hasLA = datafeed.some(
+      (d) => d.TagName.includes("LA") && d.Value[0] !== 0
+    );
+    const hasLB = datafeed.some(
+      (d) => d.TagName.includes("LB") && d.Value[0] !== 0
+    );
+    const hasMA = datafeed.some(
+      (d) => d.TagName.includes("MA") && d.Value[0] !== 0
+    );
+    const hasMB = datafeed.some(
+      (d) => d.TagName.includes("MB") && d.Value[0] !== 0
+    );
+    const hasDA = datafeed.some(
+      (d) => d.TagName.includes("DA") && d.Value[0] !== 0
+    );
+    const hasDB = datafeed.some(
+      (d) => d.TagName.includes("DB") && d.Value[0] !== 0
+    );
+
+    if (hasLA || hasLB) return "LMO";
+    if (hasMA || hasMB) return "MMO";
+    if (hasDA || hasDB) return "DAO";
+
+    return null;
+  }
+  let feed023: string | null = null;
+  let feed024: string | null = null;
+  if (mode023 && mode023.length > 0) {
+    feed023 = detectModeStrict(mode023);
+  }
+  if (mode024 && mode024.length > 0) {
+    feed024 = detectModeStrict(mode024);
   }
   return (
     <div className="min-h-screen bg-neutral-900 text-gray-100 p-2 overflow-hidden">
@@ -108,20 +254,30 @@ const DarkSampleGroups: React.FC<{
                               );
 
                               let valueClass = "text-gray-100";
-
                               if (limitValue?.isNumber) {
                                 const numericValue = Number(prop.value);
 
-                                if (
-                                  numericValue < limitValue.low ||
-                                  numericValue > limitValue.high
-                                ) {
-                                  valueClass = "text-red-400"; // ❌ out of limit
-                                } else {
-                                  valueClass = "text-green-400"; // ✅ within limit
+                                const low = parseLimit(limitValue.low);
+                                const high = parseLimit(limitValue.high);
+
+                                const hasLow = !isNaN(low);
+                                const hasHigh = !isNaN(high);
+
+                                let outOfLimit = false;
+
+                                if (hasLow && numericValue < low) {
+                                  outOfLimit = true;
                                 }
+
+                                if (hasHigh && numericValue > high) {
+                                  outOfLimit = true;
+                                }
+
+                                valueClass = outOfLimit
+                                  ? "text-red-400"
+                                  : "text-green-400";
                               } else if (limitValue && !limitValue.isNumber) {
-                                valueClass = "text-gray-100"; // non-numeric parameter (status, visual, etc)
+                                valueClass = "text-gray-100";
                               }
 
                               return (
