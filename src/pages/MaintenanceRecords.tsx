@@ -201,13 +201,13 @@ const Maintenance: React.FC = () => {
                   className="h-12 px-3 rounded-md bg-slate-900 text-white border border-slate-700 focus:outline-none"
                 >
                   <option value="All">All</option>
-                  <option value="023">002</option>
+                  <option value="002">002</option>
                   <option value="021">021</option>
                   <option value="022">022</option>
                   <option value="023">023</option>
-                  <option value="023">024</option>
-                  <option value="023">025</option>
-                  <option value="023">041</option>
+                  <option value="024">024</option>
+                  <option value="025">025</option>
+                  <option value="041">041</option>
                 </select>
                 <button
                   onClick={() => setShowAddModal(true)}

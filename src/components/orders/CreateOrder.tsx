@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import supabase from "@/lib/supabaseClient";
+import { pb } from "@/lib/pocketbase";
 import { Orderx } from "@/types/Order";
 import { Plus } from "lucide-react";
 import { sendNotif } from "@/lib/sendnotif";
@@ -25,32 +25,39 @@ export function CreateOrder({
     description: "",
     tag: "",
   });
+  const [saving, setSaving] = useState(false);
 
   const handleChange: React.ChangeEventHandler<
-    HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    HTMLInputElement | HTMLTextAreaElement
   > = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSave = async () => {
-    const { data, error } = await supabase
-      .from("Orders") // <-- replace with your table name
-      .insert([form])
-      .select()
-      .single();
+    try {
+      setSaving(true);
 
-    if (error) {
-      console.error("Create failed:", error);
-    } else {
-      if (onCreated && data) onCreated(data);
+      const record = await pb.collection("orders").create<Orderx>({
+        title: form.title,
+        description: form.description,
+        tag: form.tag,
+      });
+
+      if (onCreated) onCreated(record);
+
       setOpen(false);
       setForm({ title: "", description: "", tag: "" });
+
+      await sendNotif({
+        title: "[Order] Created",
+        page: "orders",
+        message: `${form.title}.`,
+      });
+    } catch (error) {
+      console.error("Create failed:", error);
+    } finally {
+      setSaving(false);
     }
-    await sendNotif({
-      title: "[Order] Created",
-      page: "orders",
-      message: `${form.title}.`,
-    });
   };
 
   return (
@@ -60,6 +67,7 @@ export function CreateOrder({
           <Plus className="w-5 h-5 text-black-600" /> Create Order
         </Button>
       </DialogTrigger>
+
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Create new order</DialogTitle>
@@ -75,6 +83,7 @@ export function CreateOrder({
               placeholder="Enter title"
             />
           </div>
+
           <div>
             <Label htmlFor="description">Description</Label>
             <textarea
@@ -85,6 +94,7 @@ export function CreateOrder({
               className="w-full p-2 rounded bg-gray-900 border border-gray-900 text-white min-h-[100px]"
             />
           </div>
+
           <div>
             <Label htmlFor="tag">Tag</Label>
             <Input
@@ -100,7 +110,10 @@ export function CreateOrder({
           <Button variant="outline" onClick={() => setOpen(false)}>
             Cancel
           </Button>
-          <Button onClick={handleSave}>Save</Button>
+
+          <Button onClick={handleSave} disabled={saving}>
+            {saving ? "Saving..." : "Save"}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

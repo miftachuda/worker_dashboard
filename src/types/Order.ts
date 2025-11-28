@@ -1,6 +1,6 @@
 export type Orderx = {
   id: number;
-  created_at: string;
+  created: string;
   title: string;
   description: string;
   tag: string;

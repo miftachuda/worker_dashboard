@@ -1,6 +1,7 @@
 export type Person = {
-  id: number;
-  created_at: string;
+  id: string;
+  nomor: number;
+  created: string;
   Nama: string;
   Nopek: string;
   Nopek_kpi: string;

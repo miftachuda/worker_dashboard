@@ -10,38 +10,38 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import supabase from "@/lib/supabaseClient";
+import { pb } from "@/lib/pocketbase";
 import { Orderx } from "@/types/Order";
 import { formatDistanceToNow } from "date-fns";
-import { CreateOrder } from "../orders/CreateOrder";
 import { Textarea } from "../ui/textarea";
 import { Pencil } from "lucide-react";
 
 export function OrderCard({ num, ...order }: Orderx & { num: number }) {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(order);
+  const [saving, setSaving] = useState(false);
 
   const handleChange: React.ChangeEventHandler<
-    HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    HTMLInputElement | HTMLTextAreaElement
   > = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSave = async () => {
-    const { error } = await supabase
-      .from("Orders") // <-- replace with your table name
-      .update({
+    try {
+      setSaving(true);
+
+      await pb.collection("orders").update(form.id.toString(), {
         title: form.title,
         description: form.description,
         tag: form.tag,
-      })
-      .eq("id", form.id);
+      });
 
-    if (error) {
-      console.error("Update failed:", error);
-    } else {
       setOpen(false);
-      window.location.reload(); // ✅ reload the page
+    } catch (error) {
+      console.error("Update failed:", error);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -50,14 +50,17 @@ export function OrderCard({ num, ...order }: Orderx & { num: number }) {
       <div className="absolute bottom-2 right-2 bg-primary text-black text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow-md">
         {num}
       </div>
+
       <div className="absolute bottom-2 right-12 bg-slate-800 px-2 rounded-sm text-gray-500 text-sm">
-        {formatDistanceToNow(order.created_at, { addSuffix: true })}
+        {formatDistanceToNow(new Date(order.created), { addSuffix: true })}
       </div>
+
       <CardHeader>
         <CardTitle className="text-sm mt-0 font-semibold">
           {order.title}
         </CardTitle>
       </CardHeader>
+
       <CardContent className="space-y-1 text-sm">
         <p className="flex items-start gap-2 flex-col">
           <span className="font-medium">Description :</span>
@@ -70,7 +73,6 @@ export function OrderCard({ num, ...order }: Orderx & { num: number }) {
         </p>
       </CardContent>
 
-      {/* Move dialog outside so fixed button is truly visible */}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           <Button
@@ -78,7 +80,7 @@ export function OrderCard({ num, ...order }: Orderx & { num: number }) {
             variant="outline"
             className="absolute bottom-2 left-2 rounded-full shadow-lg z-50"
           >
-            <Pencil className="h-2 w-2" />
+            <Pencil className="h-3 w-3" />
           </Button>
         </DialogTrigger>
 
@@ -92,6 +94,7 @@ export function OrderCard({ num, ...order }: Orderx & { num: number }) {
               <Label htmlFor="title">Title</Label>
               <Input name="title" value={form.title} onChange={handleChange} />
             </div>
+
             <div>
               <Label htmlFor="description">Description</Label>
               <Textarea
@@ -106,7 +109,10 @@ export function OrderCard({ num, ...order }: Orderx & { num: number }) {
             <Button variant="outline" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleSave}>Save</Button>
+
+            <Button onClick={handleSave} disabled={saving}>
+              {saving ? "Saving..." : "Save"}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

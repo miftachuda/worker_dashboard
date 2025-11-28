@@ -4,23 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-
-interface Person {
-  id: number;
-  created_at: string;
-  Nama: string;
-  Nopek: string;
-  Nopek_kpi: string;
-  "No HP": string;
-  Position: string;
-  Alamat: string;
-  Status: string;
-  Shift: string;
-  last_update: string;
-  last_move: string;
-  PRL: number;
-  type: string;
-}
+import { Person } from "@/types/Person";
 
 interface WorkerGroupCardProps {
   group: {

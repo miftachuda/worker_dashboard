@@ -1,63 +1,97 @@
 import React, { useEffect, useState } from "react";
 import MainFrame from "./MainFrame";
 import PlusInputButton from "@/components/leaves/PlusInputButton";
-import supabase from "@/lib/supabaseClient";
 import { Leavex } from "@/types/Leavex";
 import { differenceInDays, format, parseISO } from "date-fns";
 import { Input } from "@/components/ui/input";
 import { fetchEmployee } from "@/lib/worker";
 import { Employee } from "@/types/Employee";
+import { Person } from "@/types/Person";
 import UserTableWrapper from "@/components/leaves/UserTableWrapper";
 import { Cell } from "@/types/Cell";
 import PopupDialog from "@/components/leaves/PopUp";
-//upload test
+import { pb } from "@/lib/pocketbase";
+
+/* ============ CONVERTER Person → Employee ============ */
+const personToEmployee = (p: Person): Employee => ({
+  id: p.id,
+  nomor: p.nomor,
+  created_at: p.created,
+  Nama: p.Nama,
+  Nopek: p.Nopek,
+  Nopek_kpi: p.Nopek_kpi,
+  "No HP": p["No HP"],
+  Position: p.Position,
+  Alamat: p.Alamat,
+  Status: p.Status as Employee["Status"],
+  Shift: p.Shift as Employee["Shift"],
+  last_update: p.last_update,
+  last_move: p.last_move,
+  PRL: p.PRL,
+  type: p.type === "TAD" || p.type === "Expert" ? "Non-Organik" : "Organik",
+});
+
+// ================= COMPONENT =================
 const Leave: React.FC = () => {
   const [data, setData] = useState<Leavex[]>([]);
   const [employee, setEmployee] = useState<Employee[]>([]);
   const [search, setSearch] = useState("");
   const [filteredData, setFilteredData] = useState<Leavex[]>([]);
-  const [error, setError] = useState<any>(null);
+  const [error, setError] = useState<Error | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [popupData, setPopupData] = useState<Cell[] | null>(null);
 
+  /* ============ FETCH LEAVES ============ */
   useEffect(() => {
-    const fetchData = async () => {
-      const { data: Orders, error } = await supabase.from("Leaves").select("*");
-      if (error) setError(error);
-      else {
-        setData(Orders || []);
-        setFilteredData(Orders || []);
+    const fetchLeaves = async () => {
+      try {
+        const records = await pb.collection("leaves").getFullList<Leavex>({
+          sort: "-created",
+        });
+        setData(records);
+        setFilteredData(records);
+      } catch (err) {
+        setError(err as Error);
       }
     };
 
-    fetchData();
+    fetchLeaves();
   }, []);
+
+  /* ============ FETCH EMPLOYEE (FIXED) ============ */
   useEffect(() => {
     fetchEmployee().then(({ data, error }) => {
-      setEmployee(data || []);
+      if (error) {
+        setError(error);
+      } else {
+        const converted: Employee[] = (data || []).map(personToEmployee);
+        setEmployee(converted);
+      }
     });
   }, []);
 
+  /* ============ SEARCH FILTER ============ */
   useEffect(() => {
-    const lowerSearch = search.toLowerCase();
-    if (lowerSearch.trim() === "") {
+    const lowerSearch = search.toLowerCase().trim();
+
+    if (!lowerSearch) {
       setFilteredData(data);
-    } else {
-      setFilteredData(
-        data.filter((order) =>
-          [order.Nama]
-            .filter(Boolean)
-            .some((field) => field.toLowerCase().includes(lowerSearch))
-        )
-      );
+      return;
     }
+
+    const result = data.filter((leave) =>
+      leave.nama?.toLowerCase().includes(lowerSearch)
+    );
+
+    setFilteredData(result);
   }, [search, data]);
-  function callback(x) {
-    const data = x as Cell[];
-    setPopupData(data);
+
+  /* ============ CALLBACK ============ */
+  const callback = (x: Cell[]) => {
+    setPopupData(x);
     setIsOpen(true);
-    console.log(data);
-  }
+  };
+
   return (
     <MainFrame>
       <PopupDialog
@@ -65,7 +99,8 @@ const Leave: React.FC = () => {
         selected={popupData}
         onClose={() => setIsOpen(false)}
       />
-      <main className="p-6 space-y-4 ">
+
+      <main className="p-6 space-y-4">
         <Input
           type="text"
           placeholder="Search leave..."
@@ -75,27 +110,6 @@ const Leave: React.FC = () => {
         />
 
         <UserTableWrapper users={employee} callback={callback} />
-        {/* <div>
-          {filteredData.map((leave, index) => {
-            const start = parseISO(leave.From);
-            const end = parseISO(leave.To);
-            const daysDifference = differenceInDays(end, start);
-            const from = format(start, "dd-MM-yyyy");
-            const to = format(end, "dd-MM-yyyy");
-            return (
-              <div key={index}>
-                <div>{leave.Nama}</div>
-                <div className="flex gap-2">
-                  <div>{from}</div>
-                  <div>----</div>
-                  <div>{to}</div>
-                </div>
-                <div>{leave.Jenis_Leave}</div>
-                <div>{`${daysDifference} days`}</div>
-              </div>
-            );
-          })}
-        </div> */}
       </main>
     </MainFrame>
   );

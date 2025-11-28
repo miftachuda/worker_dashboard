@@ -1,5 +1,6 @@
 export type Employee = {
-  id: number;
+  id: string;
+  nomor: number;
   created_at: string;
   Nama: string;
   Nopek: string;

@@ -10,14 +10,14 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import supabase from "@/lib/supabaseClient";
+import { pb } from "@/lib/pocketbase";
 import { fullShift } from "../../lib/shift";
 import { Person } from "@/types/Person";
 import { toast } from "react-toastify";
 
 export function WorkerCard({
   num,
-  onUpdated, // 👈 add this prop
+  onUpdated,
   ...worker
 }: Person & { num: number; onUpdated?: () => void }) {
   const [open, setOpen] = useState(false);
@@ -30,26 +30,23 @@ export function WorkerCard({
   };
 
   const handleSave = async () => {
-    const { error } = await supabase
-      .from("Manpower_all")
-      .update({
-        Nama: form.Nama,
-        Position: form.Position,
-        "No HP": form["No HP"],
-        Nopek: form.Nopek,
-        Alamat: form.Alamat,
-        Shift: form.Shift,
-        Status: form.Status,
-      })
-      .eq("id", form.id);
+    try {
+      await pb.collection("manpower").update(form.id, {
+        nama: form.Nama,
+        position: form.Position,
+        "no hp": form["No HP"],
+        nopek: form.Nopek,
+        alamat: form.Alamat,
+        shift: form.Shift,
+        status: form.Status,
+      });
 
-    if (error) {
-      console.error("Update failed:", error);
-      toast.error("Failed to update worker data");
-    } else {
       toast.success("Worker updated successfully");
       setOpen(false);
-      onUpdated?.(); // 👈 notify parent to refresh
+      onUpdated?.(); // refresh parent
+    } catch (error) {
+      console.error("Update failed:", error);
+      toast.error("Failed to update worker data");
     }
   };
 
@@ -58,17 +55,18 @@ export function WorkerCard({
       <div className="absolute bottom-2 right-2 bg-primary text-black text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow-md">
         {num}
       </div>
-      <div>
-        <div className="absolute bottom-2 right-10 bg-green-300 text-black text-xs font-bold rounded-sm pl-3 pr-3 w-auto h-6 flex items-center justify-center shadow-md">
-          {fullShift(worker.Shift.slice(-1))}
-        </div>
+
+      <div className="absolute bottom-2 right-10 bg-green-300 text-black text-xs font-bold rounded-sm pl-3 pr-3 w-auto h-6 flex items-center justify-center shadow-md">
+        {fullShift(worker.Shift.slice(-1))}
       </div>
+
       <CardHeader>
         <CardTitle className="text-lg mt-4 font-semibold">
           {worker.Nama}
         </CardTitle>
         <p className="text-sm text-muted-foreground">{worker.Position}</p>
       </CardHeader>
+
       <CardContent className="space-y-1 ml-6 text-sm">
         <p>
           <span className="font-medium">No HP :</span> {worker["No HP"]}
@@ -96,12 +94,12 @@ export function WorkerCard({
               Edit
             </Button>
           </DialogTrigger>
+
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>Edit Worker</DialogTitle>
             </DialogHeader>
 
-            {/* Form Fields */}
             <div className="space-y-3">
               {[
                 { label: "Nama", name: "Nama" },
@@ -121,7 +119,7 @@ export function WorkerCard({
               ))}
 
               <div>
-                <Label htmlFor="Shift">Shift</Label>
+                <Label>Shift</Label>
                 <select
                   name="Shift"
                   value={form.Shift}
@@ -137,7 +135,7 @@ export function WorkerCard({
               </div>
 
               <div>
-                <Label htmlFor="Status">Status</Label>
+                <Label>Status</Label>
                 <select
                   name="Status"
                   value={form.Status}

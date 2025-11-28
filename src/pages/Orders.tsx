@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import MainFrame from "./MainFrame";
 import { Orderx } from "@/types/Order";
-import supabase from "@/lib/supabaseClient";
+import { pb } from "@/lib/pocketbase";
 import { Input } from "@/components/ui/input";
 import { OrderCard } from "@/components/orders/OrderCard";
 import { CreateOrder } from "@/components/orders/CreateOrder";
@@ -16,14 +16,25 @@ const Orders: React.FC = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
-      const { data: Orders, error } = await supabase.from("Orders").select("*");
-      if (error) setError(error);
-      else {
-        setData(Orders || []);
-        setFilteredData(Orders || []);
+      try {
+        setLoading(true);
+
+        const records = await pb.collection("orders").getFullList<Orderx>({
+          sort: "-created", // descending by created
+        });
+
+        const mapped = records.map((r: any) => ({
+          ...r,
+          created: r.created, // samakan dengan field lama kalau perlu
+        }));
+
+        setData(mapped);
+        setFilteredData(mapped);
+      } catch (err: any) {
+        setError(err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     fetchData();
@@ -31,6 +42,7 @@ const Orders: React.FC = () => {
 
   useEffect(() => {
     const lowerSearch = search.toLowerCase();
+
     if (lowerSearch.trim() === "") {
       setFilteredData(data);
     } else {
@@ -48,7 +60,7 @@ const Orders: React.FC = () => {
     <MainFrame>
       {error && <p className="text-red-500">{error.message}</p>}
 
-      <div className="sticky top-4 z-8 ">
+      <div className="sticky top-4 z-8">
         <div className="ml-9 mr-6">
           <CreateOrder
             onCreated={(newOrder) => setData((prev) => [newOrder, ...prev])}
@@ -56,7 +68,7 @@ const Orders: React.FC = () => {
         </div>
       </div>
 
-      <div className="sticky top-16 z-10 ">
+      <div className="sticky top-16 z-10">
         <div className="ml-9 mr-6">
           <Input
             type="text"
@@ -86,11 +98,9 @@ const Orders: React.FC = () => {
 
         {!loading && (
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {filteredData
-              .sort((a, b) => b.created_at.localeCompare(a.created_at))
-              .map((order, index) => (
-                <OrderCard key={order.id} {...order} num={index + 1} />
-              ))}
+            {filteredData.map((order, index) => (
+              <OrderCard key={order.id} {...order} num={index + 1} />
+            ))}
           </div>
         )}
       </main>
