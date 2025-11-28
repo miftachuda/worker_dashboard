@@ -267,9 +267,6 @@ const DarkSampleGroups: React.FC<{
                               let valueClass = "text-gray-100";
 
                               if (limitValue?.isNumber) {
-                                // 🔥 ASTM COLOR SPECIAL HANDLING
-
-                                // ✅ Normal numeric comparison
                                 const value = Number(prop.value);
                                 const low = parseLimit(limitValue?.low_limit);
                                 const high = parseLimit(limitValue?.high_limit);
