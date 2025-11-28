@@ -271,9 +271,8 @@ const DarkSampleGroups: React.FC<{
 
                                 // ✅ Normal numeric comparison
                                 const value = Number(prop.value);
-                                const low = parseLimit(limitValue.low_limit);
-                                const high = parseLimit(limitValue.high_limit);
-
+                                const low = parseLimit(limitValue?.low_limit);
+                                const high = parseLimit(limitValue?.high_limit);
                                 const out =
                                   (!isNaN(low) && value < low) ||
                                   (!isNaN(high) && value > high);
@@ -293,7 +292,7 @@ const DarkSampleGroups: React.FC<{
                               } else if (propName === "App") {
                                 const isPass =
                                   String(prop.value).toLowerCase() ===
-                                  String(limitValue.low_limit).toLowerCase();
+                                  String(limitValue?.low_limit).toLowerCase();
 
                                 valueClass = isPass
                                   ? "text-green-400"
