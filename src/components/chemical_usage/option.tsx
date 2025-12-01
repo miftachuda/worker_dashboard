@@ -1,22 +1,22 @@
 export const FILTER_OPTIONS = [
-  { value: "week", label: "This Week" },
-  { value: "month", label: "This Month" },
-  { value: "year", label: "This Year" },
+  { value: "minggu", label: "Minggu Ini" },
+  { value: "bulan", label: "Bulan Ini" },
+  { value: "tahun", label: "Tahun Ini" },
 
-  { value: "january", label: "January" },
-  { value: "february", label: "February" },
-  { value: "march", label: "March" },
+  { value: "januari", label: "Januari" },
+  { value: "februari", label: "Februari" },
+  { value: "maret", label: "Maret" },
   { value: "april", label: "April" },
-  { value: "may", label: "May" },
-  { value: "june", label: "June" },
-  { value: "july", label: "July" },
-  { value: "august", label: "August" },
+  { value: "mei", label: "Mei" },
+  { value: "juni", label: "Juni" },
+  { value: "juli", label: "Juli" },
+  { value: "agustus", label: "Agustus" },
   { value: "september", label: "September" },
-  { value: "october", label: "October" },
+  { value: "oktober", label: "Oktober" },
   { value: "november", label: "November" },
-  { value: "december", label: "December" },
+  { value: "desember", label: "Desember" },
 
-  { value: "allTime", label: "All Time" },
+  { value: "semuaWaktu", label: "Sepanjang Waktu" },
 ] as const;
 
 export type FilterRange = (typeof FILTER_OPTIONS)[number]["value"];

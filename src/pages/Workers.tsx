@@ -98,7 +98,7 @@ export default function Worker() {
         <div className="sticky top-4 z-10 flex items-center gap-2 ml-9 mr-6">
           <Input
             type="text"
-            placeholder="Search worker..."
+            placeholder="Cari Pekerja..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full"

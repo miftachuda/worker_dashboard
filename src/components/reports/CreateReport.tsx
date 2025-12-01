@@ -198,7 +198,7 @@ export function CreateReport() {
   if (mode === "create") {
     return (
       <div className="p-6 max-w-xl">
-        <h2 className="text-2xl font-bold mb-4">Create Report</h2>
+        <h2 className="text-2xl font-bold mb-4">Buat Laporan</h2>
 
         {error && <p className="text-red-500 mb-2">{error}</p>}
 
@@ -342,7 +342,7 @@ export function CreateReport() {
         onClick={() => setMode("create")}
         className="px-4 py-2 m-4  rounded bg-neon-green text-black "
       >
-        Create Report
+        Buat Laporan
       </button>
     </div>
   );

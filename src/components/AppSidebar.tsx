@@ -12,6 +12,8 @@ import {
   TrendingUp,
   FlaskConical,
   BookLock,
+  Airplay,
+  ExternalLink,
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 
@@ -28,20 +30,24 @@ import {
 } from "@/components/ui/sidebar";
 
 const mainItems = [
-  { title: "Main", url: "/", icon: Home },
-  { title: "Workers", url: "/workers", icon: Users },
-  { title: "Leaves", url: "/leaves", icon: BarChart3 },
-  { title: "Shift Calendar", url: "/shift", icon: Calendar },
-  { title: "Reports", url: "/reports", icon: FileText },
+  { title: "Utama", url: "/", icon: Home },
+  { title: "Pekerja LOC II", url: "/workers", icon: Users },
+  { title: "Cuti", url: "/leaves", icon: BarChart3 },
+  { title: "Jadwal Shift", url: "/shift", icon: Calendar },
+  { title: "laporan Harian", url: "/reports", icon: FileText },
   { title: "Maintenance Records", url: "/maintenances", icon: Wrench },
   { title: "Orders", url: "/orders", icon: BookAudio },
   { title: "Chemical Usage", url: "/chemical", icon: Droplet },
   { title: "Tank Trend", url: "/tanktrend", icon: TrendingUp },
   { title: "LIMS", url: "/labware", icon: FlaskConical },
   { title: "LOTO", url: "/loto", icon: BookLock },
+  { title: "PowerBI", url: "/powerbi", icon: Airplay },
 ];
 
-const adminItems = [{ title: "Settings", url: "/settings", icon: Settings }];
+const adminItems = [
+  { title: "Input Link", url: "/input", icon: ExternalLink },
+  { title: "Settings", url: "/settings", icon: Settings },
+];
 export function AppSidebar() {
   const { state } = useSidebar();
   const location = useLocation();

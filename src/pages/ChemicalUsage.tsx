@@ -256,48 +256,49 @@ const Chemicalusage: React.FC = () => {
   const [filter, setFilter] = useState<FilterRange>(
     dayjs().format("MMMM").toLowerCase() as FilterRange
   );
+
   type FilterRange =
-    | "week"
-    | "month"
-    | "year"
-    | "january"
-    | "february"
-    | "march"
+    | "minggu"
+    | "bulan"
+    | "tahun"
+    | "januari"
+    | "februari"
+    | "maret"
     | "april"
-    | "may"
-    | "june"
-    | "july"
-    | "august"
+    | "mei"
+    | "juni"
+    | "juli"
+    | "agustus"
     | "september"
-    | "october"
+    | "oktober"
     | "november"
-    | "december"
-    | "allTime";
+    | "desember"
+    | "semuaWaktu";
 
   function getRange(filter: FilterRange) {
     const now = dayjs();
 
     switch (filter) {
-      case "week":
+      case "minggu":
         return { start: now.startOf("week"), end: now.endOf("week") };
 
-      case "month":
+      case "bulan":
         return { start: now.startOf("month"), end: now.endOf("month") };
 
-      case "year":
+      case "tahun":
         return { start: now.startOf("year"), end: now.endOf("year") };
 
-      case "january":
+      case "januari":
         return {
           start: now.month(0).startOf("month"),
           end: now.month(0).endOf("month"),
         };
-      case "february":
+      case "februari":
         return {
           start: now.month(1).startOf("month"),
           end: now.month(1).endOf("month"),
         };
-      case "march":
+      case "maret":
         return {
           start: now.month(2).startOf("month"),
           end: now.month(2).endOf("month"),
@@ -307,22 +308,22 @@ const Chemicalusage: React.FC = () => {
           start: now.month(3).startOf("month"),
           end: now.month(3).endOf("month"),
         };
-      case "may":
+      case "mei":
         return {
           start: now.month(4).startOf("month"),
           end: now.month(4).endOf("month"),
         };
-      case "june":
+      case "juni":
         return {
           start: now.month(5).startOf("month"),
           end: now.month(5).endOf("month"),
         };
-      case "july":
+      case "juli":
         return {
           start: now.month(6).startOf("month"),
           end: now.month(6).endOf("month"),
         };
-      case "august":
+      case "agustus":
         return {
           start: now.month(7).startOf("month"),
           end: now.month(7).endOf("month"),
@@ -332,7 +333,7 @@ const Chemicalusage: React.FC = () => {
           start: now.month(8).startOf("month"),
           end: now.month(8).endOf("month"),
         };
-      case "october":
+      case "oktober":
         return {
           start: now.month(9).startOf("month"),
           end: now.month(9).endOf("month"),
@@ -342,17 +343,14 @@ const Chemicalusage: React.FC = () => {
           start: now.month(10).startOf("month"),
           end: now.month(10).endOf("month"),
         };
-      case "december":
+      case "desember":
         return {
           start: now.month(11).startOf("month"),
           end: now.month(11).endOf("month"),
         };
 
-      case "allTime":
-        return {
-          start: dayjs("1970-01-01"),
-          end: now,
-        };
+      case "semuaWaktu":
+        return { start: dayjs("1970-01-01"), end: now };
     }
   }
   useEffect(() => {

@@ -20,6 +20,8 @@ import TankTrend from "./pages/TankTrend";
 import Labware from "./pages/Labware";
 import Profile from "./pages/Profile";
 import LOTO from "./pages/LOTO";
+import PowerBi from "./pages/PowerBi";
+import Input from "./pages/Input";
 
 const queryClient = new QueryClient();
 
@@ -131,6 +133,14 @@ const App = () => (
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/input"
+            element={
+              <ProtectedRoute>
+                <Input />
+              </ProtectedRoute>
+            }
+          />
 
           <Route
             path="/orders"
@@ -145,6 +155,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/powerbi"
+            element={
+              <ProtectedRoute>
+                <PowerBi />
               </ProtectedRoute>
             }
           />
