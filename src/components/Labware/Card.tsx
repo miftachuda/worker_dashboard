@@ -80,7 +80,7 @@ const payload024: PHDRequest[] = [
 ];
 
 async function fetchPHDData(payload: PHDRequest[]) {
-  const response = await fetch("https://phd.miftachuda.my.id/GetData", {
+  const response = await fetch("https://apiv2.miftachuda.my.id/GetData", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
