@@ -76,6 +76,15 @@ export default function Shift() {
 
     loadShift();
   }, []);
+
+  useEffect(() => {
+    async function fetchLibur() {
+      const data = await loadHariLibur();
+      setHolidays(data);
+    }
+
+    fetchLibur();
+  }, []);
   function addDays(today: Date, days: number): Date {
     const result = new Date(today);
     result.setDate(result.getDate() + days);
@@ -128,6 +137,7 @@ export default function Shift() {
           >
             {Array.from({ length: 120 }).map((_, colIdx) => {
               const day = addDays(selectedDate, colIdx);
+
               if (selectedMode === "Mode 1") {
                 var shiftCol = getShiftList(day);
               } else {
