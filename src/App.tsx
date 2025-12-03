@@ -22,6 +22,7 @@ import Profile from "./pages/Profile";
 import LOTO from "./pages/LOTO";
 import PowerBi from "./pages/PowerBi";
 import Input from "./pages/Input";
+import Vibration from "./pages/Vibration";
 
 const queryClient = new QueryClient();
 
@@ -121,6 +122,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <LOTO />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/vibration"
+            element={
+              <ProtectedRoute>
+                <Vibration />
               </ProtectedRoute>
             }
           />

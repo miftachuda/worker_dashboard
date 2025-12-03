@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #fff;
+        font-family: FranklinGothic-Heavy, 'Franklin Gothic Heavy';
+        font-size: 216.02px;
+        font-weight: 800;
+      }
+
+      .cls-2 {
+        fill: #07ff00;
+      }
+    </style>
+  </defs>
+  <polygon class="cls-2" points="1007.65 728.02 1007.65 1007.65 -18.52 -16.42 228.02 -34.94 1007.65 728.02"/>
+  <text class="cls-1" transform="translate(322.73 297.86) rotate(44.62) scale(1.01 1)"><tspan x="0" y="0">NEW</tspan></text>
+</svg>

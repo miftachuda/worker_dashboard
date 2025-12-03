@@ -41,6 +41,7 @@ const mainItems = [
   { title: "Tank Trend", url: "/tanktrend", icon: TrendingUp },
   { title: "LIMS", url: "/labware", icon: FlaskConical },
   { title: "LOTO", url: "/loto", icon: BookLock },
+  { title: "Vibration", url: "/vibration", icon: BookLock },
   { title: "PowerBI", url: "/powerbi", icon: Airplay },
 ];
 
