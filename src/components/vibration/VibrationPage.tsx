@@ -171,13 +171,12 @@ function VibrationPage() {
           <SearchBar onChange={(v) => setQuery(v)} />
           <div className="w-60"></div>
         </header>
-        <div className="scrollbar overflow-y-hidden scrollbar-thumb-rounded-xl  hover:scrollbar-thumb-blue-400 scrollbar-thumb-blue-300 scrollbar-track-blue-200">
+        <div className="scrollbar overflow-hidden scrollbar-thumb-rounded-xl  hover:scrollbar-thumb-blue-400 scrollbar-thumb-blue-300 scrollbar-track-blue-200">
           <div className="font-light italic text-blue-400 w-screen text-center">
             {result}
           </div>
-          <div className="flex flex-row">
-            {isLoading ? <Loading /> : <Iterator vibdata={vibdata} />}
-          </div>
+
+          {isLoading ? <Loading /> : <Iterator vibdata={vibdata} />}
         </div>
 
         {/* <footer className="h-auto pb-2 bg-gray-100 shadow-lg text-gray-800 flex justify-between items-center content-between">
