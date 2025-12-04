@@ -58,7 +58,7 @@ export const addRecord = (vibrasi) => {
 
 export const editRecord = (props) => {
   let vibrasi = props.data;
-  console.log(vibrasi);
+  //console.log(vibrasi);
 
   // Create a reference to the specific document
   const docRef = doc(db, "record", props.docid);

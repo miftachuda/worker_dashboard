@@ -67,7 +67,7 @@ export function CreateReport() {
   // FETCH ONLINE DRAFT
   // ---------------------------
   const fetchDraft = async () => {
-    console.log("fetchDraft called");
+    //console.log("fetchDraft called");
     try {
       const res = await pb.collection("reports").getList(1, 1, {
         filter: "isSubmit = false",

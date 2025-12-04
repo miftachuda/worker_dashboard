@@ -42,7 +42,7 @@ const Card: React.FC<CardProps> = ({
     setShowConfirm(false);
     await supabase.from("pspv").update({ isActive: false }).eq("id", id);
     onClick();
-    console.log("Closed confirmed"); // replace with real logic
+    //console.log("Closed confirmed"); // replace with real logic
     setTimeout(() => {
       window.location.reload();
     }, 800);

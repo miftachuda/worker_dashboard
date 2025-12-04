@@ -20,7 +20,7 @@ function CardVib({ data }) {
   let pumpAlarmdata = pumpAlarm.find(
     (e) => e.pump === data.name?.split(" ")[0]
   );
-  console.log(pumpAlarmdata);
+  // console.log(pumpAlarmdata);
 
   function validation() {
     if (

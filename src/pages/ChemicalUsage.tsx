@@ -438,7 +438,7 @@ const Chemicalusage: React.FC = () => {
             ]}
             onChemicalChange={(chemical) => {
               setSelectedChemical(chemical);
-              console.log("Selected chemical:", chemical);
+              // console.log("Selected chemical:", chemical);
               // update chartData or fetch new data here
             }}
           />
