@@ -139,12 +139,7 @@ function CardVib({ data }) {
               {" "}
             </VibData>
           </div>
-          <div className="text-xs ">
-            Keterangan •{" "}
-            <span className=" rounded-sm m-1  text-xs italic content-center">
-              {`edited : ${lastedited()}`}
-            </span>
-          </div>
+          <div className="text-xs ">Keterangan</div>
           <div className="h-auto flex flex-wrap">
             <div className="px-2 py-1 bg-red-1 text-gray-100 rounded-sm m-1 text-xs content-center">
               Danger :{" "}
@@ -153,9 +148,7 @@ function CardVib({ data }) {
             <div className="px-2 py-1 bg-orange-1 text-gray-100 rounded-sm m-1  text-xs content-center">
               Alarm : <span className="font-black">{pumpAlarmdata?.alarm}</span>
             </div>
-            <div className="px-2 py-1 bg-lime-3 text-green-100 rounded-sm m-1  text-xs content-center">
-              Normal
-            </div>
+
             <div className="px-2 py-1 w-auto border-green-100 border-solid  border-2 text-green-200 rounded-sm m-1  text-xs content-center">
               {pumpAlarmdata?.power} HP
             </div>
@@ -164,6 +157,9 @@ function CardVib({ data }) {
           <div className="bg-gray-500 text-xs text-gray-100 rounded-lg border-gray-800 px-2 border-2 h-20">
             {data.note}
           </div>
+          <span className=" rounded-sm m-1  text-xs italic content-center">
+            {`edited : ${lastedited()}`}
+          </span>
           <div className="flex content-evenly justify-end">
             <Button
               text="Edit"
