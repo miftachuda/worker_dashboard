@@ -12,16 +12,25 @@ export default function Login() {
 
   const handleLogin = async () => {
     setLoading(true);
-
     try {
       await pb.collection("users").authWithPassword(email, password);
       toast.success("Successfully logged in!");
-
-      window.location.href = "/#/"; // redirect for HashRouter
+      window.location.href = "/#/";
     } catch (err) {
       toast.error("Email atau password salah");
     }
+    setLoading(false);
+  };
 
+  const handleAnonymous = async () => {
+    setLoading(true);
+    try {
+      await pb.collection("users").authWithOAuth2({ provider: "anonymous" });
+      toast.success("Logged in as Guest!");
+      window.location.href = "/#/";
+    } catch (err) {
+      toast.error("Anonymous login gagal");
+    }
     setLoading(false);
   };
 
@@ -51,6 +60,16 @@ export default function Login() {
 
           <Button className="w-full" onClick={handleLogin} disabled={loading}>
             {loading ? "Logging in..." : "Login"}
+          </Button>
+
+          {/* Anonymous Login Button */}
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={handleAnonymous}
+            disabled={loading}
+          >
+            {loading ? "Please wait..." : "Login as Guest"}
           </Button>
         </CardContent>
       </Card>
