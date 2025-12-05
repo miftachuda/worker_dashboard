@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import MainFrame from "./MainFrame";
 import { pb } from "@/lib/pocketbase";
 
@@ -17,6 +17,12 @@ const Profile: React.FC = () => {
 
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [isSubmit, setSubmitting] = useState(false);
+  const [isSave, setSavePasssword] = useState(false);
+  // Password states
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [newPasswordConfirm, setNewPasswordConfirm] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const avatarURL = avatarFile
     ? URL.createObjectURL(avatarFile)
@@ -32,29 +38,50 @@ const Profile: React.FC = () => {
       formData.append("email", email);
       if (avatarFile) formData.append("avatar", avatarFile);
 
-      // 1. Update user
+      // Update basic profile
       const updated = await pb.collection("users").update(user.id, formData);
 
-      // 2. Merge with existing auth user record
       const currentToken = pb.authStore.token;
-
-      const newRecord = {
-        ...pb.authStore.record,
-        ...updated,
-      };
-
-      // 3. Save back into authStore (SAFE)
+      const newRecord = { ...pb.authStore.record, ...updated };
       pb.authStore.save(currentToken, newRecord);
 
       toast.success("Profile updated successfully");
-      setTimeout(() => {
-        window.location.reload();
-      }, 600);
+      setTimeout(() => window.location.reload(), 600);
     } catch (err) {
       console.error(err);
       toast.error("Failed to update profile");
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  // 🔐 Password Change Function
+  const handlePasswordChange = async () => {
+    if (!currentPassword || !newPassword || !newPasswordConfirm) {
+      toast.warning("All password fields must be filled");
+      return;
+    }
+    if (newPassword !== newPasswordConfirm) {
+      toast.error("New password does not match!");
+      return;
+    }
+
+    setSavePasssword(true);
+    try {
+      await pb.collection("users").update(user.id, {
+        password: newPassword,
+        passwordConfirm: newPasswordConfirm,
+        oldPassword: currentPassword, // PocketBase validation
+      });
+
+      toast.success("Password updated, please re-login!");
+      pb.authStore.clear();
+      window.location.href = "/login";
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to update password. Check your current password.");
+    } finally {
+      setSavePasssword(false);
     }
   };
 
@@ -91,26 +118,73 @@ const Profile: React.FC = () => {
               </div>
             </div>
 
+            {/* Name + Email */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Name */}
               <div>
                 <Label>Name</Label>
                 <Input value={name} onChange={(e) => setName(e.target.value)} />
               </div>
 
-              {/* Email */}
               <div>
                 <Label>Email</Label>
                 <Input
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  disabled // 👈 tambah ini
                 />
               </div>
             </div>
 
-            <Button onClick={handleSave} className="w-full">
-              {isSubmit ? "Saving..." : "Save Changes"}
+            <Button disabled={isSubmit} onClick={handleSave} className="w-full">
+              {isSubmit ? "Updating..." : "Update Profile"}
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* 🔐 Password Change Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Change Password</CardTitle>
+          </CardHeader>
+
+          <CardContent className="space-y-4">
+            <Label>Current Password</Label>
+            <Input
+              type={showPassword ? "text" : "password"}
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+            />
+
+            <Label>New Password</Label>
+            <Input
+              type={showPassword ? "text" : "password"}
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+            />
+
+            <Label>Confirm New Password</Label>
+            <Input
+              type={showPassword ? "text" : "password"}
+              value={newPasswordConfirm}
+              onChange={(e) => setNewPasswordConfirm(e.target.value)}
+            />
+
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={showPassword}
+                onChange={() => setShowPassword(!showPassword)}
+              />
+              <Label>Show Password</Label>
+            </div>
+
+            <Button
+              disabled={isSave}
+              onClick={handlePasswordChange}
+              className="w-full"
+              variant="destructive"
+            >
+              {isSave ? "Updating..." : "Update Password"}
             </Button>
           </CardContent>
         </Card>

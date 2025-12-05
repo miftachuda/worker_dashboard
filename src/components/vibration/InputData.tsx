@@ -9,16 +9,17 @@ import { system } from "./theme";
 //themes
 
 //main function
-function InputData({ sendfromchild, initvalue }) {
+function InputData({ sendfromchild, refresh, initvalue }) {
   const initvaluecopy = Object.create(initvalue);
   const [datatopush, setdatatopush] = useState(initvaluecopy);
   let initvaluedata = initvaluecopy.vibration[0];
   let initvalueobj = initvaluecopy
     ? {
-        label: initvalue?.name,
+        label: initvalue?.name ?? "",
       }
-    : null;
-
+    : {
+        label: "",
+      };
   //callbacktrigger
   useEffect(() => {
     sendfromchild(datatopush);
@@ -54,6 +55,7 @@ function InputData({ sendfromchild, initvalue }) {
   let positionp = ["pa", "pv1", "ph1", "pv2", "ph2"];
 
   //returnJSX
+  console.log(initvalueobj);
   return (
     <div className="w-auto h-auto rounded-md p-4 bg-white text-xs md:text-sm text-black">
       <div className="flex ">

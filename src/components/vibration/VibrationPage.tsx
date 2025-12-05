@@ -52,12 +52,29 @@ function VibrationPage() {
         return MySwal.fire("Warning !", "Data belum lengkap", "warning");
       }
 
-      await addRecord(datafromcallback);
-      await refreshData();
-      setToggle(false);
-      setRefresh((prev) => prev + 1);
+      // Show loading alert
+      Swal.fire({
+        title: "Saving...",
+        text: "Please wait",
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
 
-      MySwal.fire("Saved !", "Record Successfully created", "success");
+      try {
+        await addRecord(datafromcallback);
+        await refreshData();
+
+        setToggle(false);
+        setRefresh((prev) => prev + 1);
+
+        Swal.fire("Saved !", "Record Successfully created", "success");
+      } catch (err) {
+        Swal.fire("Error", "Failed to save data!", "error");
+        console.error(err);
+      }
     });
   }
   const refreshData = async () => {
@@ -70,13 +87,15 @@ function VibrationPage() {
     async function initPB() {
       if (query?.length > 0) {
         const trimmed = query.map((v) => v.split(" ")[0]);
-        setResult(`Showing records for : ${trimmed.join(", ")}`);
+        setResult(
+          `Showing records for : ${trimmed.join(", ")} (${vibdata.length})`
+        );
 
         const records = await queryData(trimmed);
         setVibdata(records ?? []);
         setIsLoading(false);
       } else {
-        setResult("Showing All records");
+        setResult(`Showing All records (${vibdata.length})`);
 
         const records = await fetchVib();
         setVibdata(records ?? []);

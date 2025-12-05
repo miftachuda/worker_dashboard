@@ -39,23 +39,31 @@ function CardVib({ data, refreshcallback }) {
       confirmButtonColor: "#19FF19",
       cancelButtonColor: "#FF0D0D",
       confirmButtonText: "Proceed",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        deleteRecord(data.id)
-          .then(async () => {
-            await refreshcallback();
-            return MySwal.fire(
-              "Deleted !",
-              "Record Succesfully deleted",
-              "success"
-            );
-          })
-          .catch((error) => {
-            return MySwal.fire("Fail !", "Failed deleting Record", "warning");
-          });
+    }).then(async (result) => {
+      if (!result.isConfirmed) return;
+
+      // SHOW LOADING
+      Swal.fire({
+        title: "Deleting...",
+        text: "Please wait",
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
+      try {
+        await deleteRecord(data.id);
+        await refreshcallback();
+
+        Swal.fire("Deleted!", "Record successfully deleted", "success");
+      } catch (error) {
+        Swal.fire("Fail!", "Failed deleting Record", "warning");
       }
     });
   }
+
   function promptsave() {
     Swal.fire({
       title: "Save ?",
@@ -66,18 +74,35 @@ function CardVib({ data, refreshcallback }) {
       cancelButtonColor: "#FF0D0D",
       confirmButtonText: "Save",
     }).then(async (result) => {
-      if (result.isConfirmed && validation()) {
-        await editRecord({ data: datafromcallback, docid: data.id });
-        await refreshcallback();
-        settoggle(false);
-        return MySwal.fire("Saved !", "Record succesfully updated", "success");
-      }
-      if (result.isConfirmed && !validation()) {
+      if (!result.isConfirmed) return;
+
+      if (!validation()) {
         return MySwal.fire(
-          "Warning !",
+          "Warning!",
           "Data yang dimasukkan belum lengkap",
           "warning"
         );
+      }
+
+      // SHOW LOADING
+      Swal.fire({
+        title: "Saving...",
+        text: "Please wait",
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
+      try {
+        await editRecord({ data: datafromcallback, docid: data.id });
+        await refreshcallback();
+        settoggle(false);
+
+        Swal.fire("Saved!", "Record successfully updated", "success");
+      } catch (error) {
+        Swal.fire("Error!", "Failed updating Record", "error");
       }
     });
   }
@@ -93,7 +118,14 @@ function CardVib({ data, refreshcallback }) {
 
     // Date display
     const dateformat = createdAt
-      ? dateFormat(createdAt, "dddd, dd mmm yyyy")
+      ? new Intl.DateTimeFormat("id-ID", {
+          weekday: "long",
+          day: "2-digit",
+          month: "long", // mmmm full month
+          year: "numeric",
+        })
+          .format(createdAt)
+          .replace(/^\w/, (c) => c.toUpperCase())
       : "-";
 
     // Time ago
@@ -117,6 +149,7 @@ function CardVib({ data, refreshcallback }) {
               sendfromchild={(newdata) => {
                 setdatafromcallback(newdata);
               }}
+              refresh={refreshcallback}
               initvalue={data}
             />
             <div className="flex content-evenly justify-end">
@@ -144,7 +177,7 @@ function CardVib({ data, refreshcallback }) {
                 <div></div>
               )}
             </div>
-            <div className=" flex flex-col text-sm text-gray-800 justify-center items-center">
+            <div className=" flex flex-col text-sm text-gray-100 justify-center items-center">
               {dateformat}
               <div>{timerel}</div>
             </div>

@@ -85,7 +85,10 @@ const Chemicalusage: React.FC = () => {
   const [FilteredChemicalusage, setFilteredChemicalusage] = useState<
     ChemicalUsage[]
   >([]);
-
+  const [selectedYear, setSelectedYear] = useState(dayjs().year());
+  const years = [
+    ...new Set(Chemicalusage.map((item) => dayjs(item.time * 1000).year())),
+  ].sort((a, b) => b - a);
   const [form, setForm] = useState({
     chemicalName: "",
     amount: "",
