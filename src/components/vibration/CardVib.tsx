@@ -6,14 +6,14 @@ import dateFormat from "dateformat";
 import moment from "moment";
 import newicon from "../../assets/new.svg";
 import InputData from "./InputData";
-import { editRecord, deleteRecord } from "./firebase";
+import { editRecord, deleteRecord } from "./pb";
 import ModalPopUp from "./ModalPopUp";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import pumpAlarm from "./pumpAlarm";
 
 //main function
-function CardVib({ data }) {
+function CardVib({ data, refreshcallback }) {
   let [toggle, settoggle] = useState(false);
   let [datafromcallback, setdatafromcallback] = useState();
   let MySwal = withReactContent(Swal);
@@ -42,7 +42,8 @@ function CardVib({ data }) {
     }).then((result) => {
       if (result.isConfirmed) {
         deleteRecord(data.id)
-          .then(() => {
+          .then(async () => {
+            await refreshcallback();
             return MySwal.fire(
               "Deleted !",
               "Record Succesfully deleted",
@@ -64,9 +65,10 @@ function CardVib({ data }) {
       confirmButtonColor: "#19FF19",
       cancelButtonColor: "#FF0D0D",
       confirmButtonText: "Save",
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed && validation()) {
-        editRecord({ data: datafromcallback, docid: data.id });
+        await editRecord({ data: datafromcallback, docid: data.id });
+        await refreshcallback();
         settoggle(false);
         return MySwal.fire("Saved !", "Record succesfully updated", "success");
       }
@@ -83,16 +85,29 @@ function CardVib({ data }) {
   //returnJSX
   if (data.created == null) return <div></div>;
   else {
-    const date = data.created.toDate();
-    const dateto = data.dateedit?.toDate();
-    const dateformat = dateFormat(date, "dddd, dd mmm  yyyy");
-    const timerel = moment(date).fromNow();
-    const duration = moment(Date.now()).diff(date, "minutes");
+    const createdAt = data.created ? new Date(data.created) : null;
+    const updatedAt = data.updated ? new Date(data.updated) : null;
+
+    const isSameTime =
+      createdAt && updatedAt && createdAt.getTime() === updatedAt.getTime();
+
+    // Date display
+    const dateformat = createdAt
+      ? dateFormat(createdAt, "dddd, dd mmm yyyy")
+      : "-";
+
+    // Time ago
+    const timerel = createdAt ? moment(createdAt).fromNow() : "-";
+
+    // Duration in minutes (Infinity if no created date)
+    const duration = createdAt
+      ? moment(Date.now()).diff(createdAt, "minutes")
+      : Infinity;
+
+    // Last edited display
     function lastedited() {
-      if (dateto) {
-        return moment(dateto).fromNow();
-      }
-      return " - ";
+      if (!updatedAt || isSameTime) return "-";
+      return moment(updatedAt).fromNow();
     }
     return (
       <div className="p-0">
@@ -141,11 +156,11 @@ function CardVib({ data }) {
           </div>
           <div className="text-xs ">Keterangan</div>
           <div className="h-auto flex flex-wrap">
-            <div className="px-2 py-1 bg-red-1 text-gray-100 rounded-sm m-1 text-xs content-center">
+            <div className="px-2 py-1 bg-red-1 text-red-600 rounded-sm m-1 text-xs content-center">
               Danger :{" "}
               <span className="font-black">{pumpAlarmdata?.danger}</span>
             </div>
-            <div className="px-2 py-1 bg-orange-1 text-gray-100 rounded-sm m-1  text-xs content-center">
+            <div className="px-2 py-1 bg-orange-1 text-red-400 rounded-sm m-1  text-xs content-center">
               Alarm : <span className="font-black">{pumpAlarmdata?.alarm}</span>
             </div>
 

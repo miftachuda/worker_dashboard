@@ -5,14 +5,8 @@ import { groupedPumps } from "./listpompa";
 import InputPoint from "./InputPoint";
 import { ChakraProvider, Grid, Stack } from "@chakra-ui/react";
 
-import { createBreakpoints } from "@chakra-ui/theme-tools";
 import { system } from "./theme";
 //themes
-const breakpoints = createBreakpoints({
-  sm: "768px",
-  md: "960px",
-  lg: "1200px",
-});
 
 //main function
 function InputData({ sendfromchild, initvalue }) {

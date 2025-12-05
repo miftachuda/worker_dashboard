@@ -2,7 +2,7 @@
 import CardVib from "./CardVib";
 import { useRef, useEffect } from "react";
 
-export default function Iterator({ vibdata }) {
+export default function Iterator({ vibdata, refreshcallback }) {
   const scrollRef = useRef(null);
   const hasData = Array.isArray(vibdata) && vibdata.length > 0;
   // convert vertical scroll → horizontal scroll
@@ -28,7 +28,13 @@ export default function Iterator({ vibdata }) {
     >
       {hasData ? (
         vibdata.map((element, i) => (
-          <CardVib data={element} maindata={vibdata} key={element.id} i={i} />
+          <CardVib
+            data={element}
+            maindata={vibdata}
+            key={element.id}
+            i={i}
+            refreshcallback={refreshcallback}
+          />
         ))
       ) : (
         <div className="w-screen pt-40 pb-56 text-blue-300 text-4xl text-center bg-slate-900">
