@@ -13,17 +13,19 @@ import { toast } from "react-toastify";
 
 const Settings: React.FC = () => {
   const user = pb.authStore.model;
+  const isGuest = user?.email === "guest@guest.com"; // ⛔ Guest mode
+
   const [shift, setShift] = useState<string>("");
-  const [mode, setMode] = useState<string>(""); // 👈 NEW
+  const [mode, setMode] = useState<string>("");
   const [saving, setSaving] = useState<boolean>(false);
 
-  // Load user shift + mode from DB
+  // Load data
   useEffect(() => {
     const loadSettings = async () => {
       try {
         const profile = await pb.collection("users").getOne(user.id);
         setShift(profile.preferred_shift || "");
-        setMode(profile.shift_mode || ""); // 👈 NEW
+        setMode(profile.shift_mode || "");
       } catch (err) {
         console.error(err);
       }
@@ -32,20 +34,18 @@ const Settings: React.FC = () => {
     loadSettings();
   }, [user.id]);
 
-  // Save updated shift + mode to DB
   const handleSave = async () => {
+    if (isGuest) return; // 🔒 Hard block
     try {
       setSaving(true);
       await pb.collection("users").update(user.id, {
         preferred_shift: shift,
-        shift_mode: mode, // 👈 NEW
+        shift_mode: mode,
       });
-
-      toast("Settings updated successfully.");
-      setSaving(false);
+      toast.success("Settings updated successfully.");
     } catch (err) {
-      console.error(err);
-      toast("Failed to update settings.");
+      toast.error("Failed to update settings.");
+    } finally {
       setSaving(false);
     }
   };
@@ -55,11 +55,15 @@ const Settings: React.FC = () => {
       <main className="p-4 space-y-4">
         <h2 className="text-xl font-bold">Settings</h2>
 
-        {/* SHIFT SELECTION */}
+        {/* Shift */}
         <div className="space-y-2">
           <label className="block font-medium">Select Your Shift</label>
 
-          <Select value={shift} onValueChange={setShift}>
+          <Select
+            value={shift}
+            onValueChange={setShift}
+            disabled={isGuest} // ❌ Disabled jika guest
+          >
             <SelectTrigger className="w-[200px]">
               <SelectValue placeholder="Choose shift" />
             </SelectTrigger>
@@ -72,11 +76,15 @@ const Settings: React.FC = () => {
           </Select>
         </div>
 
-        {/* MODE SELECTION */}
+        {/* Mode */}
         <div className="space-y-2">
           <label className="block font-medium">Select Mode</label>
 
-          <Select value={mode} onValueChange={setMode}>
+          <Select
+            value={mode}
+            onValueChange={setMode}
+            disabled={isGuest} // ❌ Disabled ketika guest
+          >
             <SelectTrigger className="w-[200px]">
               <SelectValue placeholder="Choose mode" />
             </SelectTrigger>
@@ -87,7 +95,16 @@ const Settings: React.FC = () => {
           </Select>
         </div>
 
-        <Button onClick={handleSave}>{saving ? "Saving..." : "Save"}</Button>
+        {/* Save Button Only When Normal User */}
+        {!isGuest && (
+          <Button onClick={handleSave}>{saving ? "Saving..." : "Save"}</Button>
+        )}
+
+        {isGuest && (
+          <p className="text-sm text-muted-foreground">
+            Guest account is read-only. Login to save settings.
+          </p>
+        )}
       </main>
     </MainFrame>
   );

@@ -71,32 +71,20 @@ export function WorkerGroupCard({
 
   return (
     <Card className="pb-1 bg-gradient-card shadow-card hover:shadow-elevated transition-all duration-300 border border-border/50 hover:border-primary/30">
-      <CardHeader className="pb-1">
+      <CardHeader className="p-1">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="p-2 bg-gradient-primary rounded-lg">
+            <div className="p-1 bg-gradient-primary rounded-lg">
               <Users className="h-5 w-5 text-primary-foreground" />
             </div>
-            <div>
-              <CardTitle className="text-lg font-semibold text-foreground">
+            <div className="flex flex-row">
+              <CardTitle className="text-lg font-semibold text-foreground pt-1">
                 {group.shift}
               </CardTitle>
               <Badge variant="secondary" className="text-xs">
                 {group.anggota.length} members
               </Badge>
             </div>
-          </div>
-          <div className="flex items-center space-x-2">
-            {isAdmin && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsEditing(!isEditing)}
-                className="h-8 w-8 hover:bg-primary/10 hover:text-primary"
-              >
-                <Edit3 className="h-4 w-4" />
-              </Button>
-            )}
           </div>
         </div>
       </CardHeader>
@@ -111,7 +99,7 @@ export function WorkerGroupCard({
                 .map((worker) => (
                   <div
                     key={worker.id}
-                    className="flex items-center space-x-2 p-2 bg-secondary/50 rounded-md"
+                    className="flex items-center space-x-2 py-2 px-1 bg-secondary/50 rounded-md"
                   >
                     <Input
                       value={worker.Nama}
@@ -193,22 +181,22 @@ export function WorkerGroupCard({
               .map((worker) => (
                 <div
                   key={worker.id}
-                  className="relative flex items-center justify-between p-2 h-14 
+                  className="relative flex items-center justify-between my-0 py-0 px-2 h-12 
              rounded-2xl bg-black/40 
              border border-cyan-500/20
              shadow-inner
              overflow-hidden"
                 >
                   <div
-                    className="absolute inset-0 rounded-2xl 
+                    className="absolute inset-0 rounded-2xl p-0 m-0
                   bg-gradient-to-r from-cyan-500/20 via-blue-500/10 to-transparent 
                   blur-2xl"
                   ></div>
                   <div>
-                    <p className="font-medium text-foreground text-sm">
+                    <p className="font-medium text-foreground text-sm p-0">
                       {worker.Nama}
                     </p>
-                    <p className="text-[9px] text-muted-foreground">
+                    <p className="text-[9px] text-muted-foreground p-0">
                       {worker.Position}
                     </p>
                   </div>

@@ -14,6 +14,7 @@ import { pb } from "@/lib/pocketbase";
 import { fullShift } from "../../lib/shift";
 import { Person } from "@/types/Person";
 import { toast } from "react-toastify";
+import { Loader2 } from "lucide-react";
 
 export function WorkerCard({
   num,
@@ -22,6 +23,7 @@ export function WorkerCard({
 }: Person & { num: number; onUpdated?: () => void }) {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(worker);
+  const [saving, setSaving] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -30,6 +32,7 @@ export function WorkerCard({
   };
 
   const handleSave = async () => {
+    setSaving(true);
     try {
       await pb.collection("manpower").update(form.id, {
         nama: form.Nama,
@@ -48,6 +51,7 @@ export function WorkerCard({
       console.error("Update failed:", error);
       toast.error("Failed to update worker data");
     }
+    setSaving(false);
   };
 
   return (
@@ -153,7 +157,16 @@ export function WorkerCard({
               <Button variant="outline" onClick={() => setOpen(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleSave}>Save</Button>
+              <Button onClick={handleSave} disabled={saving}>
+                {saving ? (
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Saving...
+                  </div>
+                ) : (
+                  "Save"
+                )}
+              </Button>
             </div>
           </DialogContent>
         </Dialog>

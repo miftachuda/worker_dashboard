@@ -93,84 +93,89 @@ export default function Dashboard() {
         )}
 
         {/* ================= STATS ================= */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
           {/* TOTAL */}
           <Card
             onClick={() => navigate("/workers")}
             className="cursor-pointer hover:scale-[1.02] transition-all"
           >
-            <CardHeader className="flex justify-between items-center">
-              <CardTitle className="text-sm">Total Workers</CardTitle>
-              <Users className="h-4 w-4" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{totalWorkers}</div>
-              <p className="text-xs">
+            <div className="flex justify-between items-center p-2 pb-1">
+              <span className="text-[11px] font-medium">Total Workers</span>
+              <Users className="h-3 w-3" />
+            </div>
+
+            <div className="p-2 pt-0">
+              <div className="text-xl font-bold leading-none">
+                {totalWorkers}
+              </div>
+              <p className="text-[10px] leading-tight">
                 {totalOrganik.length} Organik | {totalTAD.length} TAD |{" "}
                 {totalExpert.length} Expert
               </p>
-            </CardContent>
+            </div>
           </Card>
 
           {/* ACTIVE */}
           <Card>
-            <CardHeader className="flex justify-between items-center">
-              <CardTitle className="text-sm">Active</CardTitle>
-              <UserRoundCheck className="h-4 w-4 text-green-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-500">
+            <div className="flex justify-between items-center p-2 pb-1">
+              <span className="text-[11px] font-medium">Active</span>
+              <UserRoundCheck className="h-3 w-3 text-green-500" />
+            </div>
+
+            <div className="p-2 pt-0">
+              <div className="text-xl font-bold leading-none text-green-500">
                 {totalActiveWorkers}
               </div>
-              <p className="text-xs">
-                {countByStatus(totalOrganik, "Aktif")} Organik |{" "}
+              <p className="text-[10px] leading-tight">
+                {countByStatus(totalOrganik, "Aktif")} Org |{" "}
                 {countByStatus(totalTAD, "Aktif")} TAD |{" "}
-                {countByStatus(totalExpert, "Aktif")} Expert
+                {countByStatus(totalExpert, "Aktif")} Exp
               </p>
-            </CardContent>
+            </div>
           </Card>
 
           {/* CUTI */}
           <Card>
-            <CardHeader className="flex justify-between items-center">
-              <CardTitle className="text-sm">Cuti</CardTitle>
-              <UserRoundX className="h-4 w-4 text-orange-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-orange-500">
+            <div className="flex justify-between items-center p-2 pb-1">
+              <span className="text-[11px] font-medium">Cuti</span>
+              <UserRoundX className="h-3 w-3 text-orange-500" />
+            </div>
+
+            <div className="p-2 pt-0">
+              <div className="text-xl font-bold leading-none text-orange-500">
                 {onCutiWorkers}
               </div>
-              <p className="text-xs">
-                {countByStatus(totalOrganik, "Cuti")} Organik |{" "}
+              <p className="text-[10px] leading-tight">
+                {countByStatus(totalOrganik, "Cuti")} Org |{" "}
                 {countByStatus(totalTAD, "Cuti")} TAD |{" "}
-                {countByStatus(totalExpert, "Cuti")} Expert
+                {countByStatus(totalExpert, "Cuti")} Exp
               </p>
-            </CardContent>
+            </div>
           </Card>
 
           {/* DINAS */}
           <Card>
-            <CardHeader className="flex justify-between items-center">
-              <CardTitle className="text-sm">Dinas</CardTitle>
-              <Plane className="h-4 w-4 text-cyan-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-cyan-500">
+            <div className="flex justify-between items-center p-2 pb-1">
+              <span className="text-[11px] font-medium">Dinas</span>
+              <Plane className="h-3 w-3 text-cyan-500" />
+            </div>
+
+            <div className="p-2 pt-0">
+              <div className="text-xl font-bold leading-none text-cyan-500">
                 {onDinasWorkers}
               </div>
-              <p className="text-xs">
-                {countByStatus(totalOrganik, "Dinas")} Organik |{" "}
+              <p className="text-[10px] leading-tight">
+                {countByStatus(totalOrganik, "Dinas")} Org |{" "}
                 {countByStatus(totalTAD, "Dinas")} TAD |{" "}
-                {countByStatus(totalExpert, "Dinas")} Expert
+                {countByStatus(totalExpert, "Dinas")} Exp
               </p>
-            </CardContent>
+            </div>
           </Card>
         </div>
 
         {/* ================= SHIFT GROUP ================= */}
         <div className="space-y-1">
-          <h2 className="text-2xl font-bold">Shift Group</h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-5 xl:grid-cols-5 gap-4">
             {groups.map((group) => (
               <WorkerGroupCard
                 key={group.id}
