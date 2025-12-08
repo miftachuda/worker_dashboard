@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Person } from "@/types/Person";
+import { fullShift, shiftNow } from "@/lib/shift";
 
 interface WorkerGroupCardProps {
   group: {
@@ -25,7 +26,8 @@ export function WorkerGroupCard({
   const [editedWorkers, setEditedWorkers] = useState<Person[]>(group.anggota);
   const [newWorkerName, setNewWorkerName] = useState("");
   const [newWorkerPosition, setNewWorkerPosition] = useState("");
-
+  const shiftNowValue = shiftNow();
+  const shiftFull = fullShift(group.shift.slice(-1));
   const getStatusColor = (status: Person["Status"]) => {
     switch (status) {
       case "Aktif":
@@ -68,23 +70,59 @@ export function WorkerGroupCard({
   ) => {
     // TODO Handle worker change
   };
+  function convertShiftText(input: string): string {
+    return input
+      .split(",")
+      .map((item) => item.trim())
+      .map((item) => {
+        // Jika ada Off + Nama Shift → tampilkan apa adanya
+        const offMatch = item.match(/off\s+(\w+)/i);
+        if (offMatch) {
+          // contoh hasil: "Off Sore"
+          const shiftName = offMatch[1];
+          return `Off ${shiftName}`;
+        }
 
+        // Jika Harian → hanya tampilkan Harian
+        if (/harian/i.test(item)) {
+          return "Harian";
+        }
+
+        // Ambil nomor dan nama shift
+        const match = item.match(/([A-Z])(\d+)\s+(\w+)/i);
+        if (!match) return "";
+
+        const number = match[2];
+        const shiftName = match[3];
+
+        return `${shiftName} ke ${number}`;
+      })
+      .filter(Boolean)
+      .join(", ");
+  }
+  let style = "";
+  if (shiftNowValue == shiftFull) {
+    style = "border-cyan-400 border-2";
+  }
   return (
-    <Card className="pb-1 bg-gradient-card shadow-card hover:shadow-elevated transition-all duration-300 border border-border/50 hover:border-primary/30">
+    <Card
+      className={`pb-1 bg-gradient-card shadow-card hover:shadow-elevated transition-all duration-300 border border-border/50 hover:border-primary/30 ${style}`}
+    >
       <CardHeader className="p-1">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="p-1 bg-gradient-primary rounded-lg">
+            <div className="p-2 bg-gradient-primary rounded-lg">
               <Users className="h-5 w-5 text-primary-foreground" />
             </div>
-            <div className="flex flex-row">
-              <CardTitle className="text-lg font-semibold text-foreground pt-1">
+            <div className="flex flex-col">
+              <CardTitle className="text-lg font-semibold text-foreground p-0">
                 {group.shift}
               </CardTitle>
-              <Badge variant="secondary" className="text-xs">
+              <div className="p-0 font-light text-xs">
                 {group.anggota.length} members
-              </Badge>
+              </div>
             </div>
+            <div className="text-blue-700">{convertShiftText(shiftFull)}</div>
           </div>
         </div>
       </CardHeader>

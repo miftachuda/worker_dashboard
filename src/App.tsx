@@ -23,6 +23,7 @@ import LOTO from "./pages/LOTO";
 import PowerBi from "./pages/PowerBi";
 import Input from "./pages/Input";
 import Vibration from "./pages/Vibration";
+import Furnace from "./pages/Furnace";
 
 const queryClient = new QueryClient();
 
@@ -130,6 +131,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <Vibration />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/furnace"
+            element={
+              <ProtectedRoute>
+                <Furnace />
               </ProtectedRoute>
             }
           />

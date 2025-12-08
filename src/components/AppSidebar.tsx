@@ -14,6 +14,7 @@ import {
   BookLock,
   Airplay,
   ExternalLink,
+  BrickWallFire,
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 
@@ -42,6 +43,7 @@ const mainItems = [
   { title: "LIMS", url: "/labware", icon: FlaskConical },
   { title: "LOTO", url: "/loto", icon: BookLock },
   { title: "Vibration", url: "/vibration", icon: BookLock },
+  { title: "Furnace", url: "/furnace", icon: BrickWallFire },
   { title: "PowerBI", url: "/powerbi", icon: Airplay },
 ];
 
