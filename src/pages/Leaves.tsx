@@ -100,7 +100,7 @@ const Leave: React.FC = () => {
         onClose={() => setIsOpen(false)}
       />
 
-      <main className="p-6 space-y-4">
+      <main className="p-6 flex flex-col h-screen overflow-hidden gap-4">
         <Input
           type="text"
           placeholder="Search leave..."
@@ -109,7 +109,13 @@ const Leave: React.FC = () => {
           className="w-full"
         />
 
-        <UserTableWrapper users={employee} callback={callback} />
+        {/* <UserTableWrapper users={employee} callback={callback} /> */}
+
+        <iframe
+          className="w-full flex-1"
+          scrolling="auto"
+          src="https://ptptmn-my.sharepoint.com/personal/ahmad_baehaqi_pertamina_com/_layouts/15/Doc.aspx?sourcedoc={8d5b3a45-ab9a-4e62-b401-f04104a4837f}&action=embedview&wdAllowInteractivity=False&wdHideGridlines=True&wdHideHeaders=True&wdDownloadButton=True&wdInConfigurator=True&wdInConfigurator=True"
+        />
       </main>
     </MainFrame>
   );
