@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus } from "lucide-react";
+import { Calculator, Plus } from "lucide-react";
 import { pb } from "@/lib/pocketbase";
 import { toast } from "react-toastify";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -30,6 +30,66 @@ import { ChemicalUsage } from "../types/ChemicalUsage";
 import CardList from "@/components/chemical_usage/cardList";
 import { FILTER_OPTIONS } from "@/components/chemical_usage/option";
 import { sendNotif, EventPayload } from "@/lib/sendnotif";
+
+type Tank = "022V-103" | "024V-112";
+
+interface VolumePoint {
+  level: number;
+  "022V-103": number;
+  "024V-112": number;
+}
+
+const volumeTable: VolumePoint[] = [
+  // Tambahkan titik 0% sebagai referensi
+  { level: 0, "022V-103": 0, "024V-112": 0 },
+
+  { level: 15, "022V-103": 12.0, "024V-112": 6.5 },
+  { level: 20, "022V-103": 16.0, "024V-112": 8.0 },
+  { level: 25, "022V-103": 20.0, "024V-112": 10.5 },
+  { level: 30, "022V-103": 24.0, "024V-112": 13.0 },
+  { level: 35, "022V-103": 28.0, "024V-112": 15.5 },
+  { level: 40, "022V-103": 32.5, "024V-112": 18.0 },
+  { level: 45, "022V-103": 37.0, "024V-112": 21.0 },
+  { level: 50, "022V-103": 42.5, "024V-112": 23.5 },
+  { level: 55, "022V-103": 46.5, "024V-112": 26.0 },
+  { level: 60, "022V-103": 51.0, "024V-112": 28.5 },
+  { level: 65, "022V-103": 56.0, "024V-112": 31.0 },
+  { level: 70, "022V-103": 60.5, "024V-112": 33.5 },
+];
+
+function getVendorVolume(levelPercent: number, tank: Tank): number | null {
+  const key = tank;
+
+  // Jika exact match
+  const exact = volumeTable.find((p) => p.level === levelPercent);
+  if (exact) return exact[key];
+
+  // Validasi di luar tabel (negatif atau >70%)
+  if (levelPercent < 0 || levelPercent > 70) return null;
+
+  // Cari titik bawah & atas untuk interpolasi
+  const lower = [...volumeTable].reverse().find((p) => p.level <= levelPercent);
+  const upper = volumeTable.find((p) => p.level >= levelPercent);
+
+  if (!lower || !upper) return null;
+
+  // Interpolasi linear
+  const ratio = (levelPercent - lower.level) / (upper.level - lower.level);
+  return lower[key] + ratio * (upper[key] - lower[key]);
+}
+
+function getVolumeDifference(
+  levelStart: number,
+  levelEnd: number,
+  tank: Tank
+): number | null {
+  const volStart = getVendorVolume(levelStart, tank);
+  const volEnd = getVendorVolume(levelEnd, tank);
+
+  if (volStart == null || volEnd == null) return null;
+
+  return volEnd - volStart;
+}
 
 const chemicalData = [
   { name: "Furfural", units: ["% Vessel", "m³", "kg"] },
@@ -80,8 +140,13 @@ const darkTheme = createTheme({
 
 const Chemicalusage: React.FC = () => {
   const [open, setOpen] = useState(false);
+  const [calc, setCalc] = useState(false);
   const [loading, setLoading] = useState(false);
   const [Chemicalusage, setChemicalusage] = useState<ChemicalUsage[]>([]);
+  const [start, setStart] = useState(40);
+  const [end, setEnd] = useState(50);
+  const [tank, setTank] = useState<"022V-103" | "024V-112">("022V-103");
+  const result = getVolumeDifference(start, end, tank);
   const [FilteredChemicalusage, setFilteredChemicalusage] = useState<
     ChemicalUsage[]
   >([]);
@@ -94,7 +159,7 @@ const Chemicalusage: React.FC = () => {
     amount: "",
     unit: "",
     description: "",
-    time: dayjs(), // store time directly here
+    time: dayjs(),
   });
   const grouped = FilteredChemicalusage.reduce((acc, item) => {
     if (!acc[item.chemical_name]) {
@@ -390,24 +455,29 @@ const Chemicalusage: React.FC = () => {
   return (
     <MainFrame>
       <main className="p-6">
-        <Button onClick={() => setOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" /> Add Chemical usage record
-        </Button>
-        <select
-          value={filter}
-          onChange={(e) => {
-            const newFilter = e.target.value as FilterRange;
-            setFilter(newFilter);
-            applyFilter(newFilter);
-          }}
-          className="h-10 mx-4 rounded-md border border-input bg-background px-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring"
-        >
-          {FILTER_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
+        <div className="flex flex-row items-center">
+          <Button onClick={() => setOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" /> Add Chemical usage record
+          </Button>
+          <select
+            value={filter}
+            onChange={(e) => {
+              const newFilter = e.target.value as FilterRange;
+              setFilter(newFilter);
+              applyFilter(newFilter);
+            }}
+            className="h-10 mx-4 rounded-md border border-input bg-background px-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring"
+          >
+            {FILTER_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+          <Button onClick={() => setCalc(true)}>
+            <Calculator className="mr-2 h-4 w-4" /> Propane Calculator
+          </Button>
+        </div>
         <div className="pt-3 min-h-screen">
           <DashboardPerformance
             title="Chart of Chemical Usage"
@@ -447,6 +517,96 @@ const Chemicalusage: React.FC = () => {
           />
           <CardList data={getChemical(selectedChemical)} />
         </div>
+        <Dialog open={calc} onOpenChange={setCalc}>
+          <DialogContent aria-describedby={undefined}>
+            <DialogHeader>
+              <DialogTitle>Propane Calculator</DialogTitle>
+            </DialogHeader>
+            <div className="max-w-sm mx-auto bg-slate-800 p-6 rounded-2xl shadow-xl border border-slate-700 text-slate-200 font-sans">
+              <h3 className="text-lg font-semibold text-white mb-4 border-b border-slate-700 pb-2">
+                Volume Calculator
+              </h3>
+
+              <div className="space-y-4">
+                {/* Tank Selector */}
+                <div>
+                  <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-1">
+                    Select Vessel
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={tank}
+                      onChange={(e) => setTank(e.target.value as any)}
+                      className="w-full bg-slate-900 border border-slate-600 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 appearance-none cursor-pointer transition-colors hover:border-slate-500"
+                    >
+                      <option value="022V-103">022V-103</option>
+                      <option value="024V-112">024V-112</option>
+                    </select>
+                    {/* Custom Arrow Icon for Select */}
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
+                      <svg
+                        className="fill-current h-4 w-4"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Input Grid */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-1">
+                      Level Awal (%)
+                    </label>
+                    <input
+                      type="number"
+                      min={10}
+                      max={70}
+                      value={start}
+                      onChange={(e) => setStart(Number(e.target.value))}
+                      className="bg-slate-900 border border-slate-600 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 placeholder-slate-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-slate-400 uppercase tracking-wider mb-1">
+                      Level Akhir (%)
+                    </label>
+                    <input
+                      type="number"
+                      min={10}
+                      max={70}
+                      value={end}
+                      onChange={(e) => setEnd(Number(e.target.value))}
+                      className="bg-slate-900 border border-slate-600 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 placeholder-slate-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="mt-6 p-4 bg-slate-900/50 rounded-xl border border-slate-700/50 flex flex-col items-center justify-center">
+                  <span className="text-sm text-slate-400 mb-1">
+                    Selisih Volume
+                  </span>
+                  <span
+                    className={`text-2xl font-bold ${
+                      result !== null ? "text-emerald-400" : "text-rose-400"
+                    }`}
+                  >
+                    {result !== null ? `${result.toFixed(2)} m³` : "No Result"}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setCalc(false)}>
+                Close
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogContent aria-describedby={undefined}>
             <DialogHeader>
