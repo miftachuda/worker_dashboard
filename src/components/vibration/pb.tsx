@@ -62,16 +62,15 @@ export const streamData = (callback) => {
 };
 
 // Query Record By Name
-export const queryData = async (que) => {
-  // Equivalent of Firestore `where("name", "in", [...])`
+export const queryData = async (que, signal) => {
   return await pb.collection(COLLECTION).getFullList({
     filter: `name ~ "${que.join('" || name ~ "')}"`,
+    fetch: (url, options) => fetch(url, { ...options, signal }), // <-- inject AbortController
   });
 };
-export const fetchVib = async () => {
-  // get newest records first
-  let data = await pb.collection(COLLECTION).getFullList({
-    sort: "-created", // optional: newest first
+export const fetchVib = async (signal) => {
+  return await pb.collection(COLLECTION).getFullList({
+    sort: "-created",
+    fetch: (url, options) => fetch(url, { ...options, signal }), // <-- inject signal
   });
-  return data;
 };

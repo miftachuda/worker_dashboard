@@ -18,29 +18,53 @@ export default function Login() {
   const [guestLoading, setGuestLoading] = useState(false);
 
   const handleLogin = async () => {
+    if (loading) return;
     setLoading(true);
+
+    const controller = new AbortController();
+
     try {
-      await pb.collection("users").authWithPassword(email, password);
+      await pb.collection("users").authWithPassword(email, password, {
+        fetch: (url, options) =>
+          fetch(url, { ...options, signal: controller.signal }),
+      });
+
       toast.success("Successfully logged in!");
       navigate("/");
-    } catch {
+    } catch (err) {
+      if (err.name === "AbortError") return; // ignore natural abort
       toast.error("Email atau password salah");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
+
+    return () => controller.abort();
   };
 
   const handleGuestLogin = async () => {
+    if (guestLoading) return;
     setGuestLoading(true);
+
+    const controller = new AbortController();
+
     try {
       await pb
         .collection("users")
-        .authWithPassword("guest@guest.com", "password");
+        .authWithPassword("guest@guest.com", "password", {
+          fetch: (url, options) =>
+            fetch(url, { ...options, signal: controller.signal }),
+        });
+
       toast.success("Logged in as Guest!");
       navigate("/");
-    } catch {
+    } catch (err) {
+      if (err.name === "AbortError") return;
       toast.error("Guest login gagal");
+    } finally {
+      setGuestLoading(false);
     }
-    setGuestLoading(false);
+
+    return () => controller.abort();
   };
 
   const isDisabled = loading || guestLoading;

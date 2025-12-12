@@ -82,28 +82,34 @@ function VibrationPage() {
     setVibdata(data);
   };
   useEffect(() => {
+    const controller = new AbortController();
     setIsLoading(true);
 
     async function initPB() {
-      if (query?.length > 0) {
-        const trimmed = query.map((v) => v.split(" ")[0]);
-        setResult(
-          `Showing records for : ${trimmed.join(", ")} (${vibdata.length})`
-        );
-
-        const records = await queryData(trimmed);
-        setVibdata(records ?? []);
-        setIsLoading(false);
-      } else {
-        setResult(`Showing All records (${vibdata.length})`);
-
-        const records = await fetchVib();
-        setVibdata(records ?? []);
+      try {
+        if (query?.length > 0) {
+          const trimmed = query.map((v) => v.split(" ")[0]);
+          const records = await queryData(trimmed, controller.signal);
+          setVibdata(records ?? []);
+          setResult(`Showing records for : ${trimmed.join(", ")}`);
+        } else {
+          const records = await fetchVib(controller.signal);
+          setVibdata(records ?? []);
+          setResult(`Showing All records (${records.length})`);
+        }
+      } catch (err) {
+        if (err.name === "AbortError") return; // Fetch dibatalkan, aman
+        console.error(err);
+      } finally {
         setIsLoading(false);
       }
     }
 
     initPB();
+
+    return () => {
+      controller.abort(); // Batalkan fetch sebelumnya dengan benar
+    };
   }, [query, refresh]);
 
   return (
