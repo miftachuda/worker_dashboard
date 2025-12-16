@@ -53,9 +53,9 @@ const mainItems = [
 const adminItems = [
   { title: "Edit Data Link", url: "/input", icon: ExternalLink },
   // { title: "Edit Leave", url: "/editleave", icon: BookKey },
-  // { title: "Input CPDP", url: "/inputcpdp", icon: BookKey },
-  // { title: "Edit RKAP", url: "/editrkap", icon: ClipboardPen },
-  // { title: "Edit Chem & Mat", url: "/editchemical", icon: Atom },
+  { title: "Input CPDP", url: "/inputcpdp", icon: BookKey },
+  { title: "Edit RKAP", url: "/editrkap", icon: ClipboardPen },
+  { title: "Edit Chem & Mat", url: "/editchemical", icon: Atom },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
 export function AppSidebar() {

@@ -9,7 +9,7 @@ const InputCPDP: React.FC = () => {
         <div style={{ border: "1px solid #ccc", overflow: "hidden" }}>
           <iframe
             src={
-              "https://forms.cloud.microsoft/pages/responsepage.aspx?id=Zyu7FNNMz0Klw6Y6r1JFrC1zaJ_SJYpDpO9KXpN8aixUQVhXNlBHT1BXNlVDS1U1OVowOTZYTjBDVS4u&route=shorturl"
+              "https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=Zyu7FNNMz0Klw6Y6r1JFrC1zaJ_SJYpDpO9KXpN8aixUQVhXNlBHT1BXNlVDS1U1OVowOTZYTjBDVS4u&embed=true"
             }
             width="100%"
             height="100%"
