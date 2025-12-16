@@ -27,6 +27,11 @@ const LINKS = [
       "Link Excel untuk mengupdate Readiness Pelumas, Chemical & Material LOC II",
     url: "https://ptptmn-my.sharepoint.com/:x:/r/personal/ahmad_baehaqi_pertamina_com/_layouts/15/Doc.aspx?sourcedoc=%7B315D75A6-989A-4888-BA97-5F639D2D5940%7D&file=Readiness%20Pelumas%2CChemical%20%26%20Material%20LOC%20II.xlsx&action=default&mobileredirect=true",
   },
+  {
+    title: "Manpower LOC II",
+    description: "Link Excel untuk mengupdate Readiness Manpower LOC II",
+    url: "https://ptptmn-my.sharepoint.com/:x:/r/personal/ahmad_baehaqi_pertamina_com/_layouts/15/Doc.aspx?sourcedoc=%7B8D5B3A45-AB9A-4E62-B401-F04104A4837F%7D&file=READINESS%20MANPOWER%20LOC%20II.xlsx&action=default&mobileredirect=true&DefaultItemOpen=1",
+  },
 ];
 
 const Input: React.FC = () => {

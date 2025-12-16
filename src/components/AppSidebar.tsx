@@ -15,6 +15,9 @@ import {
   Airplay,
   ExternalLink,
   BrickWallFire,
+  BookKey,
+  ClipboardPen,
+  Atom,
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 
@@ -48,7 +51,11 @@ const mainItems = [
 ];
 
 const adminItems = [
-  { title: "Input Link", url: "/input", icon: ExternalLink },
+  { title: "Edit Data Link", url: "/input", icon: ExternalLink },
+  // { title: "Edit Leave", url: "/editleave", icon: BookKey },
+  // { title: "Input CPDP", url: "/inputcpdp", icon: BookKey },
+  // { title: "Edit RKAP", url: "/editrkap", icon: ClipboardPen },
+  // { title: "Edit Chem & Mat", url: "/editchemical", icon: Atom },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
 export function AppSidebar() {
@@ -116,7 +123,7 @@ export function AppSidebar() {
                   <NavLink to={item.url} end>
                     {({ isActive }) => (
                       <SidebarMenuButton
-                        className={`flex items-center p-2 rounded-md transition-colors ${
+                        className={`flex items-center p-1 rounded-md transition-colors ${
                           isActive
                             ? "bg-primary text-gray-900 hover:bg-accent hover:text-gray-600"
                             : "text-muted-foreground hover:bg-grey-700"

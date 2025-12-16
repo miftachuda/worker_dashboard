@@ -24,6 +24,10 @@ import PowerBi from "./pages/PowerBi";
 import Input from "./pages/Input";
 import Vibration from "./pages/Vibration";
 import Furnace from "./pages/Furnace";
+import InputCPDP from "./pages/InputCPDP";
+import EditRKAP from "./pages/EditRKAP";
+import EditChemical from "./pages/EditChemical";
+import EditLeave from "./pages/EditLeave";
 
 const queryClient = new QueryClient();
 
@@ -156,6 +160,38 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <Input />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/inputcpdp"
+            element={
+              <ProtectedRoute>
+                <InputCPDP />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/editrkap"
+            element={
+              <ProtectedRoute>
+                <EditRKAP />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/editchemical"
+            element={
+              <ProtectedRoute>
+                <EditChemical />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/editleave"
+            element={
+              <ProtectedRoute>
+                <EditLeave />
               </ProtectedRoute>
             }
           />
