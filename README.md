@@ -2,7 +2,7 @@
 
 ## Project info
 
-**URL**: https://worker.miftachuda.my.id
+**URL**: https://loc-2.com
 
 ##
 
